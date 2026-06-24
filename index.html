@@ -9330,6 +9330,44 @@ De ${remetenteNome}
             // Para polling e limpa estado
             if (_pollingInterval) { clearInterval(_pollingInterval); _pollingInterval = null; }
             if (_typingCheckInterval) { clearInterval(_typingCheckInterval); _typingCheckInterval = null; }
+
+            // ── RESET DE ESTADO VISUAL — impede vazamento de dados entre sessões ──
+            // 1. Reseta filtro do dashboard para o padrão neutro
+            _dashFiltroModo = 'meu';
+
+            // 2. Zera valores do dashboard
+            const dashZero = ['dash-pipeline','dash-ganho','dash-leadtime','dash-prospeccao','dash-orcamento','dash-pendentes','dash-agenda-hoje','dash-agenda-total'];
+            dashZero.forEach(id => { const el = document.getElementById(id); if (el) el.innerText = el.id === 'dash-leadtime' ? '0 dias' : (el.id.startsWith('dash-pipeline') || el.id.startsWith('dash-ganho') ? 'R$ 0,00' : '0'); });
+
+            // 3. Oculta elementos exclusivos de perfis privilegiados
+            const elNavV360 = document.getElementById('nav-visao360');
+            if (elNavV360) elNavV360.style.display = 'none';
+            const elDashV360 = document.getElementById('dash-v360-shortcut');
+            if (elDashV360) elDashV360.style.display = 'none';
+            const elFiltroBar = document.getElementById('dash-filtro-bar');
+            if (elFiltroBar) elFiltroBar.style.display = 'none';
+            const elNavImp = document.getElementById('nav-impostos');
+            if (elNavImp) elNavImp.style.display = 'none';
+            const elTabProd = document.getElementById('tab-btn-produtos');
+            if (elTabProd) elTabProd.style.display = 'none';
+            const elTabUsu = document.getElementById('tab-btn-usuarios');
+            if (elTabUsu) elTabUsu.style.display = 'none';
+            const elTabForn = document.getElementById('tab-btn-fornecedores');
+            if (elTabForn) elTabForn.style.display = 'none';
+
+            // 4. Reseta header de usuário
+            const elHeaderUser = document.getElementById('header-user-display');
+            if (elHeaderUser) elHeaderUser.textContent = '';
+
+            // 5. Volta para a página dashboard (sem renderizar dados)
+            document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
+            const elDash = document.getElementById('page-dashboard');
+            if (elDash) elDash.classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const elNavDash = document.getElementById('nav-dashboard');
+            if (elNavDash) elNavDash.classList.add('active');
+
+            // 6. Exibe login e oculta app
             document.getElementById('login-overlay').style.display = 'flex';
             document.getElementById('app-wrapper').style.display = 'none';
             document.getElementById('login-email').value = '';
