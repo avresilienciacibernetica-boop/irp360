@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -42,8 +43,9 @@
         main { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
         header { height: 70px; background-color: var(--sidebar-bg); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; flex-shrink: 0; }
         
-        .content-area { padding: 32px; overflow-y: auto; flex: 1; }
+        .content-area { padding: 32px; overflow-y: auto; flex: 1; min-height: 0; }
         .content-area:has(#page-orcamentos.active) { overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; padding-bottom: 0; scrollbar-width: thin; scrollbar-color: #374151 #e5e7eb; }
+        .content-area:has(#page-crm.active) { overflow: hidden; display: flex; flex-direction: column; padding-bottom: 0; }
         .page-content { display: none; animation: fadeIn 0.3s ease; }
         .page-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -73,10 +75,13 @@
         .form-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
 
         /* Kanban Styles */
-        .kanban-board { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 16px; min-height: 60vh; scrollbar-width: thin; scrollbar-color: var(--primary) var(--border-color); }
-        .kanban-board::-webkit-scrollbar { height: 4px; }
-        .kanban-board::-webkit-scrollbar-track { background: var(--border-color); border-radius: 2px; }
-        .kanban-board::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
+        .kanban-board { display: flex; gap: 16px; overflow-x: auto; overflow-y: hidden; padding-bottom: 0; min-height: 0; flex: 1; scrollbar-width: thin; scrollbar-color: var(--primary) var(--border-color); }
+        .kanban-board::-webkit-scrollbar { height: 6px; }
+        .kanban-board::-webkit-scrollbar-track { background: var(--border-color); border-radius: 3px; }
+        .kanban-board::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+        #page-crm { display: none; flex-direction: column; }
+        #page-crm.active { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+        #page-crm .page-header { flex-shrink: 0; margin-bottom: 32px; }
         .kanban-col { flex: 0 0 300px; background: #F9FAFB; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--border-color); }
         .kanban-col h3 { font-size: 0.9rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; display: flex; justify-content: space-between; margin-bottom: 8px; }
         .kanban-card { background: white; border-radius: 8px; padding: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); cursor: grab; transition: transform 0.2s; display: flex; flex-direction: column; gap: 8px; }
@@ -252,12 +257,12 @@
         .msg-conv-unread-dot { width:8px; height:8px; background:var(--primary); border-radius:50%; display:inline-block; margin-right:6px; }
         /* Caixa de resposta de conversa */
         .msg-thread-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(17,24,39,0.6); z-index:1500; display:none; align-items:flex-end; justify-content:flex-end; backdrop-filter:blur(2px); }
-        .msg-thread-box { background:white; width:480px; max-width:96vw; height:70vh; border-radius:16px 0 0 0; padding:0; display:flex; flex-direction:column; box-shadow:0 -8px 40px rgba(0,0,0,0.18); }
-        .msg-thread-header { padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; background:#F9FAFB; border-radius:16px 0 0 0; }
+        .msg-thread-box { background:white; width:480px; max-width:96vw; height:70vh; border-radius:16px 16px 0 0; padding:0; display:flex; flex-direction:column; box-shadow:0 -8px 40px rgba(0,0,0,0.18); }
+        .msg-thread-header { padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; background:#F9FAFB; border-radius:16px 16px 0 0; }
         .msg-thread-messages { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px; }
         .msg-bubble { max-width:78%; padding:10px 14px; border-radius:10px; font-size:0.85rem; line-height:1.5; }
-        .msg-bubble.sent { align-self:flex-end; background:var(--primary); color:white; border-radius:10px 2px 10px 10px; }
-        .msg-bubble.recv { align-self:flex-start; background:#F3F4F6; color:var(--text-main); border-radius:2px 10px 10px 10px; }
+        .msg-bubble.sent { align-self:flex-end; background:var(--primary); color:white; border-radius:10px 10px 10px 10px; }
+        .msg-bubble.recv { align-self:flex-start; background:#F3F4F6; color:var(--text-main); border-radius:10px 10px 10px 10px; }
         .msg-bubble .bubble-who { font-size:0.68rem; font-weight:700; margin-bottom:3px; opacity:0.8; }
         .msg-bubble .bubble-time { font-size:0.65rem; opacity:0.7; margin-top:4px; text-align:right; }
         .msg-bubble-system { background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(0,53,247,0.06) 100%) !important; border: 1px solid rgba(99,102,241,0.25) !important; color: var(--text-main) !important; }
@@ -575,7 +580,7 @@
 <body>
 
     <!-- LOGIN OVERLAY -->
-    <div id="login-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(135deg,#0035F7 0%,#001a7a 100%); z-index:9999; align-items:center; justify-content:center;">
+    <div id="login-overlay" style="display:flex; position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(135deg,#0035F7 0%,#001a7a 100%); z-index:9999; align-items:center; justify-content:center;">
         <div style="background:#fff; border-radius:20px; padding:48px 40px; width:90%; max-width:420px; box-shadow:0 24px 60px rgba(0,0,0,0.3); text-align:center;">
             <div style="width:64px; height:64px; background:rgba(0,53,247,0.1); border-radius:16px; display:flex; align-items:center; justify-content:center; margin:0 auto 24px;"><i class="fas fa-layer-group" style="color:var(--primary); font-size:1.8rem;"></i></div>
             <h1 style="font-size:1.6rem; font-weight:700; color:var(--text-main); margin-bottom:4px;">IRP System</h1>
@@ -594,7 +599,7 @@
     </div>
 
     <!-- APP WRAPPER -->
-    <div id="app-wrapper" style="display:flex; width:100%; height:100vh; overflow:hidden;">
+    <div id="app-wrapper" style="display:none; width:100%; height:100vh; overflow:hidden;">
 
     <!-- Notification Alarms (legado Agenda) -->
     <div id="active-notification" class="alert-popup">
@@ -706,6 +711,8 @@
                     <option value="Sem interesse">Sem interesse</option>
                     <option value="Optou por concorrente">Optou por concorrente</option>
                     <option value="Apenas orçamento">Apenas orçamento</option>
+                    <option value="Duplicado">Duplicado</option>
+                    <option value="Outro">Outro</option>
                 </select>
             </div>
             <div class="form-group" style="margin-bottom:24px;">
@@ -1117,9 +1124,26 @@
                 </div>
 
                 <div id="tab-fornecedores" class="section-card" style="display:none;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                         <span style="font-size:0.8rem; color:var(--text-muted);">Fornecedores cadastrados são sugeridos no autocomplete dos campos Fornecedor 1.</span>
                         <button class="btn-primary" onclick="openCadastroForm('fornecedor')"><i class="fas fa-plus"></i> Novo Fornecedor</button>
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px; align-items:flex-end;">
+                        <div class="form-group" style="flex:2; min-width:180px; max-width:320px; margin-bottom:0;">
+                            <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-bottom:4px; display:block;"><i class="fas fa-search"></i> Nome do Fornecedor</label>
+                            <input type="text" id="forn-search-nome" class="wt-input-cell" placeholder="Filtrar por nome..." oninput="renderTableFornecedores()">
+                        </div>
+                        <div class="form-group" style="flex:2; min-width:180px; max-width:280px; margin-bottom:0;">
+                            <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-bottom:4px; display:block;"><i class="fas fa-envelope"></i> E-mail</label>
+                            <input type="text" id="forn-search-email" class="wt-input-cell" placeholder="Filtrar por e-mail..." oninput="renderTableFornecedores()">
+                        </div>
+                        <div class="form-group" style="flex:2; min-width:180px; max-width:280px; margin-bottom:0;">
+                            <label style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-bottom:4px; display:block;"><i class="fas fa-user"></i> Pessoa de Contato</label>
+                            <input type="text" id="forn-search-pessoa" class="wt-input-cell" placeholder="Filtrar por contato..." oninput="renderTableFornecedores()">
+                        </div>
+                        <div style="display:flex; align-items:flex-end;">
+                            <button class="btn-secondary" style="padding:10px 14px;" title="Limpar filtros" onclick="document.getElementById('forn-search-nome').value=''; document.getElementById('forn-search-email').value=''; document.getElementById('forn-search-pessoa').value=''; renderTableFornecedores();"><i class="fas fa-times"></i> Limpar</button>
+                        </div>
                     </div>
                     <table>
                         <thead><tr><th>Nome do Fornecedor</th><th>E-mail</th><th>Telefone</th><th>Pessoa de Contato</th><th>Ações</th></tr></thead>
@@ -1685,12 +1709,12 @@
 
                         <div class="wt-toggle-group" style="border-bottom:none; padding:0; min-width:110px;">
                             <span class="wt-toggle-label"><i class="fas fa-truck"></i> T. Frt C</span>
-                            <div id="wt-total-frtc" style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">R$ 0,00</div>
+                            <div id="wt-total-frtc" title="Duplo clique para distribuir frete de compra nas linhas" ondblclick="wtAbrirModalFrete('C')" style="font-size:0.85rem; font-weight:700; color:var(--text-muted); cursor:pointer; text-decoration:underline dotted;">R$ 0,00</div>
                         </div>
 
                         <div class="wt-toggle-group" style="border-bottom:none; padding:0; min-width:110px;">
                             <span class="wt-toggle-label"><i class="fas fa-truck"></i> T. Frt V</span>
-                            <div id="wt-total-frtv" style="font-size:0.85rem; font-weight:700; color:var(--primary);">R$ 0,00</div>
+                            <div id="wt-total-frtv" title="Duplo clique para distribuir frete de venda nas linhas" ondblclick="wtAbrirModalFrete('V')" style="font-size:0.85rem; font-weight:700; color:var(--primary); cursor:pointer; text-decoration:underline dotted;">R$ 0,00</div>
                         </div>
 
                     </div>
@@ -1709,7 +1733,15 @@
                     <div id="wt-main-area">
                         <div class="section-card" id="wt-items-card" style="overflow:hidden; margin:0; border-radius:0; border-left:none; border-top:none; border-bottom:none;">
                             <div class="wt-fullscreen-topbar">
-                                <span style="font-size:0.72rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;"><i class="fas fa-table" style="color:var(--primary);"></i> Itens do Orçamento</span>
+                                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                                    <span style="font-size:0.72rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;"><i class="fas fa-table" style="color:var(--primary);"></i> Itens do Orçamento</span>
+                                    <!-- Upload de arquivo para preenchimento automático -->
+                                    <label id="wt-upload-label" title="Importar itens de CSV, TXT ou Excel" style="display:inline-flex; align-items:center; gap:6px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.35); border-radius:7px; padding:4px 11px; font-size:0.72rem; font-weight:700; color:#059669; cursor:pointer; transition:all 0.18s; white-space:nowrap; user-select:none;">
+                                        <i class="fas fa-file-import"></i> Importar arquivo
+                                        <input type="file" id="wt-import-file" accept=".csv,.txt,.xlsx,.xls" style="display:none;" onchange="wtImportarArquivo(this)">
+                                    </label>
+                                    <span id="wt-upload-status" style="font-size:0.7rem; color:var(--text-muted); display:none;"></span>
+                                </div>
                                 <div style="display:flex; align-items:center; gap:8px;">
                                     <button onclick="addWorktableRow()" title="Adicionar nova linha" style="display:inline-flex; align-items:center; gap:6px; background:rgba(0,53,247,0.07); border:1px solid rgba(0,53,247,0.22); border-radius:7px; padding:5px 13px; font-size:0.78rem; font-weight:700; color:var(--primary); cursor:pointer; transition:all 0.18s; white-space:nowrap;"><i class="fas fa-plus"></i> + Linha</button>
                                     <button class="wt-fullscreen-btn" id="wt-fullscreen-btn" onclick="toggleWtFullscreen()" title="Expandir tabela para tela cheia"><i class="fas fa-expand-arrows-alt"></i> Expandir</button>
@@ -1726,6 +1758,7 @@
                                 #wt-items-card input[type=number].wt-input-cell:focus { background:#EEF2FF; }
                                 /* Descrição multiline */
                                 #tb-wt-items .w-desc { white-space: pre-wrap; word-break: break-word; resize: vertical; min-height: 28px; }
+                                #wt-upload-label:hover { background: rgba(16,185,129,0.18) !important; }
                             </style>
                             <div id="wt-items-card-scroll">
                             <table style="min-width:2280px; table-layout:fixed;">
@@ -1972,6 +2005,10 @@
                 if (row.de_id !== undefined && row.de === undefined) row.de = row.de_id;
                 if (row.para_id !== undefined && row.para === undefined) row.para = row.para_id;
                 if (row.criado_em !== undefined && row.criadoEm === undefined) row.criadoEm = row.criado_em;
+            }
+            if (table === 'fornecedores') {
+                if (row.pessoa_contato !== undefined && row.pessoa === undefined) row.pessoa = row.pessoa_contato;
+                if (row.criado_em !== undefined && row.createdAt === undefined) row.createdAt = row.criado_em;
             }
             return row;
         }
@@ -2447,6 +2484,7 @@
         let wtRegime = 'LR';       // 'LR' Lucro Real | 'LP' Lucro Presumido | 'SN' Simples Nacional
         let wtDestinatario = 'contrib'; // 'contrib' | 'ncontrib' (não-contribuinte / consumidor final)
         let wtUfVendDefault = '';  // UF padrão para ES Custo Venda nas novas linhas (ex: 'estado_SP', 'imp', '')
+        let _wtLoadedOppId  = null; // ID da oportunidade efetivamente carregada no worktable (≠ currentOppId)
 
         // ── AUTOCOMPLETE UF PADRÃO VENDA ─────────────────────────────
         // Lista usada pelo autocomplete — disponível após IMP_ESTADOS ser definido
@@ -2618,7 +2656,9 @@
         }
 
         // --- 2. NAVEGAÇÃO ---
+        let _currentPage = 'dashboard';
         function navigate(pageId) {
+            _currentPage = pageId;
             document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.add('active');
@@ -2839,6 +2879,12 @@
                                     <option value="Tecnologia">Tecnologia</option>
                                     <option value="Saúde">Saúde</option>
                                     <option value="Educação">Educação</option>
+                                    <option value="Mineradora">Mineradora</option>
+                                    <option value="Construtora">Construtora</option>
+                                    <option value="PCH">PCH</option>
+                                    <option value="Usina Hidroelétrica">Usina Hidroelétrica</option>
+                                    <option value="Usina Fotovoltaica">Usina Fotovoltaica</option>
+                                    <option value="Integra">Integra</option>
                                     <option value="Outro">Outro</option>
                                 </select>
                             </div>
@@ -3124,6 +3170,12 @@
                                 <option value="Tecnologia" ${(c.tipoArea||'')==='Tecnologia'?'selected':''}>Tecnologia</option>
                                 <option value="Saúde" ${(c.tipoArea||'')==='Saúde'?'selected':''}>Saúde</option>
                                 <option value="Educação" ${(c.tipoArea||'')==='Educação'?'selected':''}>Educação</option>
+                                <option value="Mineradora" ${(c.tipoArea||'')==='Mineradora'?'selected':''}>Mineradora</option>
+                                <option value="Construtora" ${(c.tipoArea||'')==='Construtora'?'selected':''}>Construtora</option>
+                                <option value="PCH" ${(c.tipoArea||'')==='PCH'?'selected':''}>PCH</option>
+                                <option value="Usina Hidroelétrica" ${(c.tipoArea||'')==='Usina Hidroelétrica'?'selected':''}>Usina Hidroelétrica</option>
+                                <option value="Usina Fotovoltaica" ${(c.tipoArea||'')==='Usina Fotovoltaica'?'selected':''}>Usina Fotovoltaica</option>
+                                <option value="Integra" ${(c.tipoArea||'')==='Integra'?'selected':''}>Integra</option>
                                 <option value="Outro" ${(c.tipoArea||'')==='Outro'?'selected':''}>Outro</option>
                             </select>
                         </div>
@@ -3476,7 +3528,8 @@ Data/Hora: ${autorData}`);
                     });
                 });
                 // De atividades[] geradas automaticamente (ex: Conferir Retorno Item Pendente via Ag retorno)
-                DB.get('atividades').filter(a => a.oppId === o.id).forEach(a => {
+                // Ignora atividades com tarefaOppId pois já foram contadas via opp.tarefas[]
+                DB.get('atividades').filter(a => a.oppId === o.id && !a.tarefaOppId).forEach(a => {
                     if (a.tipo) {
                         tipoCount[a.tipo] = (tipoCount[a.tipo] || 0) + 1;
                     }
@@ -3961,9 +4014,19 @@ Data/Hora: ${autorData}`);
 
         // --- FUNÇÕES DE FORNECEDORES ---
         function renderTableFornecedores() {
-            const fornecedores = DB.get('fornecedores').slice().sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt-BR'));
+            const fNome   = (document.getElementById('forn-search-nome')?.value   || '').toLowerCase();
+            const fEmail  = (document.getElementById('forn-search-email')?.value  || '').toLowerCase();
+            const fPessoa = (document.getElementById('forn-search-pessoa')?.value || '').toLowerCase();
+            const fornecedores = DB.get('fornecedores')
+                .slice()
+                .sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt-BR'))
+                .filter(f =>
+                    (!fNome   || (f.nome   || '').toLowerCase().includes(fNome))   &&
+                    (!fEmail  || (f.email  || '').toLowerCase().includes(fEmail))  &&
+                    (!fPessoa || (f.pessoa || '').toLowerCase().includes(fPessoa))
+                );
             document.getElementById('tb-fornecedores').innerHTML = fornecedores.length === 0
-                ? `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:24px;">Nenhum fornecedor cadastrado.</td></tr>`
+                ? `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:24px;">Nenhum fornecedor encontrado.</td></tr>`
                 : fornecedores.map(f => `<tr>
                     <td style="font-weight:600;">${f.nome || '-'}</td>
                     <td>${f.email || '-'}</td>
@@ -4636,14 +4699,19 @@ Data/Hora: ${autorData}`);
                     </table>
                 </div>` : '';
 
+            const STAGES_COM_COTACAO = ['Prospecção','Orçamento','Análise Diretoria','Envio Cliente','Faturamento','Ganho','Perdido'];
+            const exibirNrCotacao = STAGES_COM_COTACAO.includes(opp.stage);
+            const nrCotacaoOpp = opp.id ? opp.id.slice(-6).toUpperCase() : '—';
+
             const dadosHtml = cli ? `
-                <div class="opp-info-row"><span>Razão Social</span><span>${cli.nome}</span></div>
+                <div class="opp-info-row"><span>Razão Social</span><span><a href="#" onclick="navigate('cadastros'); setTimeout(()=>{ const el=document.getElementById('search-cli'); if(el){el.value='${cli.nome.replace(/'/g,"\\'")}'; renderTableClientes();} },200); return false;" style="color:var(--primary); text-decoration:underline dotted; font-weight:700;" title="Ver cadastro do cliente">${cli.nome}</a></span></div>
                 <div class="opp-info-row"><span>CNPJ/CPF</span><span>${cli.doc || '-'}</span></div>
                 <div class="opp-info-row"><span>Endereço</span><span>${[cli.endereco, cli.numero, cli.complemento].filter(Boolean).join(', ') || '-'}</span></div>
                 <div class="opp-info-row"><span>CEP</span><span>${cli.cep || '-'}</span></div>
                 <div class="opp-info-row"><span>Cidade / UF</span><span>${cli.cidade || '-'} / ${cli.uf || '-'}</span></div>
                 <div class="opp-info-row"><span>Canal</span><span>${opp.canal || '-'}</span></div>
                 <div class="opp-info-row"><span>Stage</span><span style="color:var(--primary); font-weight:700;">${opp.stage}</span></div>
+                ${exibirNrCotacao ? `<div class="opp-info-row"><span>Nº Cotação</span><span style="font-family:monospace; font-weight:700; color:var(--primary);">${nrCotacaoOpp}</span></div>` : ''}
                 <div class="opp-info-row"><span>Responsável</span><span style="color:var(--text-main); font-weight:600;">${nomeResponsavel}</span></div>
                 ${oppsHtml}
             ` : '<p style="color:var(--text-muted); font-size:0.8rem;">Cliente não encontrado.</p>';
@@ -5483,13 +5551,14 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                 wtUfVendDefault = '';
             }
 
-            if (id !== currentOppId) {
+            if (id !== _wtLoadedOppId) {
                 // Troca de orçamento: para o timer atual, atualiza o id e carrega o estado do novo
                 clearInterval(wtTimerInterval);
                 wtTimerInterval = null;
                 wtTimerSeconds  = 0;
                 wtTimerStarted  = false;
-                currentOppId = id;
+                currentOppId    = id;
+                _wtLoadedOppId  = id;
                 const tbody = document.getElementById('tb-wt-items');
                 tbody.innerHTML = '';
                 if(!opp.items || opp.items.length === 0) addWorktableRow();
@@ -7222,6 +7291,12 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
             const opps = DB.get('oportunidades');
             const clis = DB.get('clientes');
 
+            // Controle de visibilidade por usuário
+            const _curUser = _getCurrentUser();
+            const _nivel = _curUser ? _curUser.nivel : '1';
+            const _podeVerTudo = (_nivel === 'Admin' || _nivel === '3' || _nivel === '2');
+            const _idsVisiveis = _podeVerTudo ? null : _getIdsVisiveis();
+
             // Lê filtros
             const filStatus  = (document.getElementById('ag-fil-status')?.value || '');
             const filData    = (document.getElementById('ag-fil-data')?.value || '');
@@ -7233,6 +7308,11 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
             const filtered = ativs.filter(a => {
                 const opp = opps.find(o => o.id === a.oppId);
                 const cli = opp ? clis.find(c => c.id === opp.clienteId) : null;
+                // Filtro de visibilidade por usuário
+                if (_idsVisiveis !== null) {
+                    const donoId = a.criadoPorId || (opp ? opp.criadoPorId : null);
+                    if (!donoId || !_idsVisiveis.has(donoId)) return false;
+                }
                 // Filtro status
                 if (filStatus && a.status !== filStatus) return false;
                 // Filtro data
@@ -7244,6 +7324,12 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                     if (!nomeCliente.includes(filCliente) && !nomeopp.includes(filCliente)) return false;
                 }
                 return true;
+            });
+
+            filtered.sort((a, b) => {
+                const da = a.dataAlvo + 'T' + (a.horaAlvo || '00:00');
+                const db = b.dataAlvo + 'T' + (b.horaAlvo || '00:00');
+                return da < db ? -1 : da > db ? 1 : 0;
             });
 
             tb.innerHTML = filtered.map(a => {
@@ -7455,7 +7541,9 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
 
             const newTask = {
                 oppId: oldTask.oppId, tipo: tipo, dataAlvo: dt, horaAlvo: hr, status: 'Pendente',
-                notificado: false, historicoSeguro: [{ data: new Date().toISOString(), texto: nota || "Abertura de próxima tarefa." }]
+                notificado: false,
+                criadoPorId: ((_getCurrentUser()) ? _getCurrentUser().id : null),
+                historicoSeguro: [{ data: new Date().toISOString(), texto: nota || "Abertura de próxima tarefa." }]
             };
             DB.insert('atividades', newTask);
             
@@ -7467,6 +7555,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
 
         // --- TAREFAS DA OPORTUNIDADE (Cirúrgicas 9 e 10) ---
         let alertOppTaskId = null;
+        let alertNotifOppTitulo = null;
 
         function abrirModalAgendarTarefa() {
             // pré-preenche data/hora com agora + 1 hora
@@ -7579,6 +7668,8 @@ De ${remetenteNome}
             DB.insert('atividades', {
                 oppId: currentOppId, tipo, dataAlvo: data, horaAlvo: hora,
                 status: 'Pendente', notificado: false,
+                tarefaOppId: tarefaId,
+                criadoPorId: ((_getCurrentUser()) ? _getCurrentUser().id : null),
                 historicoSeguro: [{ data: new Date().toISOString(), texto: obs || 'Tarefa agendada via Oportunidade.' }]
             });
 
@@ -7624,6 +7715,7 @@ De ${remetenteNome}
 
             // Fecha o alerta
             document.getElementById('opp-task-alert').style.display = 'none';
+            document.getElementById('active-notification').style.display = 'none';
             document.getElementById('opp-alert-feedback').value = '';
             alertOppTaskId = null;
 
@@ -7698,6 +7790,7 @@ De ${remetenteNome}
                     DB.update('atividades', a.id, a);
                     _setTabTitle(1, '🔔 TAREFA VENCIDA! | IRP 360º');
                     const opp = DB.findById('oportunidades', a.oppId);
+                    alertNotifOppTitulo = opp ? opp.titulo : null;
                     document.getElementById('notify-details').innerHTML = `<b>Atividade:</b> ${a.tipo} <br><b>Opp:</b> ${opp ? opp.titulo : '-'}`;
                     document.getElementById('active-notification').style.display = 'flex';
                 }
@@ -7708,7 +7801,18 @@ De ${remetenteNome}
             document.getElementById('active-notification').style.display = 'none';
             _tabTitlePriority = 0;
             document.title = 'Worktable | IRP 360º';
+            const tituloFiltro = alertNotifOppTitulo;
+            alertNotifOppTitulo = null;
             navigate('atividades');
+            if (tituloFiltro) {
+                const filCli = document.getElementById('ag-fil-cliente');
+                const filStatus = document.getElementById('ag-fil-status');
+                const filData = document.getElementById('ag-fil-data');
+                if (filCli) filCli.value = tituloFiltro;
+                if (filStatus) filStatus.value = '';
+                if (filData) filData.value = '';
+                renderAtividades();
+            }
         }
 
         // --- 7. DASHBOARD ---
@@ -9764,6 +9868,12 @@ De ${remetenteNome}
         let _currentThreadId = null;
 
         function _abrirThread(threadId) {
+            // Se não estiver na página de mensagens, navega primeiro e reabre
+            if (_currentPage !== 'mensagens') {
+                navigate('mensagens');
+                setTimeout(() => _abrirThread(threadId), 300);
+                return;
+            }
             _lastMsgSnapshot = '';
             _clearTabTitleMensagem();
             const curUser = _getCurrentUser();
@@ -10041,6 +10151,364 @@ De ${remetenteNome}
                 });
             });
         }, 10000);
+
+        // ── IMPORTAR ARQUIVO — Engenharia de Orçamento ──
+        // Detecta colunas de descrição, quantidade, código e marca por sinônimos (case-insensitive)
+        const _WT_COL_DESC  = ['descri','produto','item','material','especif','nome','título','titulo','description'];
+        const _WT_COL_QTD   = ['qtd','quant','qty','quantidade','amount','qte','un.','unid'];
+        const _WT_COL_COD   = ['cod','code','código','codigo','ref','referência','referencia','sku','part'];
+        const _WT_COL_MARCA = ['marca','brand','fabricante','manufat','fornec'];
+        const _WT_COL_NCM   = ['ncm'];
+        const _WT_COL_ICMS  = ['icms'];
+        const _WT_COL_IPI   = ['ipi'];
+
+        function _wtMatchCol(header, synonyms) {
+            const h = header.toLowerCase().trim();
+            return synonyms.some(s => h.includes(s));
+        }
+
+        // Tenta ler CSV/TXT como UTF-8-BOM; se detectar caracteres corrompidos (replacement char \uFFFD),
+        // relê automaticamente como Windows-1252 (encoding padrão do Excel em PT-BR).
+        function _wtLerTextoComEncoding(file, callback) {
+            const r1 = new FileReader();
+            r1.onload = function(e) {
+                // Remove BOM UTF-8 se presente (\uFEFF)
+                let text = e.target.result.replace(/^\uFEFF/, '');
+                if (text.includes('\uFFFD')) {
+                    // UTF-8 produziu caracteres inválidos — tenta Windows-1252
+                    const r2 = new FileReader();
+                    r2.onload = function(e2) { callback(e2.target.result.replace(/^\uFEFF/, '')); };
+                    r2.readAsText(file, 'windows-1252');
+                } else {
+                    callback(text);
+                }
+            };
+            r1.readAsText(file, 'UTF-8');
+        }
+
+        // Parser CSV RFC 4180 — respeita campos entre aspas com quebras de linha internas.
+        // Evita a duplicação causada por split('\n') simples em campos com newline literal.
+        function _wtParseCsv(text, sep) {
+            const rows = [];
+            let row = [];
+            let field = '';
+            let inQuotes = false;
+            for (let i = 0; i < text.length; i++) {
+                const ch = text[i];
+                const next = text[i + 1];
+                if (inQuotes) {
+                    if (ch === '"' && next === '"') { field += '"'; i++; }      // aspas duplas escapadas
+                    else if (ch === '"') { inQuotes = false; }                  // fecha campo entre aspas
+                    else { field += ch; }                                        // conteúdo normal (incluindo \n interno)
+                } else {
+                    if (ch === '"') { inQuotes = true; }                         // abre campo entre aspas
+                    else if (ch === sep) { row.push(field.trim()); field = ''; } // separador de campo
+                    else if (ch === '\n') {                                     // fim de linha real
+                        row.push(field.trim()); field = '';
+                        rows.push(row); row = [];
+                    } else if (ch === '\r') { /* ignora \r */ }
+                    else { field += ch; }
+                }
+            }
+            // Última linha sem \n final
+            if (field || row.length) { row.push(field.trim()); rows.push(row); }
+            // Remove linhas completamente vazias
+            return rows.filter(r => r.some(c => c !== ''));
+        }
+
+        function wtImportarArquivo(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const statusEl = document.getElementById('wt-upload-status');
+            statusEl.style.display = 'inline';
+            statusEl.style.color = 'var(--text-muted)';
+            statusEl.textContent = 'Lendo arquivo...';
+
+            const ext = file.name.split('.').pop().toLowerCase();
+
+            if (ext === 'xlsx' || ext === 'xls') {
+                // Lê Excel via FileReader (ArrayBuffer) + SheetJS (já carregado na página)
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                        const ws = wb.Sheets[wb.SheetNames[0]];
+                        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+                        _wtProcessarLinhas(rows, statusEl);
+                    } catch(err) {
+                        statusEl.style.color = 'var(--danger)';
+                        statusEl.textContent = 'Erro ao ler Excel.';
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                // CSV / TXT — detecta encoding automaticamente (UTF-8-BOM ou Windows-1252)
+                _wtLerTextoComEncoding(file, function(text) {
+                    // Detecta separador: tabulação, ponto-e-vírgula ou vírgula
+                    const firstLine = text.split('\n')[0] || '';
+                    const sep = firstLine.includes('\t') ? '\t' : firstLine.includes(';') ? ';' : ',';
+                    // Usa parser RFC 4180 — respeita campos com quebra de linha interna
+                    const rows = _wtParseCsv(text, sep);
+                    _wtProcessarLinhas(rows, statusEl);
+                });
+            }
+
+            // Limpa o input para permitir reimportar o mesmo arquivo
+            input.value = '';
+        }
+
+        function _wtProcessarLinhas(rows, statusEl) {
+            if (!rows || rows.length < 2) {
+                statusEl.style.color = 'var(--danger)';
+                statusEl.textContent = 'Arquivo sem dados reconhecíveis.';
+                return;
+            }
+
+            // Linha 0 = cabeçalho
+            const headers = rows[0].map(h => String(h).trim());
+            let iDesc = -1, iQtd = -1, iCod = -1, iMarca = -1, iNcm = -1, iIcms = -1, iIpi = -1;
+            headers.forEach((h, i) => {
+                if (iDesc  === -1 && _wtMatchCol(h, _WT_COL_DESC))  iDesc  = i;
+                if (iQtd   === -1 && _wtMatchCol(h, _WT_COL_QTD))   iQtd   = i;
+                if (iCod   === -1 && _wtMatchCol(h, _WT_COL_COD))   iCod   = i;
+                if (iMarca === -1 && _wtMatchCol(h, _WT_COL_MARCA)) iMarca = i;
+                if (iNcm   === -1 && _wtMatchCol(h, _WT_COL_NCM))   iNcm   = i;
+                if (iIcms  === -1 && _wtMatchCol(h, _WT_COL_ICMS))  iIcms  = i;
+                if (iIpi   === -1 && _wtMatchCol(h, _WT_COL_IPI))   iIpi   = i;
+            });
+
+            // Nenhuma coluna reconhecida → não faz nada
+            if (iDesc === -1 && iQtd === -1 && iCod === -1 && iMarca === -1 && iNcm === -1 && iIcms === -1 && iIpi === -1) {
+                statusEl.style.color = 'var(--text-muted)';
+                statusEl.textContent = 'Nenhuma coluna reconhecida.';
+                return;
+            }
+
+            const dataRows = rows.slice(1).filter(r => r.some(c => String(c).trim() !== ''));
+            if (dataRows.length === 0) {
+                statusEl.style.color = 'var(--danger)';
+                statusEl.textContent = 'Nenhum dado encontrado.';
+                return;
+            }
+
+            // Preenche as linhas existentes antes de criar novas
+            const tbody = document.getElementById('tb-wt-items');
+            const existentes = Array.from(tbody.querySelectorAll('tr'));
+
+            dataRows.forEach((row, idx) => {
+                const desc   = iDesc  !== -1 ? String(row[iDesc]  || '').trim() : '';
+                const qtdRaw = iQtd   !== -1 ? String(row[iQtd]   || '').trim() : '';
+                const cod    = iCod   !== -1 ? String(row[iCod]   || '').trim() : '';
+                const marca  = iMarca !== -1 ? String(row[iMarca] || '').trim() : '';
+                const ncm    = iNcm   !== -1 ? String(row[iNcm]   || '').trim() : '';
+                const icms   = iIcms  !== -1 ? String(row[iIcms]  || '').trim() : '';
+                const ipi    = iIpi   !== -1 ? String(row[iIpi]   || '').trim() : '';
+
+                // Nada a preencher nessa linha → pula
+                if (!desc && !qtdRaw && !cod && !marca && !ncm && !icms && !ipi) return;
+
+                let tr = existentes[idx];
+                if (!tr) {
+                    // Adiciona nova linha sem disparar o timer de cotação
+                    addWorktableRow({ desc: '', qtd: 1, codigo: '' });
+                    tr = tbody.querySelectorAll('tr')[idx];
+                }
+                if (!tr) return;
+
+                if (desc) {
+                    const descEl = tr.querySelector('.w-desc');
+                    if (descEl) descEl.value = desc.toUpperCase();
+                }
+                if (qtdRaw) {
+                    const qtdVal = parseFloat(qtdRaw.replace(',', '.')) || 1;
+                    const qtdEl  = tr.querySelector('.w-qtd');
+                    if (qtdEl) {
+                        qtdEl.value = qtdVal;
+                        calcWorktableRow(qtdEl);
+                    }
+                }
+                if (marca) {
+                    const marcaEl = tr.querySelector('.w-marca-sol');
+                    if (marcaEl) marcaEl.value = marca.toUpperCase();
+                }
+                if (ncm) {
+                    const ncmEl = tr.querySelector('.w-ncm');
+                    if (ncmEl) { ncmEl.value = ncm; applyNcmSt(ncmEl); }
+                }
+                if (icms) {
+                    const icmscEl = tr.querySelector('.w-icmsc');
+                    if (icmscEl) {
+                        icmscEl.value = parseFloat(icms.replace(',', '.')) || 0;
+                        _aplicarRegraIcms4(tr);
+                        calcWorktableRow(icmscEl);
+                    }
+                }
+                if (ipi) {
+                    const ipicEl = tr.querySelector('.w-ipic');
+                    if (ipicEl) {
+                        ipicEl.value = parseFloat(ipi.replace(',', '.')) || 0;
+                        calcWorktableRow(ipicEl);
+                    }
+                }
+                if (cod) {
+                    const codEl = tr.querySelector('.w-codigo');
+                    if (codEl) {
+                        codEl.value = cod.toUpperCase();
+                        // Busca no banco apenas se o CSV não trouxe NCM/ICMS/IPI —
+                        // evita que o retorno assíncrono sobrescreva os valores já preenchidos.
+                        if (!ncm && !icms && !ipi) {
+                            buscarProdutoPorCodigo(codEl);
+                        } else {
+                            // Mesmo com NCM/ICMS/IPI do CSV, busca só desc/marca/custo do banco
+                            // sem deixar _preencherLinhaProduto sobrescrever os campos fiscais.
+                            (async () => {
+                                const produtos = DB.get('produtos');
+                                const prodLocal = produtos.find(p => (p.codigo || '').trim().toUpperCase() === cod.toUpperCase());
+                                const prod = prodLocal || await (async () => {
+                                    const { data, error } = await _supabase.from('produtos').select('*').ilike('codigo', cod).limit(1);
+                                    if (error || !data || !data.length) return null;
+                                    return _normalizeRow('produtos', { ...data[0] });
+                                })();
+                                if (!prod) return;
+                                // Preenche apenas desc, marca e custo — preserva NCM/ICMS/IPI do CSV
+                                if (!desc) { const el = tr.querySelector('.w-desc');      if (el) el.value = prod.desc || prod.descricao || ''; }
+                                if (!marca){ const el = tr.querySelector('.w-marca-sol'); if (el) el.value = prod.marca || '';
+                                             const oe = tr.querySelector('.w-marca-ofe'); if (oe) oe.value = prod.marca || '';
+                                             const re = tr.querySelector('.w-marca-ref'); if (re) re.value = prod.marca || ''; }
+                                const cfEl = tr.querySelector('.w-cforn');
+                                if (cfEl) { cfEl.value = parseFloat(prod.custo || prod.custo_base) || 0; calcWorktableRow(cfEl); }
+                            })();
+                        }
+                    }
+                }
+            });
+
+            statusEl.style.color = 'var(--success)';
+            statusEl.textContent = `\u2713 ${dataRows.length} linha(s) importada(s).`;
+            setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
+        }
+
+        // ── FRETE GLOBAL — distribuição por duplo clique em T. Frt C / T. Frt V ──
+        function wtAbrirModalFrete(tipo) {
+            // tipo: 'C' = compra (w-cb), 'V' = venda (w-vv)
+            const label = tipo === 'C' ? 'Frete de Compra (T. Frt C)' : 'Frete de Venda (T. Frt V)';
+            const cor   = tipo === 'C' ? 'var(--text-muted)' : 'var(--primary)';
+
+            // Conta linhas existentes
+            const linhas = document.querySelectorAll('#tb-wt-items tr');
+            const nLinhas = linhas.length;
+            if (!nLinhas) return;
+
+            // Remove modal anterior se existir
+            const antigo = document.getElementById('_modal-frete-global');
+            if (antigo) antigo.remove();
+
+            const overlay = document.createElement('div');
+            overlay.id = '_modal-frete-global';
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(17,24,39,0.55);z-index:6000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);';
+            overlay.innerHTML = `
+                <div style="background:#fff;border-radius:14px;padding:28px 32px;max-width:400px;width:92%;box-shadow:0 16px 48px rgba(0,0,0,0.22);">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+                        <i class="fas fa-truck" style="color:${cor};font-size:1.1rem;"></i>
+                        <span style="font-size:0.95rem;font-weight:700;color:#1F2937;">${label}</span>
+                    </div>
+                    <p style="font-size:0.82rem;color:#6B7280;margin-bottom:14px;">
+                        <span id="_frt-descricao">
+                            Em <b>R$</b>: o total é dividido igualmente entre <b>${nLinhas}</b> linha(s) → cada linha recebe <b>total ÷ ${nLinhas}</b>.<br>
+                            Em <b>%</b>: o percentual digitado é replicado igual em todas as <b>${nLinhas}</b> linha(s).
+                        </span>
+                    </p>
+                    <div style="display:flex;gap:8px;margin-bottom:16px;">
+                        <label style="flex:1;display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 12px;border:2px solid var(--border-color);border-radius:8px;font-size:0.82rem;font-weight:600;transition:all 0.15s;" id="_frt-opt-rs">
+                            <input type="radio" name="_frt-modo" value="R$" checked style="accent-color:var(--primary);"> Em R$ (valor total)
+                        </label>
+                        <label style="flex:1;display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 12px;border:2px solid var(--border-color);border-radius:8px;font-size:0.82rem;font-weight:600;transition:all 0.15s;" id="_frt-opt-pct">
+                            <input type="radio" name="_frt-modo" value="%"> Em % (por linha)
+                        </label>
+                    </div>
+                    <div style="margin-bottom:20px;">
+                        <label style="font-size:0.78rem;font-weight:600;color:#374151;display:block;margin-bottom:6px;">
+                            Valor total a distribuir (<span id="_frt-modo-label">R$</span>)
+                        </label>
+                        <input id="_frt-valor" type="number" step="0.01" min="0" placeholder="0,00"
+                            style="width:100%;padding:9px 12px;border:1px solid var(--border-color);border-radius:8px;font-size:0.92rem;font-weight:700;outline:none;box-sizing:border-box;">
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <button id="_frt-cancelar" style="flex:1;padding:10px 0;border-radius:8px;border:1px solid var(--border-color);background:#F3F4F6;font-weight:600;font-size:0.875rem;cursor:pointer;color:#374151;">Cancelar</button>
+                        <button id="_frt-aplicar" style="flex:1;padding:10px 0;border-radius:8px;border:none;background:var(--primary);color:#fff;font-weight:700;font-size:0.875rem;cursor:pointer;">Aplicar</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(overlay);
+
+            // Highlight do radio selecionado
+            const radios = overlay.querySelectorAll('input[type=radio]');
+            const modoLabel = overlay.querySelector('#_frt-modo-label');
+            const optRs  = overlay.querySelector('#_frt-opt-rs');
+            const optPct = overlay.querySelector('#_frt-opt-pct');
+            function _atualizarEstiloRadio() {
+                const v = overlay.querySelector('input[name="_frt-modo"]:checked').value;
+                modoLabel.textContent = v;
+                optRs.style.borderColor  = v === 'R$' ? 'var(--primary)' : 'var(--border-color)';
+                optPct.style.borderColor = v === '%'  ? 'var(--primary)' : 'var(--border-color)';
+            }
+            radios.forEach(r => r.addEventListener('change', _atualizarEstiloRadio));
+            _atualizarEstiloRadio();
+            overlay.querySelector('#_frt-valor').focus();
+
+            overlay.querySelector('#_frt-cancelar').onclick = () => overlay.remove();
+            overlay.querySelector('#_frt-aplicar').onclick  = () => {
+                const modo  = overlay.querySelector('input[name="_frt-modo"]:checked').value;
+                const total = parseFloat(overlay.querySelector('#_frt-valor').value) || 0;
+                overlay.remove();
+                wtDistribuirFrete(tipo, modo, total);
+            };
+            // Fecha clicando fora
+            overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+        }
+
+        function wtDistribuirFrete(tipo, modo, totalVal) {
+            // tipo: 'C' → campo .w-cb  |  'V' → campo .w-vv
+            // R$: totalVal dividido igualmente pelo nº de linhas → valorPorLinha = totalVal / nLinhas
+            // %:  totalVal é o percentual desejado por linha → replicado igual em todas (não divide)
+            const field   = tipo === 'C' ? '.w-cb' : '.w-vv';
+            const linhas  = Array.from(document.querySelectorAll('#tb-wt-items tr'));
+            const nLinhas = linhas.length;
+            if (!nLinhas || totalVal <= 0) return;
+
+            const valorPorLinha = modo === 'R$' ? totalVal / nLinhas : totalVal;
+
+            linhas.forEach(tr => {
+                const inp = tr.querySelector(field);
+                if (!inp) return;
+
+                // Ajusta o data-mode sem deixar toggleFreteMode zerar o valor —
+                // faz a troca manual de atributo e label, sem chamar calcWorktableRow ainda.
+                const modoAtual = inp.getAttribute('data-mode') || '%';
+                if (modoAtual !== modo) {
+                    inp.setAttribute('data-mode', modo);
+                    const labels = Array.from(tr.querySelectorAll('.frete-toggle'));
+                    const labelEl = tipo === 'C' ? labels[0] : labels[labels.length - 1];
+                    if (labelEl) {
+                        if (modo === '%') {
+                            labelEl.textContent = tipo === 'C' ? 'Frt.C %' : 'Frt.V %';
+                            labelEl.className = 'frete-toggle frete-pct';
+                            labelEl.title = 'Clique para alternar para R$';
+                            inp.placeholder = '%';
+                        } else {
+                            labelEl.textContent = tipo === 'C' ? 'Frt.C R$' : 'Frt.V R$';
+                            labelEl.className = 'frete-toggle frete-rs';
+                            labelEl.title = 'Clique para alternar para %';
+                            inp.placeholder = '0.00';
+                        }
+                    }
+                }
+
+                inp.value = valorPorLinha.toFixed(4);
+                calcWorktableRow(inp);
+            });
+
+            calcWorktableGlobals();
+        }
 
         // ── OCULTAR / REVELAR SEÇÕES — Engenharia de Orçamento ──
         // state: null = ambos visíveis; 'black' = bar-cliente oculta; 'orange' = bar-config oculta; 'both' = ambas ocultas
