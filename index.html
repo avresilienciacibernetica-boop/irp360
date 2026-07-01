@@ -45,7 +45,7 @@
         
         .content-area { padding: 32px; overflow-y: auto; flex: 1; min-height: 0; }
         .content-area:has(#page-orcamentos.active) { overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; padding-bottom: 0; scrollbar-width: thin; scrollbar-color: #374151 #e5e7eb; }
-        .content-area:has(#page-crm.active) { overflow: hidden; display: flex; flex-direction: column; padding-bottom: 0; }
+        .content-area:has(#page-crm.active) { overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; padding-bottom: 0; }
         .page-content { display: none; animation: fadeIn 0.3s ease; }
         .page-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -75,12 +75,12 @@
         .form-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
 
         /* Kanban Styles */
-        .kanban-board { display: flex; gap: 16px; overflow-x: auto; overflow-y: hidden; padding-bottom: 0; min-height: 0; flex: 1; scrollbar-width: thin; scrollbar-color: var(--primary) var(--border-color); }
+        .kanban-board { display: flex; gap: 16px; overflow-x: auto; overflow-y: visible; padding-bottom: 0; min-height: 0; flex: 1; scrollbar-width: thin; scrollbar-color: var(--primary) var(--border-color); }
         .kanban-board::-webkit-scrollbar { height: 6px; }
         .kanban-board::-webkit-scrollbar-track { background: var(--border-color); border-radius: 3px; }
         .kanban-board::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
         #page-crm { display: none; flex-direction: column; }
-        #page-crm.active { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+        #page-crm.active { display: flex; flex: 1; min-height: 0; overflow-y: visible; overflow-x: hidden; }
         #page-crm .page-header { flex-shrink: 0; margin-bottom: 32px; }
         .kanban-col { flex: 0 0 300px; background: #F9FAFB; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--border-color); }
         .kanban-col h3 { font-size: 0.9rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; display: flex; justify-content: space-between; margin-bottom: 8px; }
@@ -328,6 +328,42 @@
         .v360-conv-pill.good { background:#D1FAE5; color:#065F46; }
         .v360-conv-pill.mid { background:#FEF3C7; color:#92400E; }
         .v360-conv-pill.low { background:#FEE2E2; color:#991B1B; }
+        /* Canal de Entrada cards */
+        .v360-canal-card { background:white; border-radius:12px; padding:16px 18px; border:1px solid var(--border-color); box-shadow:0 1px 4px rgba(0,0,0,0.05); position:relative; overflow:hidden; }
+        .v360-canal-card::before { content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:#0D9488; }
+        .v360-canal-card .canal-rank { position:absolute; top:10px; right:12px; font-size:0.65rem; font-weight:800; background:#F3F4F6; color:var(--text-muted); padding:2px 7px; border-radius:8px; }
+        .v360-canal-card .canal-nome { font-size:0.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+        .v360-canal-card .canal-total { font-size:1.6rem; font-weight:800; color:var(--text-main); line-height:1; }
+        .v360-canal-card .canal-sub { font-size:0.7rem; color:var(--text-muted); margin-top:4px; }
+        .v360-canal-bar-row { display:flex; align-items:center; gap:8px; margin-top:10px; }
+        .v360-canal-bar-bg { flex:1; height:6px; background:#F3F4F6; border-radius:4px; overflow:hidden; }
+        .v360-canal-bar-fill { height:100%; border-radius:4px; background:#0D9488; transition:width 0.4s; }
+        .v360-canal-stat { display:flex; gap:10px; margin-top:8px; }
+        .v360-canal-stat span { font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:8px; }
+        .v360-canal-ganho { background:#D1FAE5; color:#065F46; }
+        .v360-canal-perdido { background:#FEE2E2; color:#991B1B; }
+        .v360-canal-tx { background:#E0E7FF; color:#3730A3; }
+        /* Fechamento / Inteligência de negócio */
+        .v360-fech-block { background:#F9FAFB; border:1px solid var(--border-color); border-radius:12px; padding:16px 18px; }
+        .v360-fech-block h4 { font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px; display:flex; align-items:center; gap:7px; }
+        .v360-fech-row { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--border-color); }
+        .v360-fech-row:last-child { border-bottom:none; }
+        .v360-fech-pos { font-size:0.65rem; font-weight:800; color:var(--text-muted); width:18px; text-align:center; flex-shrink:0; }
+        .v360-fech-nome { font-size:0.82rem; font-weight:600; color:var(--text-main); flex:1; }
+        .v360-fech-bar-wrap { width:90px; }
+        .v360-fech-bar-bg { height:5px; background:#E5E7EB; border-radius:3px; overflow:hidden; }
+        .v360-fech-bar-fill { height:100%; border-radius:3px; }
+        .v360-fech-count { font-size:0.78rem; font-weight:800; min-width:28px; text-align:right; flex-shrink:0; }
+        .v360-fech-pct { font-size:0.68rem; color:var(--text-muted); min-width:36px; text-align:right; flex-shrink:0; }
+        /* Autocomplete Código — Itens do Orçamento */
+        .wt-ac-dropdown { position:absolute; top:calc(100% + 2px); left:0; right:0; background:#fff; border:1px solid var(--border-color); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:3000; max-height:220px; overflow-y:auto; }
+        .wt-ac-item { display:flex; flex-direction:column; gap:2px; padding:8px 10px; cursor:pointer; border-bottom:1px solid #F3F4F6; transition:background 0.12s; }
+        .wt-ac-item:last-child { border-bottom:none; }
+        .wt-ac-item:hover, .wt-ac-item.wt-ac-active { background:#EEF2FF; }
+        .wt-ac-item .ac-cod { font-size:0.78rem; font-weight:800; color:var(--primary); font-family:monospace; }
+        .wt-ac-item .ac-desc { font-size:0.74rem; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .wt-ac-item .ac-marca { font-size:0.68rem; color:var(--text-muted); }
+        .wt-ac-empty { padding:10px 12px; font-size:0.78rem; color:var(--text-muted); text-align:center; }
         /* Filter pills row */
         .v360-filter-row { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px; align-items:flex-end; }
         .v360-filter-row .form-group { flex:1; min-width:140px; max-width:200px; }
@@ -430,6 +466,27 @@
         .pend-status-resolvido  { background:rgba(16,185,129,0.15); color:var(--success); }
         .pend-status-cancelado  { background:rgba(107,114,128,0.15); color:var(--text-muted); }
         .pend-status-agretorno  { background:rgba(139,92,246,0.15); color:#7C3AED; }
+
+        /* Modal e-mail Previsão de Entrega */
+        .email-modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(17,24,39,0.75); z-index:2500; display:none; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+        .email-modal-box { background:#fff; width:92%; max-width:620px; border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column; }
+        .email-modal-header { background:#1a1f2e; color:#e5e7eb; padding:14px 20px; display:flex; align-items:center; justify-content:space-between; font-size:0.9rem; font-weight:700; }
+        .email-modal-header button { background:none; border:none; color:#e5e7eb; font-size:1.1rem; cursor:pointer; padding:2px 8px; border-radius:6px; }
+        .email-modal-header button:hover { background:rgba(255,255,255,0.12); }
+        .email-modal-body { padding:20px; display:flex; flex-direction:column; gap:14px; overflow-y:auto; max-height:70vh; }
+        .email-modal-field label { font-size:0.72rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em; display:block; margin-bottom:5px; }
+        .email-modal-field input, .email-modal-field textarea { width:100%; box-sizing:border-box; border:1px solid var(--border-color); border-radius:8px; padding:9px 12px; font-size:0.85rem; font-family:inherit; outline:none; transition:border-color 0.18s; }
+        .email-modal-field input:focus, .email-modal-field textarea:focus { border-color:var(--primary); box-shadow:0 0 0 2px rgba(0,53,247,0.12); }
+        .email-modal-field textarea { resize:vertical; min-height:160px; }
+        .email-modal-footer { padding:14px 20px; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; gap:10px; background:#F9FAFB; }
+        /* Autocomplete Para: no modal */
+        .email-para-wrapper { position:relative; }
+        .email-para-ac { position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid var(--border-color); border-top:none; border-radius:0 0 8px 8px; z-index:3000; max-height:200px; overflow-y:auto; box-shadow:0 8px 20px rgba(0,0,0,0.1); display:none; }
+        .email-para-ac.open { display:block; }
+        .email-para-ac-item { padding:9px 14px; font-size:0.83rem; cursor:pointer; border-bottom:1px solid #F3F4F6; }
+        .email-para-ac-item:last-child { border-bottom:none; }
+        .email-para-ac-item:hover { background:rgba(0,53,247,0.05); color:var(--primary); }
+        .email-para-ac-item small { font-size:0.7rem; color:var(--text-muted); display:block; }
         /* Contador tempo Ag retorno */
         .pend-agretorno-timer { display:inline-flex; align-items:center; gap:4px; font-size:0.72rem; font-weight:700; color:#7C3AED; background:rgba(139,92,246,0.10); border:1px solid rgba(139,92,246,0.3); border-radius:6px; padding:2px 8px; white-space:nowrap; }
 
@@ -952,6 +1009,22 @@
                     <div class="v360-kpi-grid" id="v360-kpi-conversao"></div>
                 </div>
 
+                <!-- CANAL DE ENTRADA (RASTREABILIDADE) -->
+                <div class="section-card" style="margin-bottom:20px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                        <span style="font-size:0.8rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;"><i class="fas fa-satellite-dish" style="color:#0D9488;"></i> Oportunidade Canal de Entrada (Rastreabilidade)</span>
+                    </div>
+                    <div class="v360-kpi-grid" id="v360-canal-cards" style="grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));"></div>
+                </div>
+
+                <!-- TIPO DE FECHAMENTO DE OPORTUNIDADE -->
+                <div class="section-card" style="margin-bottom:20px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                        <span style="font-size:0.8rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;"><i class="fas fa-brain" style="color:#6366F1;"></i> Tipo de Fechamento de Oportunidade — Inteligência de Negócio</span>
+                    </div>
+                    <div id="v360-fechamento-wrap" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;"></div>
+                </div>
+
                 <!-- RANKING VENDEDORES: FATURAMENTO -->
                 <div class="section-card" style="margin-bottom:20px;">
                     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
@@ -1009,6 +1082,49 @@
                     </div>
                     <div style="overflow-x:auto;"><table class="v360-rank-table"><thead><tr><th>Vendedor</th><th>Orçamentos c/ Timer</th><th>Tempo Total</th><th>Tempo Médio/Orçamento</th><th>Total Linhas</th><th>Tempo Médio/Linha</th></tr></thead><tbody id="v360-tb-timer"></tbody></table></div>
                 </div>
+
+                <!-- RANKING DE ORÇAMENTOS -->
+                <div class="section-card" style="margin-bottom:20px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; flex-wrap:wrap; gap:10px;">
+                        <span class="v360-section-title" style="margin:0;"><i class="fas fa-trophy" style="color:#D97706;"></i> Ranking de Orçamentos — Período Selecionado</span>
+                    </div>
+                    <!-- Sub-rankings em 4 colunas responsivas -->
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
+
+                        <!-- Quem fez mais orçamentos -->
+                        <div>
+                            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; display:flex; align-items:center; gap:7px;">
+                                <i class="fas fa-file-invoice" style="color:var(--primary);"></i> Nº de Orçamentos Criados
+                            </div>
+                            <table class="v360-rank-table"><thead><tr><th>#</th><th>Vendedor</th><th>Orçamentos</th></tr></thead><tbody id="v360-rank-qtd"></tbody></table>
+                        </div>
+
+                        <!-- Quem criou mais linhas -->
+                        <div>
+                            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; display:flex; align-items:center; gap:7px;">
+                                <i class="fas fa-list-ol" style="color:#0D9488;"></i> Quem Criou Mais Linhas
+                            </div>
+                            <table class="v360-rank-table"><thead><tr><th>#</th><th>Vendedor</th><th>Linhas</th><th>Média/Orc.</th></tr></thead><tbody id="v360-rank-linhas"></tbody></table>
+                        </div>
+
+                        <!-- Maiores valores de orçamento -->
+                        <div>
+                            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; display:flex; align-items:center; gap:7px;">
+                                <i class="fas fa-dollar-sign" style="color:var(--success);"></i> Maior Valor Total de Orçamentos
+                            </div>
+                            <table class="v360-rank-table"><thead><tr><th>#</th><th>Vendedor</th><th>Valor Total</th></tr></thead><tbody id="v360-rank-valor"></tbody></table>
+                        </div>
+
+                        <!-- Média de valor por orçamento -->
+                        <div>
+                            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; display:flex; align-items:center; gap:7px;">
+                                <i class="fas fa-chart-bar" style="color:#6366F1;"></i> Média de Valor por Orçamento
+                            </div>
+                            <table class="v360-rank-table"><thead><tr><th>#</th><th>Vendedor</th><th>Ticket Médio</th></tr></thead><tbody id="v360-rank-media"></tbody></table>
+                        </div>
+
+                    </div>
+                </div>
             </div>
 
             <!-- MODAL CADASTRO DE METAS -->
@@ -1023,6 +1139,31 @@
                     <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:24px;">
                         <button class="btn-secondary" onclick="v360FecharMeta()">Cancelar</button>
                         <button class="btn-primary" onclick="v360SalvarMetas()" style="background:#6366F1;"><i class="fas fa-save"></i> Salvar Metas</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL DETALHE DO ESTÁGIO (FUNIL) — POR USUÁRIO -->
+            <div class="modal-overlay" id="modal-v360-funil-detalhe" style="z-index:1300;">
+                <div class="modal-box" style="max-width:720px;">
+                    <span class="modal-close" onclick="_v360FecharFunilDetalhe()"><i class="fas fa-times"></i></span>
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+                        <div style="width:44px; height:44px; background:rgba(99,102,241,0.12); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <i class="fas fa-layer-group" style="color:#6366F1; font-size:1.3rem;"></i>
+                        </div>
+                        <div>
+                            <h2 style="font-size:1.1rem; color:var(--text-main);" id="v360-funil-detalhe-titulo">Orçamentos — Estágio</h2>
+                            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;" id="v360-funil-detalhe-sub">Usuário selecionado</p>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto; max-height:55vh; overflow-y:auto;">
+                        <table class="v360-rank-table">
+                            <thead><tr><th>Nº Cotação</th><th>Cliente</th><th>Valor Total</th><th>Criado em</th></tr></thead>
+                            <tbody id="v360-funil-detalhe-tbody"></tbody>
+                        </table>
+                    </div>
+                    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px;">
+                        <button class="btn-secondary" onclick="_v360FecharFunilDetalhe()">Fechar</button>
                     </div>
                 </div>
             </div>
@@ -1395,7 +1536,7 @@
 
                     <div class="section-card" style="overflow-x:auto;">
                         <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
-                            <button class="btn-primary" onclick="_salvarDadosPendDetalhe()"><i class="fas fa-save"></i> Salvar Dados</button>
+                            <button class="btn-primary" onclick="_salvarDadosPendDetalheComEmail()"><i class="fas fa-save"></i> Salvar Dados</button>
                         </div>
                         <table style="min-width:1400px;">
                             <thead>
@@ -1405,6 +1546,7 @@
                                     <th style="width:110px;">Marca</th>
                                     <th style="width:60px; text-align:center;">Qtd</th>
                                     <th style="width:110px;">Status</th>
+                                    <th style="width:48px; text-align:center;" title="Enviar e-mail de previsão de entrega"><i class="fas fa-envelope" style="color:var(--primary);"></i></th>
                                     <th style="width:140px;">Tempo (Ag retorno)</th>
                                     <th style="width:150px;">Custo Fornecedor</th>
                                     <th style="width:140px; text-align:right;">Preço Total (R$)</th>
@@ -1415,6 +1557,45 @@
                             </thead>
                             <tbody id="tb-pend-detalhe-body"></tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL EMAIL PREVISÃO DE ENTREGA -->
+            <div class="email-modal-overlay" id="modal-email-prev">
+                <div class="email-modal-box">
+                    <div class="email-modal-header">
+                        <span><i class="fas fa-envelope" style="color:#6366F1; margin-right:8px;"></i> <span id="email-modal-titulo">Enviar E-mail — Previsão de Entrega</span></span>
+                        <button onclick="fecharModalEmailPrev()" title="Fechar">✕</button>
+                    </div>
+                    <!-- Navegador de destinatários (visível quando há mais de 1) -->
+                    <div id="email-prev-nav" style="display:none; align-items:center; justify-content:space-between; padding:8px 20px; background:#F3F4F6; border-bottom:1px solid var(--border-color); font-size:0.8rem; font-weight:600; color:var(--text-muted);">
+                        <button onclick="_emailNavAnterior()" style="background:none; border:1px solid var(--border-color); border-radius:6px; padding:4px 12px; cursor:pointer; font-size:0.78rem;"><i class="fas fa-chevron-left"></i> Anterior</button>
+                        <span id="email-prev-nav-label">Destinatário 1 de 1</span>
+                        <button onclick="_emailNavProximo()" style="background:var(--primary); color:#fff; border:none; border-radius:6px; padding:4px 12px; cursor:pointer; font-size:0.78rem;">Próximo <i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="email-modal-body">
+                        <div class="email-modal-field">
+                            <label><i class="fas fa-at"></i> Para (e-mail do destinatário)</label>
+                            <div class="email-para-wrapper">
+                                <input type="text" id="email-prev-para" placeholder="Digite @ para buscar fornecedor ou / para buscar por nome..." autocomplete="off"
+                                    oninput="_emailParaInput(this)"
+                                    onblur="setTimeout(()=>{ const ac=document.getElementById('email-prev-para-ac'); if(ac)ac.classList.remove('open'); },200)">
+                                <div id="email-prev-para-ac" class="email-para-ac"></div>
+                            </div>
+                        </div>
+                        <div class="email-modal-field">
+                            <label><i class="fas fa-heading"></i> Assunto</label>
+                            <input type="text" id="email-prev-assunto" placeholder="Assunto">
+                        </div>
+                        <div class="email-modal-field">
+                            <label><i class="fas fa-align-left"></i> Corpo do E-mail</label>
+                            <textarea id="email-prev-corpo"></textarea>
+                        </div>
+                    </div>
+                    <div class="email-modal-footer">
+                        <button class="btn-secondary" onclick="fecharModalEmailPrev()"><i class="fas fa-times"></i> Fechar</button>
+                        <button class="btn-primary" onclick="_copiarEmailPrev()" title="Copiar corpo para área de transferência"><i class="fas fa-copy"></i> Copiar</button>
                     </div>
                 </div>
             </div>
@@ -2014,11 +2195,21 @@
         }
 
         async function _syncTable(table) {
-            const { data, error } = await _supabase.from(table).select('*');
-            if (!error && data) {
-                const normalized = data.map(row => _normalizeRow(table, { ...row }));
+            const PAGE_SIZE = 1000;
+            let allData = [];
+            let from = 0;
+            let hasMore = true;
+            while (hasMore) {
+                const { data, error } = await _supabase.from(table).select('*').range(from, from + PAGE_SIZE - 1);
+                if (error || !data) break;
+                allData = allData.concat(data);
+                hasMore = data.length === PAGE_SIZE;
+                from += PAGE_SIZE;
+            }
+            if (allData.length > 0) {
+                const normalized = allData.map(row => _normalizeRow(table, { ...row }));
                 _dbCache[table] = normalized;
-                localStorage.setItem('irp_' + table, JSON.stringify(normalized));
+                try { localStorage.setItem('irp_' + table, JSON.stringify(normalized)); } catch(e) { /* quota excedida: cache em memória mantido */ }
             }
         }
 
@@ -2987,6 +3178,7 @@
                             <div class="form-group"><label>Nome do Fornecedor *</label><input type="text" id="forn-nome" class="wt-input-cell" required placeholder="Razão Social do Fornecedor"></div>
                             <div class="form-group"><label>E-mail do Fornecedor *</label><input type="email" id="forn-email" class="wt-input-cell" required placeholder="contato@fornecedor.com.br"></div>
                             <div class="form-group"><label>Telefone do Fornecedor *</label><input type="text" id="forn-telefone" class="wt-input-cell" required placeholder="(00) 00000-0000"></div>
+                            <div class="form-group"><label>Telefone do Fornecedor 2 <span style="font-weight:400; color:var(--text-muted);">(celular — opcional)</span></label><input type="text" id="forn-telefone2" class="wt-input-cell" placeholder="(00) 00000-0000"></div>
                             <div class="form-group"><label>Pessoa de Contato *</label><input type="text" id="forn-pessoa" class="wt-input-cell" required placeholder="Nome do contato"></div>
                         </div>
                         <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
@@ -4052,6 +4244,7 @@ Data/Hora: ${autorData}`);
                         <div class="form-group"><label>Nome do Fornecedor *</label><input type="text" id="forn-nome" class="wt-input-cell" required value="${f.nome || ''}"></div>
                         <div class="form-group"><label>E-mail do Fornecedor *</label><input type="email" id="forn-email" class="wt-input-cell" required value="${f.email || ''}"></div>
                         <div class="form-group"><label>Telefone do Fornecedor *</label><input type="text" id="forn-telefone" class="wt-input-cell" required value="${f.telefone || ''}"></div>
+                        <div class="form-group"><label>Telefone do Fornecedor 2 <span style="font-weight:400; color:var(--text-muted);">(celular — opcional)</span></label><input type="text" id="forn-telefone2" class="wt-input-cell" value="${f.telefone2 || ''}"></div>
                         <div class="form-group"><label>Pessoa de Contato *</label><input type="text" id="forn-pessoa" class="wt-input-cell" required value="${f.pessoa || ''}"></div>
                     </div>
                     <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
@@ -4079,6 +4272,7 @@ Data/Hora: ${autorData}`);
                 nome: document.getElementById('forn-nome').value.trim(),
                 email: document.getElementById('forn-email').value.trim(),
                 telefone: document.getElementById('forn-telefone').value.trim(),
+                telefone2: (document.getElementById('forn-telefone2')?.value || '').trim(),
                 pessoa: document.getElementById('forn-pessoa').value.trim()
             };
             if (editId) {
@@ -4486,6 +4680,17 @@ Data/Hora: ${autorData}`);
             return Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
         }
 
+        function calcTempoNoEstagio(createdAt, statusHistory) {
+            // Tempo decorrido desde que a oportunidade entrou no estágio ATUAL até agora.
+            // Diferente de calcLeadTime: aqui o fim da contagem é sempre "agora" (data/hora atual),
+            // e o início é a data do último registro de histórico (entrada no estágio atual),
+            // ou a data de criação caso ainda não exista movimentação de estágio.
+            const start = (statusHistory && statusHistory.length > 0) ? new Date(statusHistory[statusHistory.length - 1].date) : new Date(createdAt);
+            const end = new Date();
+            const diffTime = Math.abs(end - start);
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
         function renderKanban() {
             const container = document.getElementById('kanban-container');
             const term = (document.getElementById('search-kanban').value || '').toLowerCase();
@@ -4508,7 +4713,7 @@ Data/Hora: ${autorData}`);
                 const stageOpps = opps.filter(o => o.stage === stage);
                 let cardsHTML = stageOpps.map(o => {
                     const client = cls.find(c => c.id === o.clienteId);
-                    const days = calcLeadTime(o.createdAt, o.history);
+                    const days = calcTempoNoEstagio(o.createdAt, o.history);
 
                     // Cirúrgica 12 — tarefas futuras pendentes desta oportunidade
                     const now = new Date();
@@ -5241,11 +5446,11 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                             <label style="font-size:0.7rem;">E-mail do Fornecedor *</label>
                             <input type="email" class="wt-input-cell pend-forn-email" data-idx="${i}" placeholder="contato@fornecedor.com" value="${f.fornEmail || ''}" style="font-size:0.78rem; padding:5px 8px;" oninput="_pendFornChange(this, ${i}, 'fornEmail')">
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" style="max-width:50%;">
                             <label style="font-size:0.7rem;">Telefone *</label>
                             <input type="text" class="wt-input-cell pend-forn-tel" data-idx="${i}" placeholder="(00) 00000-0000" value="${f.fornTel || ''}" style="font-size:0.78rem; padding:5px 8px;" oninput="_pendFornChange(this, ${i}, 'fornTel')">
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" style="max-width:50%;">
                             <label style="font-size:0.7rem;">Pessoa de Contato *</label>
                             <input type="text" class="wt-input-cell pend-forn-pessoa" data-idx="${i}" placeholder="Nome do contato" value="${f.fornPessoa || ''}" style="font-size:0.78rem; padding:5px 8px;" oninput="_pendFornChange(this, ${i}, 'fornPessoa')">
                         </div>
@@ -5263,8 +5468,13 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                             <input type="number" step="0.01" class="wt-input-cell pend-forn-preco" data-idx="${i}" placeholder="0,00" value="${f.precoUn || ''}" style="font-size:0.76rem; padding:5px 6px;" oninput="_pendFornChange(this, ${i}, 'precoUn')">
                         </div>
                         <div class="form-group">
-                            <label style="font-size:0.7rem;">Comentário</label>
-                            <input type="text" class="wt-input-cell pend-forn-comentario" data-idx="${i}" placeholder="Obs. do fornecedor..." value="${f.comentario || ''}" style="font-size:0.76rem; padding:5px 8px; min-width:120px;" oninput="_pendFornChange(this, ${i}, 'comentario')">
+                            <label style="font-size:0.7rem;">Motivo de contato</label>
+                            <select class="wt-input-cell pend-forn-comentario" data-idx="${i}" style="font-size:0.76rem; padding:5px 8px; min-width:120px;" onchange="_pendFornChange(this, ${i}, 'comentario')">
+                                <option value="">— Selecione —</option>
+                                <option value="Cotação" ${(f.comentario||'')==='Cotação'?'selected':''}>Cotação</option>
+                                <option value="Dúvida Técnica" ${(f.comentario||'')==='Dúvida Técnica'?'selected':''}>Dúvida Técnica</option>
+                                <option value="Previsão de Entrega" ${(f.comentario||'')==='Previsão de Entrega'?'selected':''}>Previsão de Entrega</option>
+                            </select>
                         </div>
                     </div>
                 </div>`).join('');
@@ -5654,9 +5864,15 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                 </td>
                 <td>
                     <textarea class="wt-input-cell w-desc uppercase" placeholder="Descrição Técnica" style="width:100%; min-height:36px; resize:vertical; white-space:pre-wrap; word-break:break-word; font-size:0.76rem; padding:5px 7px; border:none; background:#FAFBFF; display:block;">${data.desc || ''}</textarea>
-                    <div style="display:flex; align-items:center; gap:4px; margin-top:8px; padding:0 4px 4px;">
+                    <div style="display:flex; align-items:center; gap:4px; margin-top:8px; padding:0 4px 4px; position:relative;">
                         <span style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; flex-shrink:0;">Código</span>
-                        <input type="text" class="wt-input-cell w-codigo uppercase" placeholder="Código" value="${data.codigo || ''}" style="flex:1; min-width:0; font-size:0.78rem;" oninput="buscarProdutoPorCodigo(this)">
+                        <div class="wt-ac-wrap" style="flex:1; min-width:0; position:relative;">
+                            <input type="text" class="wt-input-cell w-codigo uppercase" placeholder="Código" value="${data.codigo || ''}" style="width:100%; font-size:0.78rem;" autocomplete="off"
+                                oninput="_wtCodigoAC(this)"
+                                onblur="_wtCodigoACHide(this)"
+                                onkeydown="_wtCodigoACKey(event, this)">
+                            <div class="wt-ac-dropdown" style="display:none;"></div>
+                        </div>
                     </div>
                 </td>
                 <td>
@@ -5968,6 +6184,89 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
             if (error || !data || data.length === 0) return;
             const prodRemoto = _normalizeRow('produtos', { ...data[0] });
             _preencherLinhaProduto(inputEl.closest('tr'), prodRemoto);
+        }
+
+        // ── AUTOCOMPLETE DO CAMPO CÓDIGO ──────────────────────────────
+        function _wtCodigoAC(inputEl) {
+            const termo = (inputEl.value || '').trim().toUpperCase();
+            const wrap  = inputEl.closest('.wt-ac-wrap');
+            if (!wrap) return;
+            const dd = wrap.querySelector('.wt-ac-dropdown');
+            if (!dd) return;
+
+            if (termo.length < 1) { dd.style.display = 'none'; dd.innerHTML = ''; return; }
+
+            const produtos = DB.get('produtos') || [];
+            const matches = produtos.filter(p =>
+                (p.codigo || '').toUpperCase().includes(termo) ||
+                (p.desc   || '').toUpperCase().includes(termo)
+            ).slice(0, 12);
+
+            if (matches.length === 0) {
+                dd.innerHTML = `<div class="wt-ac-empty"><i class="fas fa-search-minus"></i> Nenhum produto encontrado</div>`;
+                dd.style.display = 'block';
+                return;
+            }
+
+            dd.innerHTML = matches.map((p, i) => `
+                <div class="wt-ac-item" data-idx="${i}"
+                    onmousedown="_wtCodigoACSelect(event, this)"
+                    data-codigo="${(p.codigo||'').replace(/"/g,'&quot;')}"
+                    data-desc="${(p.desc||'').replace(/"/g,'&quot;')}"
+                    data-marca="${(p.marca||'').replace(/"/g,'&quot;')}">
+                    <span class="ac-cod">${p.codigo || '—'}</span>
+                    <span class="ac-desc">${p.desc || ''}</span>
+                    <span class="ac-marca">${p.marca || ''}</span>
+                </div>`).join('');
+            dd.style.display = 'block';
+        }
+
+        function _wtCodigoACSelect(e, itemEl) {
+            e.preventDefault();
+            const wrap   = itemEl.closest('.wt-ac-wrap');
+            const input  = wrap.querySelector('.w-codigo');
+            const codigo = itemEl.dataset.codigo;
+            input.value  = codigo;
+            wrap.querySelector('.wt-ac-dropdown').style.display = 'none';
+            // Reutiliza buscarProdutoPorCodigo para preencher a linha completa
+            buscarProdutoPorCodigo(input);
+        }
+
+        function _wtCodigoACHide(inputEl) {
+            // Pequeno delay para deixar o onmousedown do item disparar primeiro
+            setTimeout(() => {
+                const wrap = inputEl.closest('.wt-ac-wrap');
+                if (!wrap) return;
+                const dd = wrap.querySelector('.wt-ac-dropdown');
+                if (dd) dd.style.display = 'none';
+            }, 180);
+        }
+
+        function _wtCodigoACKey(e, inputEl) {
+            const wrap = inputEl.closest('.wt-ac-wrap');
+            if (!wrap) return;
+            const dd    = wrap.querySelector('.wt-ac-dropdown');
+            if (!dd || dd.style.display === 'none') return;
+            const items = dd.querySelectorAll('.wt-ac-item');
+            let cur = dd.querySelector('.wt-ac-active');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                const next = cur ? (cur.nextElementSibling || items[0]) : items[0];
+                if (cur) cur.classList.remove('wt-ac-active');
+                if (next) next.classList.add('wt-ac-active');
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                const prev = cur ? (cur.previousElementSibling || items[items.length-1]) : items[items.length-1];
+                if (cur) cur.classList.remove('wt-ac-active');
+                if (prev) prev.classList.add('wt-ac-active');
+            } else if (e.key === 'Enter') {
+                if (cur) {
+                    e.preventDefault();
+                    _wtCodigoACSelect({ preventDefault: ()=>{} }, cur);
+                }
+            } else if (e.key === 'Escape') {
+                dd.style.display = 'none';
+            }
         }
 
         function replicarMarcaSol(btn, campo) {
@@ -7994,6 +8293,7 @@ De ${remetenteNome}
         let _v360CustomStart = null; // Date object or null
         let _v360CustomEnd   = null; // Date object or null
         let _v360FiltroModo  = 'todos'; // 'todos' | 'hierarquia' | 'usuario'
+        let _v360OppsAtuais  = []; // oportunidades filtradas na última renderização de calcVisao360()
 
         function v360ToggleCustomDate(btn) {
             const row = document.getElementById('v360-custom-date-row');
@@ -8079,6 +8379,43 @@ De ${remetenteNome}
             _v360FiltroModo = modo;
             _v360IniciarFiltro();
             calcVisao360();
+        }
+
+        function _v360AbrirFunilDetalhe(stage) {
+            const selUsr = document.getElementById('v360-filtro-usuario');
+            const usrId = selUsr?.value;
+            if (!usrId) return;
+            const usuarios = DB.get('usuarios');
+            const usr = usuarios.find(u => u.id === usrId);
+            const usrNome = usr ? (usr.nome + (usr.sobrenome ? ' ' + usr.sobrenome : '')) : '';
+
+            const oppsEstagio = _v360OppsAtuais.filter(o => o.stage === stage);
+
+            const titulo = document.getElementById('v360-funil-detalhe-titulo');
+            const sub = document.getElementById('v360-funil-detalhe-sub');
+            const tbody = document.getElementById('v360-funil-detalhe-tbody');
+            if (titulo) titulo.textContent = `Orçamentos — ${stage}`;
+            if (sub) sub.textContent = `Usuário: ${usrNome} (${oppsEstagio.length} orçamento${oppsEstagio.length === 1 ? '' : 's'})`;
+            if (tbody) {
+                tbody.innerHTML = oppsEstagio.length === 0
+                    ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Nenhum orçamento encontrado.</td></tr>'
+                    : oppsEstagio.map(o => {
+                        const nrCotacao = o.id ? o.id.slice(-6).toUpperCase() : '------';
+                        const cli = DB.findById('clientes', o.clienteId);
+                        const nomeCliente = cli ? cli.nome : '—';
+                        return `<tr>
+                        <td><a href="#" onclick="_v360FecharFunilDetalhe(); openOppPage('${o.id}'); return false;" style="color:var(--primary); font-weight:700; font-family:monospace; text-decoration:underline dotted;" title="Abrir oportunidade">${nrCotacao}</a></td>
+                        <td>${nomeCliente}</td>
+                        <td>${_v360FmtBRL(o.valorTotal||0)}</td>
+                        <td>${o.createdAt ? new Date(o.createdAt).toLocaleDateString('pt-BR') : '—'}</td>
+                    </tr>`;
+                    }).join('');
+            }
+            document.getElementById('modal-v360-funil-detalhe').style.display = 'flex';
+        }
+
+        function _v360FecharFunilDetalhe() {
+            document.getElementById('modal-v360-funil-detalhe').style.display = 'none';
         }
 
         function _v360GetIdsAtivos(usuarios) {
@@ -8208,6 +8545,7 @@ De ${remetenteNome}
             // Aplica filtro de usuário/hierarquia
             const idsAtivos = isAlto ? _v360GetIdsAtivos(usuarios) : null;
             const opps = idsAtivos === null ? todasOpps : todasOpps.filter(o => idsAtivos.has(o.criadoPorId));
+            _v360OppsAtuais = opps;
 
             const { start, end } = _v360PeriodRange();
             const metas = _v360GetMetas();
@@ -8267,11 +8605,13 @@ De ${remetenteNome}
             const stageColors = {'Prospecção':'#4338CA','Orçamento':'var(--primary)','Análise Diretoria':'#6366F1','Envio Cliente':'#F59E0B','Faturamento':'#0D9488','Ganho':'#10B981','Perdido':'#EF4444'};
             const funnelEl = document.getElementById('v360-funnel-row');
             if (funnelEl) {
+                const usrSelecionado = _v360FiltroModo === 'usuario' && document.getElementById('v360-filtro-usuario')?.value;
                 funnelEl.innerHTML = STAGES.map(st => {
                     const qtd = opps.filter(o => o.stage === st).length;
                     const valor = opps.filter(o => o.stage === st).reduce((a,o)=>a+(o.valorTotal||0),0);
                     const cor = stageColors[st] || '#6B7280';
-                    return `<div class="v360-funnel-col">
+                    const clickAttr = usrSelecionado ? ` onclick="_v360AbrirFunilDetalhe('${st.replace(/'/g, "\\'")}')" style="cursor:pointer;"` : '';
+                    return `<div class="v360-funnel-col"${clickAttr}>
                         <div class="fn-stage">${st}</div>
                         <div class="fn-count" style="color:${cor};">${qtd}</div>
                         <div style="font-size:0.68rem; color:var(--text-muted); margin-top:3px;">${_v360FmtBRL(valor)}</div>
@@ -8313,6 +8653,119 @@ De ${remetenteNome}
                         <div class="kpi-value" style="font-size:1.4rem;"><span class="v360-conv-pill ${txClass}">${txPeriodo}%</span></div>
                         <div class="kpi-sub">Criados → Ganhos</div>
                     </div>`;
+            }
+
+            // CANAL DE ENTRADA (RASTREABILIDADE)
+            const canalEl = document.getElementById('v360-canal-cards');
+            if (canalEl) {
+                const canalMap = {};
+                criadosNoPeriodo.forEach(o => {
+                    const c = (o.canal || 'Não informado').trim() || 'Não informado';
+                    if (!canalMap[c]) canalMap[c] = { total: 0, ganhos: 0, perdidos: 0 };
+                    canalMap[c].total++;
+                    if (o.stage === 'Ganho')   canalMap[c].ganhos++;
+                    if (o.stage === 'Perdido') canalMap[c].perdidos++;
+                });
+                // Ranqueia do menor para o maior (total ASC)
+                const canalRank = Object.entries(canalMap).sort((a, b) => a[1].total - b[1].total);
+                const maxTotal  = canalRank.length > 0 ? canalRank[canalRank.length - 1][1].total : 1;
+                const canalColors = ['#0D9488','#0891B2','#4338CA','#7C3AED','#B45309','#DC2626','#059669','#D97706'];
+                if (canalRank.length === 0) {
+                    canalEl.innerHTML = `<p style="color:var(--text-muted); font-size:0.82rem; padding:8px 0;">Nenhuma oportunidade no período.</p>`;
+                } else {
+                    canalEl.innerHTML = canalRank.map(([nome, d], i) => {
+                        const tx = d.total > 0 ? ((d.ganhos / d.total) * 100).toFixed(1) : '0.0';
+                        const barPct = maxTotal > 0 ? ((d.total / maxTotal) * 100).toFixed(1) : 0;
+                        const col = canalColors[i % canalColors.length];
+                        return `<div class="v360-canal-card" style="border-left:4px solid ${col}; padding-left:16px;">
+                            <div class="canal-rank">#${i+1}º</div>
+                            <div class="canal-nome"><i class="fas fa-tag" style="color:${col};"></i> ${nome}</div>
+                            <div class="canal-total">${d.total}</div>
+                            <div class="canal-sub">oportunidades criadas</div>
+                            <div class="v360-canal-bar-row">
+                                <div class="v360-canal-bar-bg"><div class="v360-canal-bar-fill" style="width:${barPct}%; background:${col};"></div></div>
+                                <span style="font-size:0.65rem; color:var(--text-muted); flex-shrink:0;">${barPct}%</span>
+                            </div>
+                            <div class="v360-canal-stat">
+                                <span class="v360-canal-ganho"><i class="fas fa-check"></i> ${d.ganhos} Ganhos</span>
+                                <span class="v360-canal-perdido"><i class="fas fa-times"></i> ${d.perdidos} Perdidos</span>
+                                <span class="v360-canal-tx"><i class="fas fa-percent"></i> ${tx}% Tx</span>
+                            </div>
+                        </div>`;
+                    }).join('');
+                }
+            }
+
+            // TIPO DE FECHAMENTO — INTELIGÊNCIA DE NEGÓCIO
+            const fechWrap = document.getElementById('v360-fechamento-wrap');
+            if (fechWrap) {
+                const perdidosPeriodo = opps.filter(o => o.stage === 'Perdido' && _v360InPeriod(o.fechadoEm || o.createdAt));
+                const ganhosPeriodo   = opps.filter(o => o.stage === 'Ganho'   && _v360InPeriod(o.fechadoEm || o.createdAt));
+
+                // Rank motivos de perdidos
+                const motivoMap = {};
+                perdidosPeriodo.forEach(o => {
+                    const m = (o.motivoPerdido || o.motivo_perdido || 'Não informado').trim() || 'Não informado';
+                    motivoMap[m] = (motivoMap[m] || 0) + 1;
+                });
+                const motivoRank = Object.entries(motivoMap).sort((a, b) => b[1] - a[1]);
+                const totalPerd  = perdidosPeriodo.length || 1;
+
+                // Rank canais de origem dos ganhos
+                const canalGanhoMap = {};
+                ganhosPeriodo.forEach(o => {
+                    const c = (o.canal || 'Não informado').trim() || 'Não informado';
+                    canalGanhoMap[c] = (canalGanhoMap[c] || 0) + 1;
+                });
+                const canalGanhoRank = Object.entries(canalGanhoMap).sort((a, b) => b[1] - a[1]);
+                const totalGanhoP    = ganhosPeriodo.length || 1;
+
+                const motivoColors = ['#EF4444','#F97316','#F59E0B','#8B5CF6','#6B7280'];
+                const canalGColors = ['#10B981','#0D9488','#059669','#065F46','#6366F1'];
+
+                const blockPerdido = `
+                    <div class="v360-fech-block">
+                        <h4><i class="fas fa-times-circle" style="color:#EF4444;"></i> Motivos de Fechamento — Perdidos (${perdidosPeriodo.length})</h4>
+                        ${motivoRank.length === 0
+                            ? `<p style="font-size:0.8rem; color:var(--text-muted);">Nenhum registro de perdidos no período.</p>`
+                            : motivoRank.map(([motivo, cnt], i) => {
+                                const pct = ((cnt / totalPerd) * 100).toFixed(1);
+                                const col = motivoColors[i % motivoColors.length];
+                                return `<div class="v360-fech-row">
+                                    <span class="v360-fech-pos">${i+1}</span>
+                                    <span class="v360-fech-nome">${motivo}</span>
+                                    <div class="v360-fech-bar-wrap">
+                                        <div class="v360-fech-bar-bg"><div class="v360-fech-bar-fill" style="width:${pct}%; background:${col};"></div></div>
+                                    </div>
+                                    <span class="v360-fech-count" style="color:${col};">${cnt}</span>
+                                    <span class="v360-fech-pct">${pct}%</span>
+                                </div>`;
+                            }).join('')
+                        }
+                    </div>`;
+
+                const blockGanho = `
+                    <div class="v360-fech-block">
+                        <h4><i class="fas fa-check-circle" style="color:#10B981;"></i> Canal de Origem — Negócios Ganhos (${ganhosPeriodo.length})</h4>
+                        ${canalGanhoRank.length === 0
+                            ? `<p style="font-size:0.8rem; color:var(--text-muted);">Nenhum ganho no período.</p>`
+                            : canalGanhoRank.map(([canal, cnt], i) => {
+                                const pct = ((cnt / totalGanhoP) * 100).toFixed(1);
+                                const col = canalGColors[i % canalGColors.length];
+                                return `<div class="v360-fech-row">
+                                    <span class="v360-fech-pos">${i+1}</span>
+                                    <span class="v360-fech-nome">${canal}</span>
+                                    <div class="v360-fech-bar-wrap">
+                                        <div class="v360-fech-bar-bg"><div class="v360-fech-bar-fill" style="width:${pct}%; background:${col};"></div></div>
+                                    </div>
+                                    <span class="v360-fech-count" style="color:${col};">${cnt}</span>
+                                    <span class="v360-fech-pct">${pct}%</span>
+                                </div>`;
+                            }).join('')
+                        }
+                    </div>`;
+
+                fechWrap.innerHTML = blockPerdido + blockGanho;
             }
 
             // RANKING FATURAMENTO
@@ -8568,6 +9021,86 @@ De ${remetenteNome}
                         <td style="color:var(--text-muted);">${_v360FmtTime(r.mediaLinha)}</td>
                     </tr>`).join('');
             }
+
+            // RANKING DE ORÇAMENTOS — Período selecionado
+            (function() {
+                // Todos os comerciais/assistentes/externos cadastrados
+                const vendedores = usuarios.filter(u => ['1','assistente','externo','staff'].includes(u.nivel));
+
+                // Opps criadas no período (qualquer stage)
+                const oppsRankPeriodo = opps.filter(o => _v360InPeriod(o.createdAt));
+
+                // Monta dados por vendedor
+                const dadosVend = vendedores.map(u => {
+                    const nome = u.nome + (u.sobrenome ? ' ' + u.sobrenome : '');
+                    const nivel = u.nivel;
+                    const minhas = oppsRankPeriodo.filter(o => o.criadoPorId === u.id);
+                    const qtd    = minhas.length;
+                    const linhas = minhas.reduce((acc, o) => acc + (o.items || []).length, 0);
+                    const valor  = minhas.reduce((acc, o) => acc + (parseFloat(o.valorTotal) || 0), 0);
+                    const media  = qtd > 0 ? valor / qtd : 0;
+                    const mediaLinhas = qtd > 0 ? linhas / qtd : 0;
+                    return { nome, nivel, qtd, linhas, valor, media, mediaLinhas };
+                }).filter(r => r.qtd > 0);
+
+                // Badge helper
+                const badge = (i) => {
+                    const cls = i===0?'v360-rank-1':i===1?'v360-rank-2':i===2?'v360-rank-3':'v360-rank-n';
+                    return `<span class="v360-rank-badge ${cls}">${i+1}</span>`;
+                };
+                const nivelTag = (n) => {
+                    const map = {'1':'Nível 1','assistente':'Assistente','externo':'Externo','staff':'Staff'};
+                    const colors = {'1':'#E0E7FF:#4338CA','assistente':'#D1FAE5:#065F46','externo':'#FEF3C7:#92400E','staff':'#F3F4F6:#374151'};
+                    const [bg, col] = (colors[n]||'#F3F4F6:#374151').split(':');
+                    return `<span style="font-size:0.65rem; background:${bg}; color:${col}; padding:2px 7px; border-radius:8px; font-weight:700;">${map[n]||n}</span>`;
+                };
+                const empty = (cols) => `<tr><td colspan="${cols}" style="text-align:center; color:var(--text-muted); padding:16px; font-size:0.82rem;">Nenhum dado no período.</td></tr>`;
+
+                // 1. Mais orçamentos (qtd DESC)
+                const tbQtd = document.getElementById('v360-rank-qtd');
+                if (tbQtd) {
+                    const rank = [...dadosVend].sort((a,b) => b.qtd - a.qtd);
+                    tbQtd.innerHTML = rank.length === 0 ? empty(3) : rank.map((r,i) => `<tr>
+                        <td>${badge(i)}</td>
+                        <td><span style="font-weight:700;">${r.nome}</span> ${nivelTag(r.nivel)}</td>
+                        <td style="font-weight:800; color:var(--primary); text-align:center;">${r.qtd}</td>
+                    </tr>`).join('');
+                }
+
+                // 2. Mais linhas (linhas DESC)
+                const tbLinhas = document.getElementById('v360-rank-linhas');
+                if (tbLinhas) {
+                    const rank = [...dadosVend].sort((a,b) => b.linhas - a.linhas);
+                    tbLinhas.innerHTML = rank.length === 0 ? empty(4) : rank.map((r,i) => `<tr>
+                        <td>${badge(i)}</td>
+                        <td><span style="font-weight:700;">${r.nome}</span> ${nivelTag(r.nivel)}</td>
+                        <td style="font-weight:800; color:#0D9488; text-align:center;">${r.linhas}</td>
+                        <td style="color:var(--text-muted); text-align:center;">${r.mediaLinhas.toFixed(1)}</td>
+                    </tr>`).join('');
+                }
+
+                // 3. Maior valor total (valor DESC)
+                const tbValor = document.getElementById('v360-rank-valor');
+                if (tbValor) {
+                    const rank = [...dadosVend].sort((a,b) => b.valor - a.valor);
+                    tbValor.innerHTML = rank.length === 0 ? empty(3) : rank.map((r,i) => `<tr>
+                        <td>${badge(i)}</td>
+                        <td><span style="font-weight:700;">${r.nome}</span> ${nivelTag(r.nivel)}</td>
+                        <td style="font-weight:800; color:var(--success);">${_v360FmtBRL(r.valor)}</td>
+                    </tr>`).join('');
+                }
+
+                // 4. Média de valor por orçamento (media DESC)
+                const tbMedia = document.getElementById('v360-rank-media');
+                if (tbMedia) {
+                    const rank = [...dadosVend].sort((a,b) => b.media - a.media);
+                    tbMedia.innerHTML = rank.length === 0 ? empty(3) : rank.map((r,i) => `<tr>
+                        <td>${badge(i)}</td>
+                        <td><span style="font-weight:700;">${r.nome}</span> ${nivelTag(r.nivel)}</td>
+                        <td style="font-weight:800; color:#6366F1;">${_v360FmtBRL(r.media)}</td>
+                    </tr>`).join('');
+                }
+            })();
         }
 
         // --- 8. ACOMPANHAMENTO DE ITENS PENDENTES (Visão 360 Diretoria) ---
@@ -8980,7 +9513,7 @@ De ${remetenteNome}
             const resolvidos = itens.filter(it => it._statusAtual === 'Resolvido' || it._statusAtual === 'Cancelado');
 
             if (itens.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" style="color:var(--text-muted); text-align:center; padding:20px;">Nenhum item encontrado com os filtros aplicados.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="11" style="color:var(--text-muted); text-align:center; padding:20px;">Nenhum item encontrado com os filtros aplicados.</td></tr>';
                 return;
             }
 
@@ -9064,6 +9597,11 @@ De ${remetenteNome}
                     <td style="white-space:nowrap;">${it.marcaOfe || it.marcaSol || '—'}</td>
                     <td style="text-align:center; white-space:nowrap;">${qtd || '—'}</td>
                     <td><span class="pend-status-badge ${badgeClass}">${it._statusAtual}</span></td>
+                    <td style="text-align:center;">
+                        <button type="button" title="Enviar e-mail de previsão de entrega desta marca" style="background:none; border:none; cursor:pointer; padding:4px 8px; border-radius:6px; color:var(--primary); font-size:1rem;" onclick="abrirEmailPrevEntrega('${oppId}', '${(it.marcaOfe||it.marcaSol||'').replace(/'/g,"\\'")}')">
+                            <i class="fas fa-envelope"></i>
+                        </button>
+                    </td>
                     <td style="white-space:nowrap;">${tempoAgRetornoHtml}</td>
                     <td style="min-width:120px;">${custoFornHtml}</td>
                     <td style="text-align:right; font-weight:700; color:var(--primary); white-space:nowrap; min-width:110px;">
@@ -9077,7 +9615,7 @@ De ${remetenteNome}
 
             let html = ativos.map((it, i) => renderRow(it, i)).join('');
             if (resolvidos.length > 0) {
-                html += `<tr><td colspan="10" style="padding:0;"><div class="pend-section-sep"><i class="fas fa-check-circle"></i> Itens Resolvidos/Cancelados (${resolvidos.length})</div></td></tr>`;
+                html += `<tr><td colspan="11" style="padding:0;"><div class="pend-section-sep"><i class="fas fa-check-circle"></i> Itens Resolvidos/Cancelados (${resolvidos.length})</div></td></tr>`;
                 html += resolvidos.map((it, i) => renderRow(it, ativos.length + i)).join('');
             }
             tbody.innerHTML = html;
@@ -9205,7 +9743,7 @@ De ${remetenteNome}
                 }
             }
             // Feedback visual
-            const btn = document.querySelector('[onclick="_salvarDadosPendDetalhe()"]');
+            const btn = document.querySelector('[onclick="_salvarDadosPendDetalheComEmail()"]') || document.querySelector('[onclick="_salvarDadosPendDetalhe()"]');
             if (btn) { const orig = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i> Salvo!'; btn.style.background='var(--success)'; setTimeout(() => { btn.innerHTML = orig; btn.style.background=''; }, 1500); }
         }
 
@@ -9235,6 +9773,216 @@ De ${remetenteNome}
 
             DB.update('oportunidades', oppId, opp);
         }
+
+        // === EMAIL PREVISÃO DE ENTREGA ===
+        let _emailPrevMarcaAtual    = null;
+        let _emailPrevOppIdAtual    = null;
+        let _emailPrevEnviado       = false;
+        let _emailPrevDestinatarios = [];  // [{para, assunto, corpo, motivo}] — um por e-mail único
+        let _emailPrevDestIdx       = 0;
+
+        function _buildEmailContent(motivo, primeiroNome, listaItens, resumoAssunto) {
+            let assunto = '', corpo = '';
+            if (motivo === 'Cotação') {
+                assunto = `Cotação ${resumoAssunto}`;
+                corpo =
+`Olá, ${primeiroNome},
+
+Gentileza cotar os itens abaixo informando junto à cotação NCM, ICMS e IPI.
+
+${listaItens}
+
+Desde já agradeço.`;
+            } else if (motivo === 'Dúvida Técnica') {
+                assunto = `Dúvida Técnica ${resumoAssunto}`;
+                corpo =
+`Olá, ${primeiroNome},
+
+Poderia me ajudar com a seguinte dúvida:
+
+${listaItens}
+
+Desde já agradeço.`;
+            } else {
+                assunto = `Previsão de Entrega ${resumoAssunto}`;
+                corpo =
+`Olá, ${primeiroNome}, gentileza verificar a previsão de entrega dos itens:
+
+${listaItens}
+
+Desde já agradeço.`;
+            }
+            return { assunto, corpo };
+        }
+
+        function abrirEmailPrevEntrega(oppId, marca) {
+            const opp = DB.findById('oportunidades', oppId);
+            if (!opp || !opp.items) return;
+
+            _emailPrevOppIdAtual = oppId;
+            _emailPrevMarcaAtual = marca;
+            _emailPrevEnviado    = false;
+
+            const itensMarca = opp.items.filter(it =>
+                it.pendente && (it.marcaOfe || it.marcaSol || '').toLowerCase() === marca.toLowerCase()
+            );
+            if (itensMarca.length === 0) {
+                alert('Nenhum item pendente encontrado para a marca "' + marca + '".\nFiltro de marca necessário para usar este recurso.');
+                return;
+            }
+
+            // Lista de itens compartilhada (todos da marca)
+            const listaItens = itensMarca.map(it => {
+                const qtd  = parseFloat(it.qtd) || 1;
+                const cod  = (it.codigo || '').toUpperCase().padEnd(12);
+                const desc = (it.desc || '').toUpperCase();
+                const marc = (it.marcaOfe || it.marcaSol || '').toUpperCase();
+                return `${qtd} UN ${cod} ${desc}${marc ? ' — ' + marc : ''}`;
+            }).join('\n');
+
+            const resumoAssunto = itensMarca.slice(0, 2).map(it => {
+                const qtd = parseFloat(it.qtd) || 1;
+                const cod = (it.codigo || '').toUpperCase();
+                return `${qtd} UN ${cod}`;
+            }).join(', ') + (itensMarca.length > 2 ? '...' : '');
+
+            // Coleta destinatários únicos por fornEmail, preservando pessoa e motivo de cada um
+            const mapaDest = new Map(); // key = fornEmail
+            itensMarca.forEach(it => {
+                const lista = (it.pendFornList && it.pendFornList.length > 0)
+                    ? it.pendFornList
+                    : [{ fornEmail: it.pendFornEmail || '', fornPessoa: it.pendFornPessoa || '', comentario: it.pendFornComentario || it.comentario || '' }];
+                lista.forEach(f => {
+                    const email = (f.fornEmail || '').trim();
+                    if (!email) return;
+                    if (!mapaDest.has(email)) {
+                        mapaDest.set(email, { para: email, pessoa: f.fornPessoa || '', motivo: f.comentario || '' });
+                    }
+                });
+            });
+            if (mapaDest.size === 0) mapaDest.set('', { para: '', pessoa: '', motivo: '' });
+
+            _emailPrevDestinatarios = Array.from(mapaDest.values()).map(d => {
+                const primeiroNome = d.pessoa.split(' ')[0] || 'responsável';
+                const { assunto, corpo } = _buildEmailContent(d.motivo, primeiroNome, listaItens, resumoAssunto);
+                return { para: d.para, assunto, corpo, motivo: d.motivo };
+            });
+            _emailPrevDestIdx = 0;
+
+            _emailPrevCarregarDestinatario(0);
+            document.getElementById('modal-email-prev').style.display = 'flex';
+        }
+
+        function _emailPrevCarregarDestinatario(idx) {
+            const d = _emailPrevDestinatarios[idx];
+            if (!d) return;
+            document.getElementById('email-prev-para').value    = d.para;
+            document.getElementById('email-prev-assunto').value = d.assunto;
+            document.getElementById('email-prev-corpo').value   = d.corpo;
+            const ac = document.getElementById('email-prev-para-ac');
+            if (ac) ac.classList.remove('open');
+            const tituloModal = document.getElementById('email-modal-titulo');
+            if (tituloModal) {
+                const titulosMap = { 'Cotação': 'Cotação', 'Dúvida Técnica': 'Dúvida Técnica', 'Previsão de Entrega': 'Previsão de Entrega' };
+                tituloModal.textContent = 'Enviar E-mail — ' + (titulosMap[d.motivo] || 'Previsão de Entrega');
+            }
+            const total = _emailPrevDestinatarios.length;
+            const nav   = document.getElementById('email-prev-nav');
+            const label = document.getElementById('email-prev-nav-label');
+            if (nav)   nav.style.display = total > 1 ? 'flex' : 'none';
+            if (label) label.textContent = `Destinatário ${idx + 1} de ${total}`;
+        }
+
+        function _emailNavAnterior() {
+            if (_emailPrevDestIdx > 0) { _emailPrevDestIdx--; _emailPrevCarregarDestinatario(_emailPrevDestIdx); }
+        }
+        function _emailNavProximo() {
+            if (_emailPrevDestIdx < _emailPrevDestinatarios.length - 1) { _emailPrevDestIdx++; _emailPrevCarregarDestinatario(_emailPrevDestIdx); }
+        }
+
+        function fecharModalEmailPrev() {
+            document.getElementById('modal-email-prev').style.display = 'none';
+            _emailPrevEnviado = true;   // considerado "visto/preparado"
+        }
+
+        function _emailParaInput(inputEl) {
+            const val = inputEl.value;
+            const ac = document.getElementById('email-prev-para-ac');
+            if (!ac) return;
+            const term = val.toLowerCase();
+
+            // Busca em fornecedores cadastrados
+            const fornecedores = DB.get('fornecedores') || [];
+            let matches = [];
+
+            if (val.includes('@') && val.indexOf('@') === 0) {
+                // @ no início: busca por e-mail
+                const termEmail = val.slice(1).toLowerCase();
+                matches = fornecedores.filter(f => (f.email || '').toLowerCase().includes(termEmail) || (f.nome || '').toLowerCase().includes(termEmail));
+            } else if (val.startsWith('/')) {
+                // / no início: busca por nome
+                const termNome = val.slice(1).toLowerCase();
+                matches = fornecedores.filter(f => (f.nome || '').toLowerCase().includes(termNome));
+            } else if (val.length >= 2) {
+                matches = fornecedores.filter(f =>
+                    (f.nome || '').toLowerCase().includes(term) ||
+                    (f.email || '').toLowerCase().includes(term)
+                );
+            }
+
+            matches = matches.filter(f => f.email).slice(0, 8);
+            if (matches.length === 0) { ac.classList.remove('open'); return; }
+
+            ac.innerHTML = matches.map(f => `
+                <div class="email-para-ac-item" onmousedown="_emailParaSelect('${(f.email||'').replace(/'/g,"\\'")}')">
+                    <b>${f.nome || f.email}</b>
+                    <small>${f.email}${f.pessoa ? ' · ' + f.pessoa : ''}</small>
+                </div>
+            `).join('');
+            ac.classList.add('open');
+        }
+
+        function _emailParaSelect(email) {
+            const input = document.getElementById('email-prev-para');
+            if (input) input.value = email;
+            const ac = document.getElementById('email-prev-para-ac');
+            if (ac) ac.classList.remove('open');
+        }
+
+        function _copiarEmailPrev() {
+            const corpo = document.getElementById('email-prev-corpo')?.value || '';
+            navigator.clipboard.writeText(corpo).then(() => {
+                const btn = document.querySelector('#modal-email-prev .email-modal-footer .btn-primary');
+                if (btn) { const orig = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i> Copiado!'; btn.style.background='var(--success)'; setTimeout(() => { btn.innerHTML = orig; btn.style.background=''; }, 1600); }
+            }).catch(() => { alert('Não foi possível copiar automaticamente. Selecione e copie manualmente.'); });
+        }
+
+        // Intercepção do Salvar: pergunta se não abriu o modal de e-mail
+        function _salvarDadosPendDetalheComEmail() {
+            const filMarca = (document.getElementById('pend-det-fil-marca')?.value || '').trim();
+            if (filMarca && !_emailPrevEnviado) {
+                // Verifica se ALGUM item filtrado tem motivo de contato = 'Cotação'
+                const opp = _pendDetalheOppId ? DB.findById('oportunidades', _pendDetalheOppId) : null;
+                let temCotacao = false;
+                if (opp && opp.items) {
+                    opp.items.filter(it =>
+                        it.pendente && (it.marcaOfe || it.marcaSol || '').toLowerCase() === filMarca.toLowerCase()
+                    ).forEach(it => {
+                        // Verifica motivo no fornecedor principal e na lista
+                        const motivoPrincipal = it.pendFornComentario || it.comentario || '';
+                        if (motivoPrincipal === 'Cotação') { temCotacao = true; return; }
+                        if (it.pendFornList && it.pendFornList.some(f => (f.comentario || '') === 'Cotação')) temCotacao = true;
+                    });
+                }
+                // Só pergunta sobre e-mail se o motivo for Cotação (ou indefinido)
+                if (temCotacao || !opp) {
+                    if (!confirm('Deseja salvar sem preparar o e-mail de Previsão de Entrega?\n\nClique em OK para salvar mesmo assim.')) return;
+                }
+            }
+            _salvarDadosPendDetalhe();
+        }
+
+        // === FIM EMAIL PREVISÃO DE ENTREGA ===
 
         // Chamado pelo badge "Itens Pendentes" dentro da Engenharia de Orçamento
         function abrirDetalhePendentesDeOrcamento() {
