@@ -1,6 +1,8 @@
 
 
 
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -10,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const SUPABASE_URL = 'https://iluspirabdexzhyffjiv.supabase.co';
@@ -1376,6 +1379,11 @@
                             <div id="gip-fil-marca-ac" class="autocomplete-list"></div>
                         </div>
 
+                        <div class="form-group" style="margin-bottom:0; min-width:160px; max-width:200px;">
+                            <label style="font-size:0.72rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px;"><i class="fas fa-barcode"></i> Código</label>
+                            <input type="text" id="gip-fil-codigo" class="wt-input-cell" style="font-size:0.8rem; padding:7px 10px;" placeholder="Buscar código..." oninput="renderItensPendentesGlobal()" autocomplete="off">
+                        </div>
+
                         <div class="form-group" style="margin-bottom:0; min-width:200px; max-width:280px; position:relative;">
                             <label style="font-size:0.72rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px;"><i class="fas fa-search"></i> Descrição</label>
                             <input type="text" id="gip-fil-desc" class="wt-input-cell" style="font-size:0.8rem; padding:7px 10px;" placeholder="Buscar descrição..." oninput="renderItensPendentesGlobal(); _gipDescAC(this)" onblur="setTimeout(()=>{const a=document.getElementById('gip-fil-desc-ac');if(a)a.classList.remove('open');},200)" autocomplete="off">
@@ -1412,6 +1420,7 @@
                                     <th style="white-space:nowrap; min-width:110px;">Nº da Cotação</th>
                                     <th style="min-width:160px;">Cliente</th>
                                     <th style="min-width:220px;">Descrição</th>
+                                    <th style="min-width:120px;">Código</th>
                                     <th style="min-width:110px;">Marca</th>
                                     <th style="min-width:160px;">Nome do Fornecedor</th>
                                     <th style="min-width:200px;">E-mail do Fornecedor</th>
@@ -1765,9 +1774,13 @@
                             <option value="Concluído">Concluído</option>
                         </select>
                     </div>
-                    <div class="form-group" style="min-width:150px; max-width:190px;">
-                        <label><i class="fas fa-calendar-day"></i> Data/Hora</label>
-                        <input type="date" id="ag-fil-data" class="wt-input-cell" oninput="renderAtividades()">
+                    <div class="form-group" style="min-width:130px; max-width:160px;">
+                        <label><i class="fas fa-calendar"></i> Data Início</label>
+                        <input type="date" id="ag-fil-dt-ini" class="wt-input-cell" oninput="renderAtividades()">
+                    </div>
+                    <div class="form-group" style="min-width:130px; max-width:160px;">
+                        <label><i class="fas fa-calendar-check"></i> Data Fim</label>
+                        <input type="date" id="ag-fil-dt-fim" class="wt-input-cell" oninput="renderAtividades()">
                     </div>
                     <div class="form-group" style="min-width:220px; max-width:340px; position:relative;">
                         <label><i class="fas fa-search"></i> Cliente / Oportunidade</label>
@@ -1860,6 +1873,7 @@
                         <div class="wt-toggle-group" style="border-bottom:none; padding:0;">
                             <span class="wt-toggle-label"><i class="fas fa-landmark"></i> Regime Tributário</span>
                             <select class="wt-regime-select" id="wt-regime-select" onchange="setRegimeTributario(this.value)" style="width:100%; font-size:0.75rem; padding:6px 8px;">
+                                <option value="PFPV" selected>PFPV — Planilha Formação de Preço de Venda</option>
                                 <option value="LR">Lucro Real</option>
                                 <option value="LP">Lucro Presumido</option>
                                 <option value="SN">Simples Nacional</option>
@@ -1921,10 +1935,18 @@
                                         <i class="fas fa-file-import"></i> Importar arquivo
                                         <input type="file" id="wt-import-file" accept=".csv,.txt,.xlsx,.xls" style="display:none;" onchange="wtImportarArquivo(this)">
                                     </label>
+                                    <button id="wt-pfvp-btn" title="Carregar a planilha modelo PFVP da filial ativa — feito uma única vez por navegador" onclick="abrirModalPfvp()" style="display:inline-flex; align-items:center; gap:6px; background:rgba(0,53,247,0.08); border:1px solid rgba(0,53,247,0.35); border-radius:7px; padding:4px 11px; font-size:0.72rem; font-weight:700; color:var(--primary); cursor:pointer; transition:all 0.18s; white-space:nowrap; user-select:none;">
+                                        <i class="fas fa-file-excel"></i> Alocar PFVP
+                                    </button>
+                                    <button id="wt-pfvp-baixar-btn" title="Gera e baixa a planilha PFVP já com os dados do orçamento atual" onclick="baixarPFVP()" style="display:inline-flex; align-items:center; gap:6px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.35); border-radius:7px; padding:4px 11px; font-size:0.72rem; font-weight:700; color:#059669; cursor:pointer; transition:all 0.18s; white-space:nowrap; user-select:none;">
+                                        <i class="fas fa-download"></i> Baixar Planilha
+                                    </button>
+                                    <span id="wt-pfvp-status" style="font-size:0.7rem; display:none;"></span>
                                     <span id="wt-upload-status" style="font-size:0.7rem; color:var(--text-muted); display:none;"></span>
                                 </div>
                                 <div style="display:flex; align-items:center; gap:8px;">
                                     <button onclick="addWorktableRow()" title="Adicionar nova linha" style="display:inline-flex; align-items:center; gap:6px; background:rgba(0,53,247,0.07); border:1px solid rgba(0,53,247,0.22); border-radius:7px; padding:5px 13px; font-size:0.78rem; font-weight:700; color:var(--primary); cursor:pointer; transition:all 0.18s; white-space:nowrap;"><i class="fas fa-plus"></i> + Linha</button>
+                                    <button onclick="confirmarExcluirTodasLinhas()" title="Selecionar e excluir todas as linhas do orçamento" style="display:inline-flex; align-items:center; gap:6px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.35); border-radius:7px; padding:5px 13px; font-size:0.78rem; font-weight:700; color:var(--danger); cursor:pointer; transition:all 0.18s; white-space:nowrap;"><i class="fas fa-trash"></i> Excluir Todas</button>
                                     <button class="wt-fullscreen-btn" id="wt-fullscreen-btn" onclick="toggleWtFullscreen()" title="Expandir tabela para tela cheia"><i class="fas fa-expand-arrows-alt"></i> Expandir</button>
                                 </div>
                             </div>
@@ -1942,7 +1964,7 @@
                                 #wt-upload-label:hover { background: rgba(16,185,129,0.18) !important; }
                             </style>
                             <div id="wt-items-card-scroll">
-                            <table style="min-width:2280px; table-layout:fixed;">
+                            <table style="min-width:2390px; table-layout:fixed;">
                                 <thead style="position:sticky; top:0; z-index:10;">
                                     <tr>
                                         <th style="width:60px; text-align:center;">Item</th>
@@ -1956,6 +1978,7 @@
                                         <th style="width:185px;">Custo Venda</th>
                                         <th style="width:88px;">Markup (%)</th>
                                         <th style="width:88px;">Desconto (%)</th>
+                                        <th style="width:110px;">V. Unitário</th>
                                         <th style="width:110px;">V. Total</th>
                                         <th style="width:110px;" title="Margem Operacional: receita - custo fiscal real">Margem Op.</th>
                                         <th style="width:220px;">Autorização</th>
@@ -1969,6 +1992,43 @@
                     </div><!-- /wt-main-area -->
 
                 </div><!-- /wt-body-layout -->
+            </div>
+
+            <!-- MODAL ALOCAR PFVP -->
+            <div class="imp-lock-overlay" id="pfvp-modal-overlay" style="display:none;">
+                <div class="imp-lock-box" style="max-width:520px; text-align:left;">
+                    <h2 style="font-size:1.05rem; margin-bottom:6px;"><i class="fas fa-file-excel" style="color:var(--primary);"></i> Alocar PFVP</h2>
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:18px;">Carregue as planilhas modelo padrão (Formação de Preço de Venda) para a filial ativa (<b id="pfvp-filial-label">MG</b>). Isso é feito <b>uma única vez por navegador</b> — depois disso, para cada orçamento basta clicar em "Baixar Planilha" na tela de Engenharia de Orçamento, que os dados do orçamento atual serão preenchidos automaticamente na hora do download, sem precisar alocar de novo.</p>
+
+                    <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:14px;">
+                        <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">Planilha Modelo — Filial ES</label>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <label class="btn-secondary" style="cursor:pointer; padding:8px 16px; font-size:0.82rem; display:inline-flex; align-items:center; gap:6px;">
+                                <i class="fas fa-upload"></i> Selecionar Arquivo
+                                <input type="file" id="pfvp-file-es" accept=".xlsx" style="display:none;" onchange="pfvpCarregarTemplate(this, 'ES')">
+                            </label>
+                            <span id="pfvp-file-es-name" style="font-size:0.78rem; color:var(--text-muted);">Nenhum arquivo</span>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:20px;">
+                        <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">Planilha Modelo — Filial MG</label>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <label class="btn-secondary" style="cursor:pointer; padding:8px 16px; font-size:0.82rem; display:inline-flex; align-items:center; gap:6px;">
+                                <i class="fas fa-upload"></i> Selecionar Arquivo
+                                <input type="file" id="pfvp-file-mg" accept=".xlsx" style="display:none;" onchange="pfvpCarregarTemplate(this, 'MG')">
+                            </label>
+                            <span id="pfvp-file-mg-name" style="font-size:0.78rem; color:var(--text-muted);">Nenhum arquivo</span>
+                        </div>
+                    </div>
+
+                    <div id="pfvp-status" style="font-size:0.78rem; margin-bottom:14px; display:none;"></div>
+
+                    <div style="display:flex; gap:10px; justify-content:flex-end;">
+                        <button class="btn-secondary" onclick="fecharModalPfvp()">Cancelar</button>
+                        <button class="btn-primary" id="pfvp-alocar-btn" onclick="alocarPFVP()"><i class="fas fa-check"></i> Alocar</button>
+                    </div>
+                </div>
             </div>
 
             <!-- TABELA DE IMPOSTOS (ADM) -->
@@ -1994,6 +2054,9 @@
                     </button>
                     <button class="imp-tab-btn" id="imp-tab-ncm-mg" onclick="switchImpTab('ncm-mg')">
                         <i class="fas fa-barcode"></i> NCM Matriz MG
+                    </button>
+                    <button class="imp-tab-btn" id="imp-tab-comissao" onclick="switchImpTab('comissao')">
+                        <i class="fas fa-percentage"></i> Comissão Comag
                     </button>
                 </div>
 
@@ -2057,6 +2120,37 @@
                                     <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">Alíquota (%)</label>
                                     <input type="number" step="0.01" id="ncm-es-pct" class="ncm-input" placeholder="0.00" min="0" max="100" style="width:100%;" onkeydown="if(event.key==='Enter') addNcmRow('es')">
                                 </div>
+                                <div class="form-group" style="min-width:100px;">
+                                    <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">MVA 4% (%)</label>
+                                    <input type="number" step="0.01" id="ncm-es-mva4" class="ncm-input" placeholder="0.00" min="0" max="1000" style="width:100%;" onkeydown="if(event.key==='Enter') addNcmRow('es')">
+                                </div>
+                                <div class="form-group" style="min-width:100px;">
+                                    <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">MVA 7% (%)</label>
+                                    <input type="number" step="0.01" id="ncm-es-mva7" class="ncm-input" placeholder="0.00" min="0" max="1000" style="width:100%;" onkeydown="if(event.key==='Enter') addNcmRow('es')">
+                                </div>
+                                <div class="form-group" style="min-width:100px;">
+                                    <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">MVA 12% (%)</label>
+                                    <input type="number" step="0.01" id="ncm-es-mva12" class="ncm-input" placeholder="0.00" min="0" max="1000" style="width:100%;" onkeydown="if(event.key==='Enter') addNcmRow('es')">
+                                </div>
+                                <div class="form-group" style="min-width:100px;">
+                                    <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">MVA 17% (%)</label>
+                                    <input type="number" step="0.01" id="ncm-es-mva17" class="ncm-input" placeholder="0.00" min="0" max="1000" style="width:100%;" onkeydown="if(event.key==='Enter') addNcmRow('es')">
+                                </div>
+                                <div class="form-group" style="min-width:100px;">
+                                    <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">MVA 0% (%)</label>
+                                    <input type="number" step="0.01" id="ncm-es-mva0" class="ncm-input" placeholder="0.00" min="0" max="1000" style="width:100%;" onkeydown="if(event.key==='Enter') addNcmRow('es')">
+                                </div>
+                                <div class="form-group" style="min-width:120px;">
+                                    <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">ICMS Venda (%)</label>
+                                    <input type="number" step="0.01" id="ncm-es-icmsvenda" class="ncm-input" placeholder="0.00" min="0" max="100" style="width:100%;" onkeydown="if(event.key==='Enter') addNcmRow('es')">
+                                </div>
+                                <div class="form-group" style="min-width:150px;">
+                                    <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">DIFAL</label>
+                                    <select id="ncm-es-difal" class="ncm-input" style="width:100%;">
+                                        <option value="NÃO TEM ST">NÃO TEM ST</option>
+                                        <option value="TEM ST">TEM ST</option>
+                                    </select>
+                                </div>
                                 <button class="btn-primary" onclick="addNcmRow('es')" style="height:38px; padding:0 18px;"><i class="fas fa-plus"></i> Adicionar</button>
                             </div>
                             <!-- Upload arquivo -->
@@ -2069,13 +2163,34 @@
                                     </label>
                                     <span id="ncm-es-file-name" style="font-size:0.78rem; color:var(--text-muted);">Nenhum arquivo</span>
                                 </div>
-                                <p style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;"><i class="fas fa-info-circle"></i> Colunas esperadas: <b>NCM</b> e <b>%</b> (ou <b>Aliquota</b>). Primeira linha = cabeçalho.</p>
+                                <p style="font-size:0.72rem; color:var(--text-muted); margin-top:2px; max-width:420px;"><i class="fas fa-info-circle"></i> Colunas reconhecidas (por nome no cabeçalho, não precisam estar em ordem): <b>NCM</b>; <b>Alíquota</b>/<b>%</b>; <b>MVA 4</b>, <b>MVA 7</b>, <b>MVA 12</b>, <b>MVA 17</b>, <b>MVA 0</b> (uma coluna por faixa de ICMS de compra); <b>ICMS Venda</b>; <b>DIFAL</b> (texto "TEM ST" / "NÃO TEM ST"). Réplica exata das colunas da planilha "Classificação Fiscal Geral". Primeira linha = cabeçalho; colunas ausentes ficam com valor padrão (0 ou "NÃO TEM ST").</p>
                             </div>
                         </div>
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
+                            <div class="form-group" style="min-width:220px; max-width:280px; margin:0;">
+                                <input type="text" id="ncm-es-search" class="wt-input-cell" placeholder="Buscar por código NCM..." oninput="ncmSearchInput(this,'es')" style="width:100%;">
+                            </div>
+                            <span id="ncm-es-count" style="font-size:0.78rem; color:var(--text-muted);"></span>
+                        </div>
+                        <div style="overflow-x:auto;">
                         <table class="imp-table">
-                            <thead><tr><th style="width:60px;">#</th><th>Código NCM</th><th style="width:160px;">Alíquota (%)</th><th style="width:80px;">Ação</th></tr></thead>
+                            <thead><tr>
+                                <th style="width:50px;">#</th>
+                                <th>Código NCM</th>
+                                <th style="width:110px;">Alíquota (%)</th>
+                                <th style="width:100px;">MVA 4% (%)</th>
+                                <th style="width:100px;">MVA 7% (%)</th>
+                                <th style="width:100px;">MVA 12% (%)</th>
+                                <th style="width:100px;">MVA 17% (%)</th>
+                                <th style="width:100px;">MVA 0% (%)</th>
+                                <th style="width:110px;">ICMS Venda (%)</th>
+                                <th style="width:150px;">DIFAL</th>
+                                <th style="width:80px;">Ação</th>
+                            </tr></thead>
                             <tbody id="tb-imp-ncm-es"></tbody>
                         </table>
+                        </div>
+                        <div id="ncm-es-pagination" style="display:flex; align-items:center; justify-content:center; gap:12px; margin-top:14px;"></div>
                         <p id="ncm-es-empty-msg" style="font-size:0.82rem; color:var(--text-muted); margin-top:14px; display:none;"><i class="fas fa-info-circle"></i> Nenhum NCM cadastrado.</p>
                     </div>
                 </div>
@@ -2095,6 +2210,37 @@
                                     <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">Alíquota (%)</label>
                                     <input type="number" step="0.01" id="ncm-mg-pct" class="ncm-input" placeholder="0.00" min="0" max="100" style="width:100%;" onkeydown="if(event.key==='Enter') addNcmRow('mg')">
                                 </div>
+                                <div class="form-group" style="min-width:100px;">
+                                    <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">MVA 4% (%)</label>
+                                    <input type="number" step="0.01" id="ncm-mg-mva4" class="ncm-input" placeholder="0.00" min="0" max="1000" style="width:100%;" onkeydown="if(event.key==='Enter') addNcmRow('mg')">
+                                </div>
+                                <div class="form-group" style="min-width:100px;">
+                                    <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">MVA 7% (%)</label>
+                                    <input type="number" step="0.01" id="ncm-mg-mva7" class="ncm-input" placeholder="0.00" min="0" max="1000" style="width:100%;" onkeydown="if(event.key==='Enter') addNcmRow('mg')">
+                                </div>
+                                <div class="form-group" style="min-width:100px;">
+                                    <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">MVA 12% (%)</label>
+                                    <input type="number" step="0.01" id="ncm-mg-mva12" class="ncm-input" placeholder="0.00" min="0" max="1000" style="width:100%;" onkeydown="if(event.key==='Enter') addNcmRow('mg')">
+                                </div>
+                                <div class="form-group" style="min-width:100px;">
+                                    <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">MVA 18% (%)</label>
+                                    <input type="number" step="0.01" id="ncm-mg-mva17" class="ncm-input" placeholder="0.00" min="0" max="1000" style="width:100%;" onkeydown="if(event.key==='Enter') addNcmRow('mg')">
+                                </div>
+                                <div class="form-group" style="min-width:100px;">
+                                    <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">MVA 0% (%)</label>
+                                    <input type="number" step="0.01" id="ncm-mg-mva0" class="ncm-input" placeholder="0.00" min="0" max="1000" style="width:100%;" onkeydown="if(event.key==='Enter') addNcmRow('mg')">
+                                </div>
+                                <div class="form-group" style="min-width:120px;">
+                                    <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">ICMS Venda (%)</label>
+                                    <input type="number" step="0.01" id="ncm-mg-icmsvenda" class="ncm-input" placeholder="0.00" min="0" max="100" style="width:100%;" onkeydown="if(event.key==='Enter') addNcmRow('mg')">
+                                </div>
+                                <div class="form-group" style="min-width:150px;">
+                                    <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">DIFAL</label>
+                                    <select id="ncm-mg-difal" class="ncm-input" style="width:100%;">
+                                        <option value="NÃO TEM ST">NÃO TEM ST</option>
+                                        <option value="TEM ST">TEM ST</option>
+                                    </select>
+                                </div>
                                 <button class="btn-primary" onclick="addNcmRow('mg')" style="height:38px; padding:0 18px;"><i class="fas fa-plus"></i> Adicionar</button>
                             </div>
                             <!-- Upload arquivo -->
@@ -2107,14 +2253,65 @@
                                     </label>
                                     <span id="ncm-mg-file-name" style="font-size:0.78rem; color:var(--text-muted);">Nenhum arquivo</span>
                                 </div>
-                                <p style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;"><i class="fas fa-info-circle"></i> Colunas esperadas: <b>NCM</b> e <b>%</b> (ou <b>Aliquota</b>). Primeira linha = cabeçalho.</p>
+                                <p style="font-size:0.72rem; color:var(--text-muted); margin-top:2px; max-width:420px;"><i class="fas fa-info-circle"></i> Colunas reconhecidas (por nome no cabeçalho, não precisam estar em ordem): <b>NCM</b>; <b>Alíquota</b>/<b>%</b>; <b>MVA 4</b>, <b>MVA 7</b>, <b>MVA 12</b>, <b>MVA 17</b>, <b>MVA 0</b> (uma coluna por faixa de ICMS de compra); <b>ICMS Venda</b>; <b>DIFAL</b> (texto "TEM ST" / "NÃO TEM ST"). Réplica exata das colunas da planilha "Classificação Fiscal Geral". Primeira linha = cabeçalho; colunas ausentes ficam com valor padrão (0 ou "NÃO TEM ST").</p>
                             </div>
                         </div>
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
+                            <div class="form-group" style="min-width:220px; max-width:280px; margin:0;">
+                                <input type="text" id="ncm-mg-search" class="wt-input-cell" placeholder="Buscar por código NCM..." oninput="ncmSearchInput(this,'mg')" style="width:100%;">
+                            </div>
+                            <span id="ncm-mg-count" style="font-size:0.78rem; color:var(--text-muted);"></span>
+                        </div>
+                        <div style="overflow-x:auto;">
                         <table class="imp-table">
-                            <thead><tr><th style="width:60px;">#</th><th>Código NCM</th><th style="width:160px;">Alíquota (%)</th><th style="width:80px;">Ação</th></tr></thead>
+                            <thead><tr>
+                                <th style="width:50px;">#</th>
+                                <th>Código NCM</th>
+                                <th style="width:110px;">Alíquota (%)</th>
+                                <th style="width:100px;">MVA 4% (%)</th>
+                                <th style="width:100px;">MVA 7% (%)</th>
+                                <th style="width:100px;">MVA 12% (%)</th>
+                                <th style="width:100px;">MVA 18% (%)</th>
+                                <th style="width:100px;">MVA 0% (%)</th>
+                                <th style="width:110px;">ICMS Venda (%)</th>
+                                <th style="width:150px;">DIFAL</th>
+                                <th style="width:80px;">Ação</th>
+                            </tr></thead>
                             <tbody id="tb-imp-ncm-mg"></tbody>
                         </table>
+                        </div>
+                        <div id="ncm-mg-pagination" style="display:flex; align-items:center; justify-content:center; gap:12px; margin-top:14px;"></div>
                         <p id="ncm-mg-empty-msg" style="font-size:0.82rem; color:var(--text-muted); margin-top:14px; display:none;"><i class="fas fa-info-circle"></i> Nenhum NCM cadastrado.</p>
+                    </div>
+                </div>
+
+                <!-- PAINEL COMISSÃO COMAG -->
+                <div class="imp-tab-panel" id="imp-panel-comissao">
+                    <div class="section-card">
+                        <div class="imp-section-title"><i class="fas fa-percentage"></i> Índices PFPV — Comissão / Custo Financeiro / Taxa</div>
+                        <p style="font-size:0.82rem; color:var(--text-muted); max-width:620px; margin-bottom:16px;">
+                            Índices (%) usados no modo de Regime Tributário <b>PFPV</b>, no gross-up final do preço de venda
+                            (coluna <b>AR</b> da planilha "Formação de Preço de Venda"): <code>AR = (AL+AM) / (100-(AN+AO+AP+AQ×2))/100</code>.
+                            Esses índices se aplicam <b>igualmente a itens com ou sem ST</b>. Já o índice <b>AD</b>
+                            (piso 2%/7% conforme ICMS Venda + FCP, usado apenas no custo de itens SEM ST) é
+                            <b>independente</b> destes campos e segue a fórmula original da planilha —
+                            não é afetado pela Comissão Comag.
+                        </p>
+                        <div style="display:flex; gap:16px; flex-wrap:wrap;">
+                            <div class="form-group" style="max-width:220px;">
+                                <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">Comissão Comag — AP (%)</label>
+                                <input type="number" step="0.01" id="cfg-comissao-comag" class="ncm-input" value="6" min="0" max="100" style="width:100%;" onchange="updateComissaoComag(this)">
+                            </div>
+                            <div class="form-group" style="max-width:220px;">
+                                <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">Custo Financeiro de Venda — AN (%)</label>
+                                <input type="number" step="0.01" id="cfg-custo-financeiro-venda" class="ncm-input" value="0" min="0" max="100" style="width:100%;" onchange="updateCustoFinanceiroVenda(this)">
+                            </div>
+                            <div class="form-group" style="max-width:220px;">
+                                <label style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">Taxa — AQ (%)</label>
+                                <input type="number" step="0.01" id="cfg-taxa-pfpv" class="ncm-input" value="0" min="0" max="100" style="width:100%;" onchange="updateTaxaPfpv(this)">
+                                <p style="font-size:0.68rem; color:var(--text-muted); margin-top:4px;"><i class="fas fa-info-circle"></i> Entra <b>dobrada</b> na fórmula (AQ×2) — comportamento literal da planilha original.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -2191,6 +2388,12 @@
                 if (row.pessoa_contato !== undefined && row.pessoa === undefined) row.pessoa = row.pessoa_contato;
                 if (row.criado_em !== undefined && row.createdAt === undefined) row.createdAt = row.criado_em;
             }
+            if (table === 'ncm_matriz_mg' || table === 'ncm_filial_es') {
+                if (row.icms_venda !== undefined && row.icmsVenda === undefined) row.icmsVenda = row.icms_venda;
+                if (row.criado_por_id !== undefined && row.criadoPorId === undefined) row.criadoPorId = row.criado_por_id;
+                if (row.criado_em !== undefined && row.createdAt === undefined) row.createdAt = row.criado_em;
+                if (row.atualizado_em !== undefined && row.updatedAt === undefined) row.updatedAt = row.atualizado_em;
+            }
             return row;
         }
 
@@ -2214,7 +2417,7 @@
         }
 
         async function _initDB() {
-            const tables = ['usuarios','clientes','oportunidades','produtos','fornecedores','atividades'];
+            const tables = ['usuarios','clientes','oportunidades','produtos','fornecedores','atividades','ncm_matriz_mg','ncm_filial_es'];
             // Sincroniza também a tabela de configuracoes (armazena irp_impostos online)
             const allTables = [...tables, 'configuracoes'];
             await Promise.all(allTables.map(t => _syncTable(t).catch(() => {})));
@@ -2230,7 +2433,9 @@
             produtos:      ['id','ncm','codigo','marca','descricao','icms','ipi','custo_base','criado_em'],
             fornecedores:  ['id','nome','email','telefone','pessoa_contato','criado_em'],
             atividades:    ['id','opp_id','tipo','data_alvo','hora_alvo','status','notificado','historico_seguro','criado_em'],
-            mensagens:     ['id','de_id','para_id','lido','mensagens','criado_em']
+            mensagens:     ['id','de_id','para_id','lido','mensagens','criado_em'],
+            ncm_matriz_mg: ['id','codigo','pct','mva4','mva7','mva12','mva17','mva0','icms_venda','difal','criado_por_id','criado_em','atualizado_em'],
+            ncm_filial_es: ['id','codigo','pct','mva4','mva7','mva12','mva17','mva0','icms_venda','difal','criado_por_id','criado_em','atualizado_em']
         };
 
         function _toSnakeCase(table, obj) {
@@ -2276,6 +2481,12 @@
                 if (mapped.pessoaContato !== undefined) mapped.pessoa_contato = mapped.pessoaContato;
                 if (mapped.pessoa        !== undefined) mapped.pessoa_contato = mapped.pessoa;
                 if (mapped.createdAt     !== undefined) mapped.criado_em      = mapped.createdAt;
+            }
+            if (table === 'ncm_matriz_mg' || table === 'ncm_filial_es') {
+                if (mapped.icmsVenda   !== undefined) mapped.icms_venda    = mapped.icmsVenda;
+                if (mapped.criadoPorId !== undefined) mapped.criado_por_id = mapped.criadoPorId;
+                if (mapped.createdAt   !== undefined) mapped.criado_em     = mapped.createdAt;
+                if (mapped.updatedAt   !== undefined) mapped.atualizado_em = mapped.updatedAt;
             }
             // 2. Remove campos não permitidos (evita erro 400 do Supabase)
             const allowed = _SUPABASE_COLS[table];
@@ -2335,6 +2546,16 @@
                     }
                 }
             },
+            async remove(table, id) {
+                const data = this.get(table);
+                const filtered = data.filter(i => String(i.id) !== String(id));
+                this.save(table, filtered);
+                const { error } = await _supabase.from(table).delete().eq('id', String(id));
+                if (error) {
+                    console.error('Supabase delete error:', table, error);
+                    _showDbError('Erro ao excluir em "' + table + '" no banco de dados: ' + (error.message || JSON.stringify(error)));
+                }
+            },
             findById(table, id) {
                 return this.get(table).find(i => String(i.id) === String(id));
             }
@@ -2358,12 +2579,27 @@
 
         const FCP_DEFAULT = [
             {uf:'AC',fcp:2},{uf:'AL',fcp:2},{uf:'AP',fcp:2},{uf:'AM',fcp:2},{uf:'BA',fcp:2},
-            {uf:'CE',fcp:2},{uf:'DF',fcp:2},{uf:'ES',fcp:0},{uf:'GO',fcp:2},{uf:'MA',fcp:2},
-            {uf:'MT',fcp:2},{uf:'MS',fcp:2},{uf:'MG',fcp:0},{uf:'PA',fcp:2},{uf:'PB',fcp:2},
+            {uf:'CE',fcp:2},{uf:'DF',fcp:2},{uf:'ES',fcp:2},{uf:'GO',fcp:2},{uf:'MA',fcp:2},
+            {uf:'MT',fcp:2},{uf:'MS',fcp:2},{uf:'MG',fcp:2},{uf:'PA',fcp:2},{uf:'PB',fcp:2},
             {uf:'PR',fcp:2},{uf:'PE',fcp:2},{uf:'PI',fcp:2},{uf:'RJ',fcp:4},{uf:'RN',fcp:2},
             {uf:'RS',fcp:2},{uf:'RO',fcp:2},{uf:'RR',fcp:2},{uf:'SC',fcp:2},{uf:'SP',fcp:2},
             {uf:'SE',fcp:2},{uf:'TO',fcp:2}
         ];
+
+        // Corrige um dado já persistido (Supabase/localStorage) de uma sessão anterior, quando o
+        // padrão de FCP da MG ainda era 0% (valor incorreto, só descoberto depois). Sem essa correção,
+        // trocar o FCP_DEFAULT no código-fonte não tem efeito nenhum para quem já salvou a tabela de
+        // impostos antes — getImpostosData() sempre prioriza o dado salvo sobre o padrão do código.
+        function _corrigeFcpMgPersistido(d) {
+            if (!d.fcp || !Array.isArray(d.fcp)) return d;
+            const mgEntry = d.fcp.find(e => e.uf === 'MG');
+            if (mgEntry && (mgEntry.fcp === 0 || mgEntry.fcp === undefined || mgEntry.fcp === null)) {
+                mgEntry.fcp = 2;
+            } else if (!mgEntry) {
+                d.fcp.push({ uf: 'MG', fcp: 2 });
+            }
+            return d;
+        }
 
         function getImpostosData() {
             // Tenta ler do cache Supabase (tabela configuracoes) — fonte central online
@@ -2374,8 +2610,10 @@
                     try {
                         const d = JSON.parse(entry.valor);
                         if (!d.fcp) d.fcp = FCP_DEFAULT.map(e => ({...e}));
-                        if (!d.ncm_es) d.ncm_es = d.ncm || [];
-                        if (!d.ncm_mg) d.ncm_mg = [];
+                        _corrigeFcpMgPersistido(d);
+                        if (d.comissaoComag === undefined) d.comissaoComag = 6;
+                        if (d.custoFinanceiroVenda === undefined) d.custoFinanceiroVenda = 0;
+                        if (d.taxaPFPV === undefined) d.taxaPFPV = 0;
                         return d;
                     } catch(e) {}
                 }
@@ -2385,11 +2623,13 @@
             if (raw) {
                 const d = JSON.parse(raw);
                 if (!d.fcp) d.fcp = FCP_DEFAULT.map(e => ({...e}));
-                if (!d.ncm_es) d.ncm_es = d.ncm || [];
-                if (!d.ncm_mg) d.ncm_mg = [];
+                _corrigeFcpMgPersistido(d);
+                if (d.comissaoComag === undefined) d.comissaoComag = 6;
+                if (d.custoFinanceiroVenda === undefined) d.custoFinanceiroVenda = 0;
+                if (d.taxaPFPV === undefined) d.taxaPFPV = 0;
                 return d;
             }
-            return { imp: 4, origem: IMP_ESTADOS.map(e => ({...e})), destino: IMP_ESTADOS.map(e => ({...e})), fcp: FCP_DEFAULT.map(e => ({...e})), ncm_es: [], ncm_mg: [] };
+            return { imp: 4, origem: IMP_ESTADOS.map(e => ({...e})), destino: IMP_ESTADOS.map(e => ({...e})), fcp: FCP_DEFAULT.map(e => ({...e})), comissaoComag: 6, custoFinanceiroVenda: 0, taxaPFPV: 0 };
         }
 
         // Persiste dados de impostos no Supabase (tabela configuracoes) + localStorage
@@ -2436,8 +2676,7 @@
         }
 
         async function salvarImpostos() {
-            const existing = getImpostosData();
-            const data = { imp: parseFloat(document.getElementById('imp-aliq').value) || 4, origem: [], destino: [], fcp: [], ncm_es: existing.ncm_es || [], ncm_mg: existing.ncm_mg || [] };
+            const data = { imp: parseFloat(document.getElementById('imp-aliq').value) || 4, origem: [], destino: [], fcp: [] };
             ['origem','destino'].forEach(tipo => {
                 const rows = document.querySelectorAll(`#tb-imp-${tipo} tr`);
                 rows.forEach(tr => {
@@ -2477,74 +2716,283 @@
         }
 
         function switchImpTab(tab) {
-            ['icms','fcp','ncm-es','ncm-mg'].forEach(t => {
+            ['icms','fcp','ncm-es','ncm-mg','comissao'].forEach(t => {
                 document.getElementById('imp-tab-' + t).classList.toggle('active', t === tab);
                 document.getElementById('imp-panel-' + t).classList.toggle('active', t === tab);
             });
+            if (tab === 'comissao') {
+                const d = getImpostosData();
+                const elComissao = document.getElementById('cfg-comissao-comag');
+                if (elComissao) elComissao.value = d.comissaoComag ?? 6;
+                const elCustoFin = document.getElementById('cfg-custo-financeiro-venda');
+                if (elCustoFin) elCustoFin.value = d.custoFinanceiroVenda ?? 0;
+                const elTaxa = document.getElementById('cfg-taxa-pfpv');
+                if (elTaxa) elTaxa.value = d.taxaPFPV ?? 0;
+            }
+        }
+
+        // Persiste o índice de Comissão Comag (%) usado na fórmula de custo (réplica da coluna AD/AP da planilha)
+        async function updateComissaoComag(el) {
+            const val = parseFloat(el.value);
+            const data = getImpostosData();
+            data.comissaoComag = isNaN(val) ? 6 : val;
+            await _saveImpostosRemote(data);
+        }
+
+        // Persiste o Custo Financeiro de Venda % (réplica da coluna AN da planilha, usado no gross-up final AR)
+        async function updateCustoFinanceiroVenda(el) {
+            const val = parseFloat(el.value);
+            const data = getImpostosData();
+            data.custoFinanceiroVenda = isNaN(val) ? 0 : val;
+            await _saveImpostosRemote(data);
+        }
+
+        // Persiste a Taxa % (réplica da coluna AQ da planilha — entra DOBRADA no gross-up final AR)
+        async function updateTaxaPfpv(el) {
+            const val = parseFloat(el.value);
+            const data = getImpostosData();
+            data.taxaPFPV = isNaN(val) ? 0 : val;
+            await _saveImpostosRemote(data);
+        }
+
+        // Estado de busca/paginação do Cadastro de Impostos por Estado (por filial)
+        const _ncmPageState = {
+            es: { page: 1, search: '' },
+            mg: { page: 1, search: '' }
+        };
+        const NCM_PAGE_SIZE = 50;
+
+        function ncmSearchInput(el, filial) {
+            _ncmPageState[filial].search = el.value.trim();
+            _ncmPageState[filial].page = 1; // toda nova busca volta pra primeira página
+            renderNcm(filial);
+        }
+
+        function ncmPageChange(filial, delta) {
+            _ncmPageState[filial].page += delta;
+            renderNcm(filial);
         }
 
         function renderNcm(filial) {
-            const data = getImpostosData();
-            const key = 'ncm_' + filial;
-            const ncmList = data[key] || [];
+            const table = filial === 'mg' ? 'ncm_matriz_mg' : 'ncm_filial_es';
+            const ncmListCompleta = DB.get(table);
+            const state = _ncmPageState[filial];
+            const termo = (state.search || '').toLowerCase();
+
+            // Busca: filtra pelo código NCM digitado. A verificação de duplicidade em
+            // addNcmRow/importNcmFile continua usando ncmListCompleta (não filtrada/paginada).
+            const filtrada = termo ? ncmListCompleta.filter(n => n.codigo.toLowerCase().includes(termo)) : ncmListCompleta;
+
+            const totalPaginas = Math.max(1, Math.ceil(filtrada.length / NCM_PAGE_SIZE));
+            if (state.page > totalPaginas) state.page = totalPaginas;
+            if (state.page < 1) state.page = 1;
+            const inicio = (state.page - 1) * NCM_PAGE_SIZE;
+            const ncmList = filtrada.slice(inicio, inicio + NCM_PAGE_SIZE);
+
             const tb = document.getElementById('tb-imp-ncm-' + filial);
             const emptyMsg = document.getElementById('ncm-' + filial + '-empty-msg');
+            const countEl = document.getElementById('ncm-' + filial + '-count');
+            const pagEl = document.getElementById('ncm-' + filial + '-pagination');
             if (!tb) return;
-            if (ncmList.length === 0) {
+
+            if (countEl) {
+                countEl.textContent = termo
+                    ? `${filtrada.length} de ${ncmListCompleta.length} NCM(s) encontrado(s) para "${state.search}"`
+                    : `${ncmListCompleta.length} NCM(s) cadastrado(s)`;
+            }
+
+            if (ncmListCompleta.length === 0) {
                 tb.innerHTML = '';
-                if (emptyMsg) emptyMsg.style.display = 'block';
+                if (pagEl) pagEl.innerHTML = '';
+                if (emptyMsg) { emptyMsg.style.display = 'block'; emptyMsg.innerHTML = '<i class="fas fa-info-circle"></i> Nenhum NCM cadastrado.'; }
+                return;
+            }
+            if (filtrada.length === 0) {
+                tb.innerHTML = '';
+                if (pagEl) pagEl.innerHTML = '';
+                if (emptyMsg) { emptyMsg.style.display = 'block'; emptyMsg.innerHTML = '<i class="fas fa-info-circle"></i> Nenhum NCM encontrado para "' + state.search + '".'; }
                 return;
             }
             if (emptyMsg) emptyMsg.style.display = 'none';
+
             tb.innerHTML = ncmList.map((item, idx) => `
                 <tr>
-                    <td style="text-align:center; color:var(--text-muted); font-weight:700;">${idx + 1}</td>
+                    <td style="text-align:center; color:var(--text-muted); font-weight:700;">${inicio + idx + 1}</td>
                     <td><span class="ncm-badge">${item.codigo}</span></td>
-                    <td><input type="number" step="0.01" class="imp-rate-input ncm-pct-input" data-idx="${idx}" data-filial="${filial}" value="${item.pct}" min="0" max="100" oninput="updateNcmPct(this)"></td>
-                    <td><button class="btn-danger" style="padding:5px 12px; font-size:0.78rem;" onclick="removeNcmRow(${idx},'${filial}')"><i class="fas fa-trash"></i></button></td>
+                    <td><input type="number" step="0.01" class="imp-rate-input ncm-pct-input" data-id="${item.id}" data-filial="${filial}" value="${item.pct}" min="0" max="100" oninput="updateNcmPct(this)"></td>
+                    <td><input type="number" step="0.01" class="imp-rate-input" data-id="${item.id}" data-filial="${filial}" data-field="mva4" value="${item.mva4 || 0}" min="0" max="1000" oninput="updateNcmField(this)"></td>
+                    <td><input type="number" step="0.01" class="imp-rate-input" data-id="${item.id}" data-filial="${filial}" data-field="mva7" value="${item.mva7 || 0}" min="0" max="1000" oninput="updateNcmField(this)"></td>
+                    <td><input type="number" step="0.01" class="imp-rate-input" data-id="${item.id}" data-filial="${filial}" data-field="mva12" value="${item.mva12 || 0}" min="0" max="1000" oninput="updateNcmField(this)"></td>
+                    <td><input type="number" step="0.01" class="imp-rate-input" data-id="${item.id}" data-filial="${filial}" data-field="mva17" value="${item.mva17 || 0}" min="0" max="1000" oninput="updateNcmField(this)"></td>
+                    <td><input type="number" step="0.01" class="imp-rate-input" data-id="${item.id}" data-filial="${filial}" data-field="mva0" value="${item.mva0 || 0}" min="0" max="1000" oninput="updateNcmField(this)"></td>
+                    <td><input type="number" step="0.01" class="imp-rate-input" data-id="${item.id}" data-filial="${filial}" data-field="icmsVenda" value="${item.icmsVenda || 0}" min="0" max="100" oninput="updateNcmField(this)"></td>
+                    <td>
+                        <select class="imp-rate-input" data-id="${item.id}" data-filial="${filial}" data-field="difal" oninput="updateNcmField(this)" onchange="updateNcmField(this)">
+                            <option value="NÃO TEM ST" ${(item.difal||'NÃO TEM ST') === 'NÃO TEM ST' ? 'selected' : ''}>NÃO TEM ST</option>
+                            <option value="TEM ST" ${item.difal === 'TEM ST' ? 'selected' : ''}>TEM ST</option>
+                        </select>
+                    </td>
+                    <td><button class="btn-danger" style="padding:5px 12px; font-size:0.78rem;" onclick="removeNcmRow('${item.id}','${filial}')"><i class="fas fa-trash"></i></button></td>
                 </tr>`).join('');
+
+            if (pagEl) {
+                if (totalPaginas <= 1) {
+                    pagEl.innerHTML = '';
+                } else {
+                    pagEl.innerHTML = `
+                        <button class="btn-secondary" style="padding:6px 14px; font-size:0.8rem;" ${state.page <= 1 ? 'disabled' : ''} onclick="ncmPageChange('${filial}',-1)"><i class="fas fa-chevron-left"></i> Anterior</button>
+                        <span style="font-size:0.82rem; color:var(--text-muted);">Página ${state.page} de ${totalPaginas}</span>
+                        <button class="btn-secondary" style="padding:6px 14px; font-size:0.8rem;" ${state.page >= totalPaginas ? 'disabled' : ''} onclick="ncmPageChange('${filial}',1)">Próxima <i class="fas fa-chevron-right"></i></button>
+                    `;
+                }
+            }
         }
 
         async function addNcmRow(filial) {
             const codigoEl = document.getElementById('ncm-' + filial + '-codigo');
             const pctEl = document.getElementById('ncm-' + filial + '-pct');
+            const mva4El = document.getElementById('ncm-' + filial + '-mva4');
+            const mva7El = document.getElementById('ncm-' + filial + '-mva7');
+            const mva12El = document.getElementById('ncm-' + filial + '-mva12');
+            const mva17El = document.getElementById('ncm-' + filial + '-mva17');
+            const mva0El = document.getElementById('ncm-' + filial + '-mva0');
+            const icmsVendaEl = document.getElementById('ncm-' + filial + '-icmsvenda');
+            const difalEl = document.getElementById('ncm-' + filial + '-difal');
             const codigo = codigoEl.value.trim();
             const pct = parseFloat(pctEl.value);
+            const mva4 = parseFloat(mva4El.value) || 0;
+            const mva7 = parseFloat(mva7El.value) || 0;
+            const mva12 = parseFloat(mva12El.value) || 0;
+            const mva17 = parseFloat(mva17El.value) || 0;
+            const mva0 = parseFloat(mva0El.value) || 0;
+            const icmsVenda = parseFloat(icmsVendaEl.value) || 0;
+            const difal = difalEl.value || 'NÃO TEM ST';
             if (!codigo) { codigoEl.focus(); return; }
             if (isNaN(pct) || pct < 0) { pctEl.focus(); return; }
-            const data = getImpostosData();
-            const key = 'ncm_' + filial;
-            if (!data[key]) data[key] = [];
-            if (data[key].find(n => n.codigo === codigo)) {
+            const table = filial === 'mg' ? 'ncm_matriz_mg' : 'ncm_filial_es';
+            if (DB.get(table).find(n => n.codigo === codigo)) {
                 alert('Este NCM já está cadastrado nesta filial.');
                 codigoEl.focus();
                 return;
             }
-            data[key].push({ codigo, pct });
-            await _saveImpostosRemote(data);
+            const curUser = _getCurrentUser();
+            await DB.insert(table, { codigo, pct, mva4, mva7, mva12, mva17, mva0, icmsVenda, difal, criadoPorId: curUser ? curUser.id : null });
             codigoEl.value = '';
             pctEl.value = '';
+            mva4El.value = '';
+            mva7El.value = '';
+            mva12El.value = '';
+            mva17El.value = '';
+            mva0El.value = '';
+            icmsVendaEl.value = '';
+            difalEl.value = 'NÃO TEM ST';
             codigoEl.focus();
             renderNcm(filial);
         }
 
-        async function removeNcmRow(idx, filial) {
-            const data = getImpostosData();
-            const key = 'ncm_' + filial;
-            data[key].splice(idx, 1);
-            await _saveImpostosRemote(data);
+        async function removeNcmRow(id, filial) {
+            const table = filial === 'mg' ? 'ncm_matriz_mg' : 'ncm_filial_es';
+            await DB.remove(table, id);
             renderNcm(filial);
         }
 
         async function updateNcmPct(el) {
-            const idx = parseInt(el.getAttribute('data-idx'));
+            const id = el.getAttribute('data-id');
             const filial = el.getAttribute('data-filial');
-            const data = getImpostosData();
-            const key = 'ncm_' + filial;
-            if (data[key] && data[key][idx] !== undefined) {
-                data[key][idx].pct = parseFloat(el.value) || 0;
-                await _saveImpostosRemote(data);
+            const table = filial === 'mg' ? 'ncm_matriz_mg' : 'ncm_filial_es';
+            await DB.update(table, id, { pct: parseFloat(el.value) || 0 });
+        }
+
+        async function updateNcmField(el) {
+            const id = el.getAttribute('data-id');
+            const filial = el.getAttribute('data-filial');
+            const field = el.getAttribute('data-field');
+            if (!field) return;
+            const table = filial === 'mg' ? 'ncm_matriz_mg' : 'ncm_filial_es';
+            const value = field === 'difal' ? (el.value || 'NÃO TEM ST') : (parseFloat(el.value) || 0);
+            await DB.update(table, id, { [field]: value });
+        }
+
+        // Normaliza um texto de cabeçalho para comparação: minúsculas, remove acentos trocando
+        // pela letra equivalente (í -> i, ç -> c, etc.) e só então remove o que não for a-z/0-9.
+        // Sem essa troca prévia, "Alíquota" virava "alquota" (perdia o "i") e nunca batia com
+        // "aliquota", fazendo a importação falhar mesmo com o cabeçalho correto.
+        function _normalizeHeader(str) {
+            return String(str).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+        }
+
+        // Mapeia os cabeçalhos normalizados do arquivo importado para os índices das colunas
+        // da tabela "Classificação Fiscal Geral": NCM, Alíquota (ST), MVA 4/7/12/17/0%, ICMS Venda, DIFAL.
+        function _mapNcmHeaders(headersNorm) {
+            const digitsOf = h => { const m = h.match(/(\d+)/); return m ? parseInt(m[1], 10) : null; };
+            const idx = {};
+            idx.ncm = headersNorm.findIndex(h => h.includes('ncm'));
+            idx.icmsVenda = headersNorm.findIndex(h => h.includes('icms') && h.includes('venda'));
+            idx.difal = headersNorm.findIndex(h => h.includes('difal'));
+            const mvaIdxs = [];
+            headersNorm.forEach((h, i) => { if (h.includes('mva')) mvaIdxs.push(i); });
+            const findMva = n => { const i = mvaIdxs.find(i => digitsOf(headersNorm[i]) === n); return i === undefined ? -1 : i; };
+            idx.mva4 = findMva(4);
+            idx.mva7 = findMva(7);
+            idx.mva12 = findMva(12);
+            // 4ª faixa: 17% na ES, 18% na MG — mesmo campo de armazenamento (mva17), aceita qualquer um dos dois rótulos
+            idx.mva17 = findMva(17) !== -1 ? findMva(17) : findMva(18);
+            idx.mva0 = findMva(0);
+            idx.pct = headersNorm.findIndex(h => !h.includes('mva') && !h.includes('icms') && !h.includes('difal') && (h.includes('aliquota') || h === 'pct' || h === '%' || h.includes('percent')));
+            return idx;
+        }
+
+        // Divide o texto em "linhas lógicas", respeitando aspas com quebra de linha interna
+        // (não quebra dentro de um campo entre aspas, ex.: "NCM\n" exportado pelo Excel),
+        // mas SEM fixar separador — cada linha resultante ainda contém seu delimitador original.
+        function _ncmSplitLinhasLogicas(text) {
+            const linhas = [];
+            let atual = '';
+            let inQuotes = false;
+            for (let i = 0; i < text.length; i++) {
+                const ch = text[i];
+                const next = text[i + 1];
+                if (inQuotes) {
+                    if (ch === '"' && next === '"') { atual += '""'; i++; }
+                    else if (ch === '"') { inQuotes = false; atual += ch; }
+                    else { atual += ch; }
+                } else {
+                    if (ch === '"') { inQuotes = true; atual += ch; }
+                    else if (ch === '\n') { linhas.push(atual); atual = ''; }
+                    else if (ch === '\r') { /* ignora */ }
+                    else { atual += ch; }
+                }
             }
+            if (atual.trim()) linhas.push(atual);
+            return linhas.filter(l => l.trim());
+        }
+
+        // Faz o parse de UMA linha lógica em campos, detectando o separador daquela linha
+        // especificamente (tab > ; > ,). Necessário porque alguns arquivos exportam o
+        // cabeçalho com um separador (ex.: ;) e as linhas de dados com outro (ex.: tab) —
+        // um separador único para o arquivo inteiro falha nesse caso.
+        function _ncmParseLinha(linha) {
+            const nTab = (linha.match(/\t/g) || []).length;
+            const nPv  = (linha.match(/;/g) || []).length;
+            const sep = nTab > 0 ? '\t' : (nPv > 0 ? ';' : ',');
+            const campos = [];
+            let field = '';
+            let inQuotes = false;
+            for (let i = 0; i < linha.length; i++) {
+                const ch = linha[i];
+                const next = linha[i + 1];
+                if (inQuotes) {
+                    if (ch === '"' && next === '"') { field += '"'; i++; }
+                    else if (ch === '"') { inQuotes = false; }
+                    else { field += ch; }
+                } else {
+                    if (ch === '"') { inQuotes = true; }
+                    else if (ch === sep) { campos.push(field.trim()); field = ''; }
+                    else { field += ch; }
+                }
+            }
+            campos.push(field.trim());
+            return campos;
         }
 
         function importNcmFile(inputEl, filial) {
@@ -2559,22 +3007,39 @@
                 let rows = [];
                 try {
                     if (ext === 'csv' || ext === 'txt') {
-                        // CSV / TXT: detecta separador
+                        // CSV / TXT: separador detectado LINHA A LINHA (ver _ncmSplitLinhasLogicas /
+                        // _ncmParseLinha), pois alguns arquivos exportam o cabeçalho com um separador
+                        // (ex.: ;) e as linhas de dados com outro (ex.: tab) — um separador único
+                        // para o arquivo inteiro falharia nesse caso.
                         const text = e.target.result;
-                        const lines = text.split(/\r?\n/).filter(l => l.trim());
-                        const sep = lines[0].includes(';') ? ';' : ',';
-                        const headers = lines[0].split(sep).map(h => h.trim().toLowerCase().replace(/[^a-z0-9]/g,''));
-                        const idxNcm = headers.findIndex(h => h.includes('ncm'));
-                        const idxPct = headers.findIndex(h => h.includes('aliquota') || h === 'pct' || h === '%' || h.includes('percent'));
-                        if (idxNcm === -1 || idxPct === -1) {
+                        const linhasLogicas = _ncmSplitLinhasLogicas(text);
+                        if (linhasLogicas.length === 0) {
+                            alert('Não foi possível ler o conteúdo do arquivo.');
+                            return;
+                        }
+                        const parsedRows = linhasLogicas.map(_ncmParseLinha);
+                        const headers = parsedRows[0].map(h => _normalizeHeader(h));
+                        const idx = _mapNcmHeaders(headers);
+                        if (idx.ncm === -1 || idx.pct === -1) {
                             alert('Não foi possível identificar as colunas NCM e Alíquota no arquivo. Verifique o cabeçalho.');
                             return;
                         }
-                        for (let i = 1; i < lines.length; i++) {
-                            const cols = lines[i].split(sep);
-                            const codigo = (cols[idxNcm] || '').trim().replace(/"/g,'');
-                            const pct = parseFloat((cols[idxPct] || '0').replace(',','.').replace('%',''));
-                            if (codigo) rows.push({ codigo, pct: isNaN(pct) ? 0 : pct });
+                        const numOrZero = v => { const n = parseFloat((v || '0').replace(',','.').replace('%','')); return isNaN(n) ? 0 : n; };
+                        for (let i = 1; i < parsedRows.length; i++) {
+                            const cols = parsedRows[i];
+                            const codigo = (cols[idx.ncm] || '').trim();
+                            if (!codigo) continue;
+                            rows.push({
+                                codigo,
+                                pct: numOrZero(cols[idx.pct]),
+                                mva4: idx.mva4 === -1 ? 0 : numOrZero(cols[idx.mva4]),
+                                mva7: idx.mva7 === -1 ? 0 : numOrZero(cols[idx.mva7]),
+                                mva12: idx.mva12 === -1 ? 0 : numOrZero(cols[idx.mva12]),
+                                mva17: idx.mva17 === -1 ? 0 : numOrZero(cols[idx.mva17]),
+                                mva0: idx.mva0 === -1 ? 0 : numOrZero(cols[idx.mva0]),
+                                icmsVenda: idx.icmsVenda === -1 ? 0 : numOrZero(cols[idx.icmsVenda]),
+                                difal: idx.difal === -1 ? 'NÃO TEM ST' : ((cols[idx.difal] || '').trim().toUpperCase().includes('TEM ST') && !(cols[idx.difal] || '').trim().toUpperCase().includes('NÃO') && !(cols[idx.difal] || '').trim().toUpperCase().includes('NAO') ? 'TEM ST' : 'NÃO TEM ST')
+                            });
                         }
                     } else {
                         // XLSX / XLS via SheetJS
@@ -2582,14 +3047,34 @@
                         const ws = wb.Sheets[wb.SheetNames[0]];
                         const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
                         json.forEach(row => {
-                            const keys = Object.keys(row).map(k => k.toLowerCase().replace(/[^a-z0-9]/g,''));
+                            const keysNorm = Object.keys(row).map(k => _normalizeHeader(k));
                             const rawKeys = Object.keys(row);
-                            const kNcm = rawKeys[keys.findIndex(k => k.includes('ncm'))];
-                            const kPct = rawKeys[keys.findIndex(k => k.includes('aliquota') || k === 'pct' || k === '%' || k.includes('percent'))];
+                            const idx = _mapNcmHeaders(keysNorm);
+                            const kNcm = idx.ncm === -1 ? null : rawKeys[idx.ncm];
+                            const kPct = idx.pct === -1 ? null : rawKeys[idx.pct];
                             if (!kNcm || !kPct) return;
+                            const numOrZero = v => { const n = parseFloat(String(v).replace(',','.').replace('%','')); return isNaN(n) ? 0 : n; };
                             const codigo = String(row[kNcm]).trim();
-                            const pct = parseFloat(String(row[kPct]).replace(',','.').replace('%',''));
-                            if (codigo) rows.push({ codigo, pct: isNaN(pct) ? 0 : pct });
+                            if (!codigo) return;
+                            const kMva4 = idx.mva4 === -1 ? null : rawKeys[idx.mva4];
+                            const kMva7 = idx.mva7 === -1 ? null : rawKeys[idx.mva7];
+                            const kMva12 = idx.mva12 === -1 ? null : rawKeys[idx.mva12];
+                            const kMva17 = idx.mva17 === -1 ? null : rawKeys[idx.mva17];
+                            const kMva0 = idx.mva0 === -1 ? null : rawKeys[idx.mva0];
+                            const kIcmsVenda = idx.icmsVenda === -1 ? null : rawKeys[idx.icmsVenda];
+                            const kDifal = idx.difal === -1 ? null : rawKeys[idx.difal];
+                            const difalRaw = kDifal ? String(row[kDifal]).trim().toUpperCase() : '';
+                            rows.push({
+                                codigo,
+                                pct: numOrZero(row[kPct]),
+                                mva4: kMva4 ? numOrZero(row[kMva4]) : 0,
+                                mva7: kMva7 ? numOrZero(row[kMva7]) : 0,
+                                mva12: kMva12 ? numOrZero(row[kMva12]) : 0,
+                                mva17: kMva17 ? numOrZero(row[kMva17]) : 0,
+                                mva0: kMva0 ? numOrZero(row[kMva0]) : 0,
+                                icmsVenda: kIcmsVenda ? numOrZero(row[kIcmsVenda]) : 0,
+                                difal: (difalRaw.includes('TEM ST') && !difalRaw.includes('NÃO') && !difalRaw.includes('NAO')) ? 'TEM ST' : 'NÃO TEM ST'
+                            });
                         });
                     }
                 } catch(err) {
@@ -2599,18 +3084,47 @@
 
                 if (rows.length === 0) { alert('Nenhum dado válido encontrado no arquivo.'); return; }
 
-                const data = getImpostosData();
-                const key = 'ncm_' + filial;
-                if (!data[key]) data[key] = [];
-                let adicionados = 0, ignorados = 0;
-                rows.forEach(r => {
-                    if (data[key].find(n => n.codigo === r.codigo)) { ignorados++; }
-                    else { data[key].push(r); adicionados++; }
+                const table = filial === 'mg' ? 'ncm_matriz_mg' : 'ncm_filial_es';
+                const existentes = new Set(DB.get(table).map(n => n.codigo));
+                const curUser = _getCurrentUser();
+                const agora = new Date().toISOString();
+                const novos = [];
+                let ignorados = 0;
+                rows.forEach((r, i) => {
+                    if (existentes.has(r.codigo)) { ignorados++; return; }
+                    existentes.add(r.codigo);
+                    novos.push({
+                        id: Date.now().toString() + '_' + i,
+                        codigo: r.codigo, pct: r.pct, mva4: r.mva4, mva7: r.mva7, mva12: r.mva12,
+                        mva17: r.mva17, mva0: r.mva0, icmsVenda: r.icmsVenda, difal: r.difal,
+                        criadoPorId: curUser ? curUser.id : null,
+                        createdAt: agora
+                    });
                 });
-                await _saveImpostosRemote(data);
+
+                if (novos.length === 0) {
+                    inputEl.value = '';
+                    alert(`Importação concluída: 0 NCM(s) adicionado(s), ${ignorados} ignorado(s) por duplicata.`);
+                    return;
+                }
+
+                // Atualiza cache local (e a tela) imediatamente
+                DB.save(table, DB.get(table).concat(novos));
                 renderNcm(filial);
+
+                // Envia ao Supabase em lotes, evitando estourar o limite de payload da API
+                // em arquivos grandes (ex.: os ~8 mil/12 mil registros de NCM por filial)
+                const CHUNK = 500;
+                let erro = false;
+                for (let i = 0; i < novos.length; i += CHUNK) {
+                    const lote = novos.slice(i, i + CHUNK).map(n => _toSnakeCase(table, n));
+                    const { error } = await _supabase.from(table).insert(lote);
+                    if (error) { console.error('Supabase bulk insert error:', table, error); erro = true; }
+                }
+                if (erro) _showDbError('Parte dos registros de NCM pode não ter sido salva no banco de dados. Verifique a conexão e reimporte se necessário.');
+
                 inputEl.value = '';
-                alert(`Importação concluída: ${adicionados} NCM(s) adicionado(s), ${ignorados} ignorado(s) por duplicata.`);
+                alert(`Importação concluída: ${novos.length} NCM(s) adicionado(s), ${ignorados} ignorado(s) por duplicata.`);
             };
 
             if (ext === 'csv' || ext === 'txt') {
@@ -2620,21 +3134,58 @@
             }
         }
 
-        // Quando o NCM é digitado no worktable, preenche ST automaticamente com base na filial ativa
+        // Escolhe a coluna de MVA correta da tabela "Classificação Fiscal Geral" conforme o
+        // ICMS de Compra % informado na linha — réplica exata da fórmula B da planilha.
+        // A 4ª faixa é a alíquota interna do próprio estado: 17% na ES, 18% na MG (confirmado
+        // por análise formula-a-fórmula dos dois arquivos originais) — ambas armazenadas no
+        // mesmo campo "mva17" do cadastro (o rótulo da UI muda conforme a filial, o dado é único).
+        // Se o ICMS de Compra não bater exatamente em nenhuma das faixas cadastradas, retorna 0.
+        function _mvaPorFaixaIcms(entry, icmscPct, filial) {
+            if (!entry) return 0;
+            const faixa = Math.round((parseFloat(icmscPct) || 0) * 100) / 100;
+            const faixaInterna = (filial === 'mg') ? 18 : 17;
+            if (faixa === 4) return entry.mva4 || 0;
+            if (faixa === 7) return entry.mva7 || 0;
+            if (faixa === 12) return entry.mva12 || 0;
+            if (faixa === faixaInterna) return entry.mva17 || 0;
+            if (faixa === 0) return entry.mva0 || 0;
+            return 0;
+        }
+
+        // Quando o NCM é digitado no worktable, preenche ST (%) e MVA (%) automaticamente com base na filial ativa
         function applyNcmSt(inputEl) {
             const codigo = inputEl.value.trim();
             if (!codigo) return;
             const tr = inputEl.closest('tr');
             const stInput = tr.querySelector('.w-st');
+            const mvaInput = tr.querySelector('.w-mva');
+            const icmscInput = tr.querySelector('.w-icmsc');
             if (!stInput) return;
-            const data = getImpostosData();
-            const key = 'ncm_' + wtFilial.toLowerCase();
-            const lista = data[key] || [];
+            const filial = wtFilial.toLowerCase();
+            const table = filial === 'mg' ? 'ncm_matriz_mg' : 'ncm_filial_es';
+            const lista = DB.get(table);
             const entry = lista.find(n => n.codigo === codigo);
             if (entry) {
                 stInput.value = entry.pct;
-                calcWorktableRow(stInput);
+                if (mvaInput) mvaInput.value = _mvaPorFaixaIcms(entry, icmscInput ? icmscInput.value : 0, filial);
+                calcWorktableRow(mvaInput || stInput);
             }
+        }
+
+        // Quando o ICMS de Compra % muda numa linha que já tem NCM preenchido, reaplica a
+        // faixa de MVA correspondente (mesma lógica de _mvaPorFaixaIcms), sem alterar o ST.
+        function applyMvaPorIcmsCompra(icmscEl) {
+            const tr = icmscEl.closest('tr');
+            const ncmInput = tr.querySelector('.w-ncm');
+            const mvaInput = tr.querySelector('.w-mva');
+            if (!ncmInput || !mvaInput) return;
+            const codigo = ncmInput.value.trim();
+            if (!codigo) return;
+            const filial = wtFilial.toLowerCase();
+            const table = filial === 'mg' ? 'ncm_matriz_mg' : 'ncm_filial_es';
+            const lista = DB.get(table);
+            const entry = lista.find(n => n.codigo === codigo);
+            if (entry) mvaInput.value = _mvaPorFaixaIcms(entry, icmscEl.value, filial);
         }
 
         function verificarSenhaImpostos() {
@@ -2672,7 +3223,7 @@
         let activeTaskId = null;
         let wtFilial = 'MG';       // 'MG' = Matriz MG | 'ES' = Filial ES
         let wtFcpOn = true;        // FCP ligado por padrão (ON)
-        let wtRegime = 'LR';       // 'LR' Lucro Real | 'LP' Lucro Presumido | 'SN' Simples Nacional
+        let wtRegime = 'PFPV';     // 'PFPV' Planilha Formação de Preço de Venda (padrão) | 'LR' Lucro Real | 'LP' Lucro Presumido | 'SN' Simples Nacional
         let wtDestinatario = 'contrib'; // 'contrib' | 'ncontrib' (não-contribuinte / consumidor final)
         let wtUfVendDefault = '';  // UF padrão para ES Custo Venda nas novas linhas (ex: 'estado_SP', 'imp', '')
         let _wtLoadedOppId  = null; // ID da oportunidade efetivamente carregada no worktable (≠ currentOppId)
@@ -2860,10 +3411,15 @@
             if(pageId === 'cadastros') renderTableClientes();
             if(pageId === 'crm') renderKanban();
             if(pageId === 'atividades') {
-                // Inicializa filtro de data com hoje se ainda não tiver valor
-                const agFilData = document.getElementById('ag-fil-data');
-                if (agFilData && !agFilData.value) {
-                    agFilData.value = new Date().toISOString().slice(0, 10);
+                // Inicializa range de datas com padrão de 30 dias de diferença (calendário 1 -> calendário 2) se ainda não tiver valor
+                const agFilDtIni = document.getElementById('ag-fil-dt-ini');
+                const agFilDtFim = document.getElementById('ag-fil-dt-fim');
+                if (agFilDtIni && !agFilDtIni.value) {
+                    agFilDtIni.value = new Date().toISOString().slice(0, 10);
+                }
+                if (agFilDtFim && !agFilDtFim.value) {
+                    const d30 = new Date(); d30.setDate(d30.getDate() + 30);
+                    agFilDtFim.value = d30.toISOString().slice(0, 10);
                 }
                 renderAtividades();
             }
@@ -2995,6 +3551,7 @@
             const uf = extract("UF");
             const email = extract("ENDEREÇO ELETRÔNICO") || extract("CORREIO ELETRÔNICO");
             const telefone = extract("TELEFONE");
+            const dataAbertura = extract("DATA DE ABERTURA");
 
             if(cnpj) document.getElementById('cad-doc').value = maskCNPJ(cnpj);
             if(razao) document.getElementById('cad-nome').value = razao;
@@ -3002,12 +3559,14 @@
             if(logradouro) document.getElementById('cad-endereco').value = logradouro;
             if(numero) document.getElementById('cad-numero').value = numero;
             if(complemento) document.getElementById('cad-complemento').value = complemento;
+            if(bairro) document.getElementById('cad-bairro').value = bairro;
             if(cep) {
                 const cepClean = cep.replace(/\D/g,'');
                 document.getElementById('cad-cep').value = cepClean.replace(/^(\d{5})(\d)/, '$1-$2');
             }
             if(municipio) document.getElementById('cad-cidade').value = municipio;
             if(uf) document.getElementById('cad-uf').value = uf;
+            if(dataAbertura) document.getElementById('cad-data-abertura').value = dataAbertura;
             
             if(email) {
                 const firstEmail = document.querySelector('#contatos-container .contato-row [name="contato-email"]');
@@ -3083,11 +3642,13 @@
                         <div class="form-grid">
                             <div class="form-group"><label>Inscrição Estadual (IE)</label><input type="text" id="cad-ie" class="wt-input-cell" placeholder="Opcional"></div>
                             <div class="form-group"><label>Inscrição Municipal (IM)</label><input type="text" id="cad-im" class="wt-input-cell" placeholder="Opcional"></div>
+                            <div class="form-group" style="max-width:160px;"><label>Data de Abertura</label><input type="text" id="cad-data-abertura" class="wt-input-cell" placeholder="00/00/0000"></div>
                         </div>
                         <div class="form-grid">
                             <div class="form-group"><label>Endereço (Logradouro)</label><input type="text" id="cad-endereco" class="wt-input-cell uppercase"></div>
                             <div class="form-group" style="max-width:120px;"><label>Nº</label><input type="text" id="cad-numero" class="wt-input-cell uppercase" placeholder="Ex: 123"></div>
                             <div class="form-group"><label>Complemento</label><input type="text" id="cad-complemento" class="wt-input-cell uppercase" placeholder="Ex: Sala 2, Bloco B"></div>
+                            <div class="form-group"><label>Bairro/Distrito</label><input type="text" id="cad-bairro" class="wt-input-cell uppercase" placeholder="Ex: Centro"></div>
                             <div class="form-group" style="max-width:160px;"><label>CEP</label><input type="text" id="cad-cep" class="wt-input-cell" placeholder="00000-000" maxlength="9" oninput="this.value=this.value.replace(/\D/g,'').replace(/^(\d{5})(\d)/,'$1-$2')"></div>
                             <div class="form-group"><label>Cidade *</label><input type="text" id="cad-cidade" class="wt-input-cell uppercase" required></div>
                             <div class="form-group" style="max-width:100px;"><label>UF *</label><input type="text" id="cad-uf" class="wt-input-cell uppercase" maxlength="2" required></div>
@@ -3375,11 +3936,13 @@
                     <div class="form-grid">
                         <div class="form-group"><label>Inscrição Estadual (IE)</label><input type="text" id="cad-ie" class="wt-input-cell" placeholder="Opcional" value="${c.ie || ''}"></div>
                         <div class="form-group"><label>Inscrição Municipal (IM)</label><input type="text" id="cad-im" class="wt-input-cell" placeholder="Opcional" value="${c.im || ''}"></div>
+                        <div class="form-group" style="max-width:160px;"><label>Data de Abertura</label><input type="text" id="cad-data-abertura" class="wt-input-cell" placeholder="00/00/0000" value="${c.dataAbertura || ''}"></div>
                     </div>
                     <div class="form-grid">
                         <div class="form-group"><label>Endereço (Logradouro)</label><input type="text" id="cad-endereco" class="wt-input-cell uppercase" value="${c.endereco || ''}"></div>
                         <div class="form-group" style="max-width:120px;"><label>Nº</label><input type="text" id="cad-numero" class="wt-input-cell uppercase" placeholder="Ex: 123" value="${c.numero || ''}"></div>
                         <div class="form-group"><label>Complemento</label><input type="text" id="cad-complemento" class="wt-input-cell uppercase" placeholder="Ex: Sala 2, Bloco B" value="${c.complemento || ''}"></div>
+                        <div class="form-group"><label>Bairro/Distrito</label><input type="text" id="cad-bairro" class="wt-input-cell uppercase" placeholder="Ex: Centro" value="${c.bairro || ''}"></div>
                         <div class="form-group" style="max-width:160px;"><label>CEP</label><input type="text" id="cad-cep" class="wt-input-cell" placeholder="00000-000" maxlength="9" oninput="this.value=this.value.replace(/\\D/g,'').replace(/^(\\d{5})(\\d)/,'$1-$2')" value="${c.cep || ''}"></div>
                         <div class="form-group"><label>Cidade *</label><input type="text" id="cad-cidade" class="wt-input-cell uppercase" required value="${c.cidade || ''}"></div>
                         <div class="form-group" style="max-width:100px;"><label>UF *</label><input type="text" id="cad-uf" class="wt-input-cell uppercase" maxlength="2" required value="${c.uf || ''}"></div>
@@ -3603,10 +4166,12 @@ Data/Hora: ${autorData}`);
                             ${campo('Área de Atuação', c.tipoArea)}
                             ${campo('Inscrição Estadual (IE)', c.ie)}
                             ${campo('Inscrição Municipal (IM)', c.im)}
+                            ${campo('Data de Abertura', c.dataAbertura)}
                         </div>
                         <div class="opp-info-block">
                             <h4><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> Endereço</h4>
                             ${campo('Logradouro', [c.endereco, c.numero, c.complemento].filter(Boolean).join(', '))}
+                            ${campo('Bairro/Distrito', c.bairro)}
                             ${campo('CEP', c.cep)}
                             ${campo('Cidade / UF', c.cidade && c.uf ? c.cidade + ' / ' + c.uf : (c.cidade || c.uf))}
                         </div>
@@ -3811,11 +4376,13 @@ Data/Hora: ${autorData}`);
                 endereco: document.getElementById('cad-endereco').value.toUpperCase(),
                 numero: document.getElementById('cad-numero').value.toUpperCase(),
                 complemento: document.getElementById('cad-complemento').value.toUpperCase(),
+                bairro: document.getElementById('cad-bairro')?.value.toUpperCase() || '',
                 cep: document.getElementById('cad-cep').value,
                 cidade: document.getElementById('cad-cidade').value.toUpperCase(),
                 uf: document.getElementById('cad-uf').value.toUpperCase(),
                 ie: document.getElementById('cad-ie')?.value || '',
                 im: document.getElementById('cad-im')?.value || '',
+                dataAbertura: document.getElementById('cad-data-abertura')?.value || '',
                 tipoCliente: document.getElementById('cad-tipo-cliente')?.value || '',
                 tipoArea: document.getElementById('cad-tipo-area')?.value || '',
                 tipoEstabelecimento: document.getElementById('cad-tipo-estab')?.value || '',
@@ -5366,7 +5933,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                         // Preenche automaticamente o campo Custo Fornecedor com o Valor Un informado
                         const cfornInput = tr.querySelector('.w-cforn');
                         if (cfornInput) {
-                            cfornInput.value = parseFloat(dados.precoUn) || 0;
+                            cfornInput.value = _wtFormatValorBR(parseFloat(dados.precoUn) || 0);
                             calcWorktableRow(cfornInput);
                         }
                     } else if (motivo === 'Ag retorno') {
@@ -5860,7 +6427,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                 </td>
                 <td>
                     <input type="number" step="0.01" class="wt-input-cell w-st wt-cell-sm" value="${data.st || 0}" placeholder="%" oninput="calcWorktableRow(this)" style="width:100%; border-color:#8B5CF6;">
-                    <input type="number" step="0.01" class="wt-input-cell w-mva wt-cell-sm" value="${data.mva || 0}" placeholder="MVA%" oninput="calcWorktableRow(this)" style="width:100%; margin-top:2px;" title="MVA — Margem de Valor Agregado para cálculo da BC-ST">
+                    <input type="number" step="0.01" class="wt-input-cell w-mva wt-cell-sm" value="${data.mva || 0}" placeholder="MVA%" oninput="calcWorktableRow(this)" style="width:100%; margin-top:2px;" title="MVA — Margem de Valor Agregado para cálculo da BC-ST (preenchido automaticamente ao digitar o NCM, se cadastrado em Cadastro de Impostos por Estado; pode ser sobrescrito manualmente)">
                 </td>
                 <td>
                     <textarea class="wt-input-cell w-desc uppercase" placeholder="Descrição Técnica" style="width:100%; min-height:36px; resize:vertical; white-space:pre-wrap; word-break:break-word; font-size:0.76rem; padding:5px 7px; border:none; background:#FAFBFF; display:block;">${data.desc || ''}</textarea>
@@ -5901,7 +6468,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                     </div>
                 </td>
                 <td>
-                    <input type="number" step="0.01" class="wt-input-cell w-cforn" value="${data.cforn || 0}" placeholder="0.00" oninput="calcWorktableRow(this)" style="width:100%; border-color:var(--text-muted);">
+                    <input type="text" inputmode="decimal" class="wt-input-cell w-cforn" value="${_wtFormatValorBR(data.cforn || 0)}" placeholder="0,00" oninput="_wtMaskMoedaInput(this); calcWorktableRow(this)" style="width:100%; border-color:var(--text-muted); text-align:right;">
                 </td>
                 <td>
                     <div style="display:flex; flex-direction:column; gap:3px;">
@@ -5915,7 +6482,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                         </div>
                         <div style="display:flex; align-items:center; gap:4px;">
                             <span style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; width:56px; text-align:right; flex-shrink:0;">ICMS C.</span>
-                            <input type="number" step="0.01" class="wt-input-cell w-icmsc" value="${data.icmsc || 0}" placeholder="%" oninput="_aplicarRegraIcms4(this.closest('tr')); calcWorktableRow(this)" style="flex:1; min-width:0;">
+                            <input type="number" step="0.01" class="wt-input-cell w-icmsc" value="${data.icmsc || 0}" placeholder="%" oninput="_aplicarRegraIcms4(this.closest('tr')); applyMvaPorIcmsCompra(this); calcWorktableRow(this)" style="flex:1; min-width:0;">
                         </div>
                         <div style="display:flex; align-items:center; gap:4px;">
                             <span style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; width:56px; text-align:right; flex-shrink:0;">IPI C.</span>
@@ -5975,6 +6542,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                 <td>
                     <input type="number" step="0.01" class="wt-input-cell w-desconto wt-cell-sm" value="${data.desconto || 0}" placeholder="%" oninput="calcWorktableRow(this)" style="width:100%; border-color:var(--danger);">
                 </td>
+                <td class="w-vunit" style="font-weight:600; color:var(--text-muted); font-size:0.82rem; white-space:nowrap;">R$ 0,00</td>
                 <td class="w-vtotal" style="font-weight:700; color:var(--primary); font-size:0.85rem; white-space:nowrap;">R$ 0,00</td>
                 <td class="w-lucro" style="font-weight:700; font-size:0.85rem; white-space:nowrap; vertical-align:top; padding-top:10px;">
                     <div>R$ 0,00</div>
@@ -6064,7 +6632,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                 marcaOfe: tr.querySelector('.w-marca-ofe')? tr.querySelector('.w-marca-ofe').value : '',
                 marcaRef: tr.querySelector('.w-marca-ref')? tr.querySelector('.w-marca-ref').value : '',
                 qtd:      parseFloat(tr.querySelector('.w-qtd')   ? tr.querySelector('.w-qtd').value   : 1) || 1,
-                cforn:    parseFloat(tr.querySelector('.w-cforn') ? tr.querySelector('.w-cforn').value : 0) || 0,
+                cforn:    _wtParseValorBR(tr.querySelector('.w-cforn') ? tr.querySelector('.w-cforn').value : 0),
                 cb:       parseFloat(cbInp ? cbInp.value : 0) || 0,
                 cbMode:   cbInp ? (cbInp.getAttribute('data-mode') || 'R$') : 'R$',
                 icmsc:    parseFloat(tr.querySelector('.w-icmsc') ? tr.querySelector('.w-icmsc').value : 0) || 0,
@@ -6133,12 +6701,11 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
         }
 
         function _preencherLinhaProduto(tr, prod) {
-            // NCM — preenche e dispara applyNcmSt para carregar ST automaticamente
+            // NCM — preenche o valor, mas ainda NÃO dispara applyNcmSt aqui: o lookup de MVA
+            // depende do ICMS Compra %, que só é preenchido logo abaixo. Disparar antes faria
+            // o MVA ser calculado com o ICMS Compra desatualizado (valor residual da linha).
             const ncmEl = tr.querySelector('.w-ncm');
-            if (ncmEl) {
-                ncmEl.value = prod.ncm || '';
-                applyNcmSt(ncmEl);   // carrega ST imediatamente
-            }
+            if (ncmEl) ncmEl.value = prod.ncm || '';
             // Produto / Descrição
             const descEl = tr.querySelector('.w-desc');
             if (descEl) descEl.value = prod.desc || prod.descricao || '';
@@ -6151,13 +6718,16 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
             if (marcaRefEl) marcaRefEl.value = prod.marca || '';
             // Custo Base → Custo Fornecedor
             const cfornEl = tr.querySelector('.w-cforn');
-            if (cfornEl) cfornEl.value = parseFloat(prod.custo || prod.custo_base) || 0;
+            if (cfornEl) cfornEl.value = _wtFormatValorBR(parseFloat(prod.custo || prod.custo_base) || 0);
             // ICMS (%) → ICMS C.
             const icmscEl = tr.querySelector('.w-icmsc');
             if (icmscEl) icmscEl.value = parseFloat(prod.icms) || 0;
             // IPI (%) → IPI C.
             const ipicEl = tr.querySelector('.w-ipic');
             if (ipicEl) ipicEl.value = parseFloat(prod.ipi) || 0;
+            // Agora sim: NCM e ICMS Compra % já estão com os valores finais do produto —
+            // dispara applyNcmSt aqui, para o lookup de MVA usar a faixa correta (4/7/12/17-18/0).
+            if (ncmEl) applyNcmSt(ncmEl);
             // Regra ICMS C. = 4: ajusta UF Comp, UF Vend e ICMS V. automaticamente
             _aplicarRegraIcms4(tr);
             // Recalcula a linha
@@ -6303,6 +6873,36 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
             overlay.querySelector('#_conf-sim').onclick = () => {
                 document.body.removeChild(overlay);
                 tr.remove();
+                renumberWorktableRows();
+                calcWorktableGlobals();
+            };
+        }
+
+        function confirmarExcluirTodasLinhas() {
+            const tbody = document.getElementById('tb-wt-items');
+            if (!tbody) return;
+            const linhas = tbody.querySelectorAll('tr');
+            if (linhas.length === 0) return;
+            // Cria overlay de confirmação inline
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(17,24,39,0.6);z-index:5000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);';
+            overlay.innerHTML = `
+                <div style="background:#fff;border-radius:14px;padding:28px 32px;max-width:360px;width:90%;box-shadow:0 16px 48px rgba(0,0,0,0.25);text-align:center;">
+                    <div style="width:48px;height:48px;background:rgba(239,68,68,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+                        <i class="fas fa-trash" style="color:#EF4444;font-size:1.2rem;"></i>
+                    </div>
+                    <h3 style="font-size:1rem;font-weight:700;color:#1F2937;margin-bottom:8px;">Excluir todas as linhas?</h3>
+                    <p style="font-size:0.85rem;color:#6B7280;margin-bottom:24px;">Esta ação excluirá todas as ${linhas.length} linha(s) do orçamento e não pode ser desfeita. Deseja continuar?</p>
+                    <div style="display:flex;gap:12px;justify-content:center;">
+                        <button id="_conf-todas-nao" style="flex:1;padding:10px 0;border-radius:8px;border:1px solid #E5E7EB;background:#F3F4F6;font-weight:600;font-size:0.875rem;cursor:pointer;color:#374151;">Não</button>
+                        <button id="_conf-todas-sim" style="flex:1;padding:10px 0;border-radius:8px;border:none;background:#EF4444;color:#fff;font-weight:600;font-size:0.875rem;cursor:pointer;">Sim</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(overlay);
+            overlay.querySelector('#_conf-todas-nao').onclick = () => document.body.removeChild(overlay);
+            overlay.querySelector('#_conf-todas-sim').onclick = () => {
+                document.body.removeChild(overlay);
+                tbody.innerHTML = '';
                 renumberWorktableRows();
                 calcWorktableGlobals();
             };
@@ -6610,7 +7210,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
 
             // ── 1. LEITURA DE INPUTS ──────────────────────────────────
             const qtd      = parseFloat(tr.querySelector('.w-qtd').value)    || 0;
-            const cforn    = parseFloat(tr.querySelector('.w-cforn').value)   || 0;
+            const cforn    = _wtParseValorBR(tr.querySelector('.w-cforn').value);
             const icmscPct = parseFloat(tr.querySelector('.w-icmsc').value)   || 0; // ICMS compra %
             const ipicPct  = parseFloat(tr.querySelector('.w-ipic').value)    || 0; // IPI compra %
             const icmsvPct = parseFloat(tr.querySelector('.w-icmsv').value)   || 0; // ICMS venda %
@@ -6631,165 +7231,192 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
             // Frete compra em R$ (usado no custo da entrada)
             const freteCompraRS = (cbMode === 'R$') ? cbVal : 0;
 
-            // ── 2. CRÉDITOS FISCAIS DE ENTRADA ────────────────────────
-            // Regra: contribuinte (LR / LP) → ICMS e IPI são créditos,
-            //        NÃO entram no custo.
-            // Simples Nacional e Não-Contribuinte → entram no custo.
+            // ── 2. REGIME / CRÉDITOS FISCAIS DE ENTRADA ───────────────
             const isContribuinte  = (wtDestinatario === 'contrib');
             const isSimplesNac    = (wtRegime === 'SN');
-            // Emitente Simples Nacional: não gera crédito de ICMS/IPI
             const emitenteSN      = (wtRegime === 'SN');
+            const isPFPV          = (wtRegime === 'PFPV');
 
-            // IPI de compra: recuperável se Lucro Real ou Lucro Presumido (emitente contribuinte)
-            // Para Simples Nacional: IPI sempre entra no custo
-            const ipiRecuperavel  = !emitenteSN; // estrutura preparada p/ PIS/COFINS futuros
+            let custoFiscalUnit, pvBase, pvComDesconto, icmsDebitoUnit, ipiDebitoUnit;
+            let fcpRate = 0, fcpUnit = 0, difalUnit = 0, difalOrigemUnit = 0, difalDestinoUnit = 0, fcpStUnit = 0;
+            let icmsStUnit = 0, bcStUnit = 0, vTotalUnit, vTotal, custoLinhaUnit, custoLinha;
+            let icmsCreditoUnit = 0, ipiCreditoUnit = 0;
 
-            // ICMS crédito compra: recuperável quando emitente é LR ou LP e produto não-ST
-            const icmsCreditoUnit = emitenteSN
-                ? 0
-                : (cforn * (icmscPct / 100)); // crédito ICMS entrada (por unidade, sobre cforn)
+            if (isPFPV) {
+                // ══════════════════════════════════════════════════════════
+                // MODO PFPV — RÉPLICA EXATA DA PLANILHA
+                // "Formação de Preço de Venda" (aba Análise Preço)
+                // Sem crédito de ICMS/IPI de compra, sem regime tributário —
+                // segue célula por célula a fórmula original (B, X, Z, AD, AF,
+                // AG, AH, AI, AJ, AL, AM, AR), conforme especificação validada.
+                //
+                // A planilha ES e a planilha MG têm 4 diferenças reais de fórmula
+                // (confirmadas por análise formula-a-fórmula dos dois arquivos originais),
+                // por isso o bloco abaixo se ramifica conforme a Filial de Saída (wtFilial):
+                //   1) Z (ICMS compra incentivado): ES = SE(B=0,0,Y) — zera no ramo sem ST.
+                //      MG = Y sempre (nunca zera; credita ICMS de compra mesmo sem ST).
+                //   2) AD (índice do gross-up, ramo sem ST): ES = piso 2%/7% (SE AC≠17) + FCP.
+                //      MG = AC (ICMS Venda) + FCP — sem piso fixo, proporcional ao item.
+                //   3) AM (ICMS venda acrescido): ES compara/multiplica por AC.
+                //      MG compara/multiplica por AD (que já é AC+FCP).
+                //   4) Faixas de MVA na tabela NCM: ES usa 17% na 4ª faixa, MG usa 18%
+                //      (já resolvido automaticamente pelo lookup por NCM, ver _mvaPorFaixaIcms).
+                // ══════════════════════════════════════════════════════════
+                const isMG = (wtFilial === 'MG');
+                const impPFPV   = getImpostosData();
+                // Se a linha não tiver "UF Venda" selecionada, assume a UF da filial ativa
+                // (premissa da planilha original: alíquota interna fixa 17% na ES, 18% na MG).
+                const ufDestPFPV  = getUfDestino(tr) || wtFilial;
+                const estDestPFPV = (impPFPV.destino || []).find(e => e.uf === ufDestPFPV);
 
-            // IPI crédito compra
-            const ipiCreditoUnit  = ipiRecuperavel
-                ? (cforn * (ipicPct / 100))
-                : 0;
+                const X  = cforn * (1 - (desconto / 100)); // custo de compra líquido (Desconto existente faz o papel das camadas P..V da planilha)
+                const B  = mvaPct;                          // MVA — já vem do lookup automático por NCM (coluna B), com faixa 17%/18% conforme filial
+                const AF = B > 0 ? B : 0;                   // gatilho: tem ST?
+                // Z — DIFERENÇA 1: ES zera quando B=0; MG sempre iguala a Y (nunca zera)
+                const Z  = isMG ? icmscPct : ((B === 0) ? 0 : icmscPct);
+                const AA = ipicPct;                         // IPI %
+                const AC = icmsvPct;                        // ICMS venda %
+                const AB = estDestPFPV ? estDestPFPV.imp : icmsvPct; // ICMS interno destino (tabela de UF já cadastrada — 17 ES / 18 MG)
+                const fcpPFPV = wtFcpOn ? getFcpRateForUf(ufDestPFPV) : 0; // FCP — equivalente ao F106 da planilha
 
-            // ── 3. CUSTO FISCAL REAL (unitário) ───────────────────────
-            // custoReal = produto + frete + impostos NÃO recuperáveis - créditos
-            // Se contribuinte (LR/LP): ICMS e IPI são créditos tributários —
-            //   reduzem o custo real de entrada (não são receita, são abatimento de custo).
-            //   Custo = cforn + frete - crédito ICMS - crédito IPI
-            // Se SN: sem crédito — ICMS e IPI entram integralmente no custo.
-            let custoFiscalUnit;
-            if (emitenteSN) {
-                // Simples Nacional: ICMS e IPI entram no custo (sem crédito)
-                custoFiscalUnit = cforn * (1 + (icmscPct / 100) + (ipicPct / 100)) + freteCompraRS;
+                let AJ, AH = 0, AI = 0;
+                const temStPFPV = (stPct > 0 && AF > 0);
+                if (temStPFPV) {
+                    // RAMO COM ST — soma direta: compra + IPI + ICMS-ST (sobre a base de COMPRA)
+                    // (idêntico entre ES e MG — única diferença já embutida é o AB, via tabela de UF)
+                    AH = X * AA / 100;
+                    AI = (X * (100 + AA) / 100 * (100 + AF) / 100 * AB / 100) - (X * icmscPct / 100);
+                    AJ = X + AH + AI;
+                } else {
+                    // RAMO SEM ST — DIFERENÇA 2: AD muda de fórmula conforme a filial.
+                    // ES: piso 2%/7% (conforme AC≠17) + FCP — independente do ICMS Venda real.
+                    // MG: AC (ICMS Venda %) + FCP — proporcional, sem piso fixo.
+                    const AD = isMG
+                        ? (AC + fcpPFPV)
+                        : ((B === 0 ? (AC !== 17 ? 2 : 7) : 0) + fcpPFPV);
+                    const freteCompraPctPFPV = (cbMode === '%') ? cbVal : 0; // AE
+                    let custoGross = X * ((100 - Z) / 100) * ((100 + AA) / 100);
+                    const denomAD = 1 - (AD / 100);
+                    custoGross = denomAD > 0.001 ? custoGross / denomAD : custoGross;
+                    const denomFreteC = 1 - (freteCompraPctPFPV / 100);
+                    custoGross = denomFreteC > 0.001 ? custoGross / denomFreteC : custoGross;
+                    AJ = custoGross;
+                }
+                if (cbMode === 'R$') AJ += cbVal; // frete compra em R$ — fora do modelo original (só tinha %), somado direto por completude
+
+                custoFiscalUnit = AJ;
+
+                let AL = AJ * (100 + markup) / 100; // AK/AL — markup simples multiplicativo
+                if (vvMode === 'R$') AL += vvVal;    // frete venda em R$ — idem, fora do modelo original
+
+                // AD para uso no AM: na MG, a fórmula original (AC2+F106) NÃO tem condicional de ST —
+                // vale sempre, com ou sem substituição tributária. Na ES, o AM usa AC (não AD), então
+                // este valor só importa mesmo para a MG.
+                const ADparaAM = isMG ? (AC + fcpPFPV) : ((B === 0 ? (AC !== 17 ? 2 : 7) : 0) + fcpPFPV);
+
+                // AM — DIFERENÇA 3: ES compara/multiplica por AC; MG compara/multiplica por AD
+                const AM = isMG
+                    ? ((AB === ADparaAM) ? 0 : (AI > 0 ? (ADparaAM * AL / 100) : 0))
+                    : ((AB === AC) ? 0 : (AI > 0 ? (AC * AL / 100) : 0));
+
+                const AN = impPFPV.custoFinanceiroVenda ?? 0; // novo campo global (Custo Financeiro de Venda %)
+                const AO = (vvMode === '%') ? vvVal : 0;      // Frete Venda % (reaproveitado)
+                const AP = impPFPV.comissaoComag ?? 6;        // Comissão Comag % (campo já existente)
+                const AQ = impPFPV.taxaPFPV ?? 0;             // novo campo global (Taxa %) — entra dobrada
+                const denomAR = 1 - ((AN + AO + AP + (AQ * 2)) / 100);
+                const AR = denomAR > 0.001 ? (AL + AM) / denomAR : (AL + AM);
+
+                pvBase          = AL;
+                pvComDesconto   = AL;
+                icmsDebitoUnit  = AM;
+                ipiDebitoUnit   = 0;
+                fcpRate         = fcpPFPV;
+                fcpUnit         = 0; // já embutido no AD do custo (evita dupla contagem no painel)
+                icmsStUnit      = AI;
+                bcStUnit        = 0;
+                vTotalUnit      = AR;
+                vTotal          = AR * qtd;
+                custoLinhaUnit  = AJ;
+                custoLinha      = AJ * qtd;
+
             } else {
-                // LR / LP: créditos tributários de ICMS e IPI abtem o custo fiscal real.
-                // icmsCreditoUnit e ipiCreditoUnit já foram calculados acima (seção 2)
-                // e continuam exibidos separadamente no painel fiscal.
-                custoFiscalUnit = cforn + freteCompraRS - icmsCreditoUnit - ipiCreditoUnit;
+                // ══════════════════════════════════════════════════════════
+                // MOTOR FISCAL PROFISSIONAL — LR / LP / SN (inalterado)
+                // Corrige: crédito ICMS/IPI, DIFAL, ST via MVA, FCP sobre BC,
+                // regime tributário, contribuinte vs não-contribuinte
+                // ══════════════════════════════════════════════════════════
+                const ipiRecuperavel = !emitenteSN;
+                icmsCreditoUnit = emitenteSN ? 0 : (cforn * (icmscPct / 100));
+                ipiCreditoUnit  = ipiRecuperavel ? (cforn * (ipicPct / 100)) : 0;
+
+                if (emitenteSN) {
+                    custoFiscalUnit = cforn * (1 + (icmscPct / 100) + (ipicPct / 100)) + freteCompraRS;
+                } else {
+                    custoFiscalUnit = cforn + freteCompraRS - icmsCreditoUnit - ipiCreditoUnit;
+                }
+
+                const tributosVendaPct = (icmsvPct + ipivPct) / 100;
+                if (cbMode === '%') {
+                    const denom = 1 - margem - tributosVendaPct - (cbVal / 100);
+                    pvBase = (denom > 0.001 && custoFiscalUnit > 0) ? custoFiscalUnit / denom : custoFiscalUnit;
+                } else {
+                    const denom = 1 - margem - tributosVendaPct;
+                    pvBase = (denom > 0.001 && custoFiscalUnit > 0) ? custoFiscalUnit / denom : custoFiscalUnit;
+                }
+
+                let pvComFrete;
+                if (vvMode === 'R$') {
+                    pvComFrete = pvBase + vvVal;
+                } else {
+                    pvComFrete = pvBase * (1 + (vvVal / 100));
+                }
+
+                pvComDesconto = pvComFrete * (1 - (desconto / 100));
+
+                icmsDebitoUnit = pvComDesconto * (icmsvPct / 100);
+                ipiDebitoUnit  = pvBase * (ipivPct / 100);
+
+                if (wtFcpOn) {
+                    const ufDest = getUfDestino(tr);
+                    fcpRate = getFcpRateForUf(ufDest);
+                }
+                fcpUnit = pvComDesconto * (fcpRate / 100);
+
+                const isInterestadual = _isOperacaoInterestadual(tr);
+                if (!isContribuinte && isInterestadual && !emitenteSN) {
+                    const impData   = getImpostosData();
+                    const ufDestStr = getUfDestino(tr);
+                    const ufOrigStr = _getUfOrigem(tr);
+                    const estDest   = (impData.destino || []).find(e => e.uf === ufDestStr);
+                    const estOrig   = (impData.origem  || []).find(e => e.uf === ufOrigStr);
+                    const aliqInternaDest = estDest ? estDest.imp     : 0;
+                    const aliqInter       = estOrig ? estOrig.normal  : 12;
+                    const bcDifal         = pvComDesconto;
+                    difalUnit             = bcDifal * ((aliqInternaDest - aliqInter) / 100);
+                    difalOrigemUnit       = 0;
+                    difalDestinoUnit      = difalUnit;
+                    fcpStUnit             = bcDifal * (fcpRate / 100);
+                }
+
+                if (stPct > 0 && mvaPct > 0) {
+                    const bcOperacaoUnit = pvComDesconto + ipiDebitoUnit + (vvMode === 'R$' ? vvVal : pvBase * (vvVal / 100));
+                    bcStUnit = bcOperacaoUnit * (1 + (mvaPct / 100));
+                    const impData2  = getImpostosData();
+                    const ufDestSt  = getUfDestino(tr);
+                    const estDestSt = (impData2.destino || []).find(e => e.uf === ufDestSt);
+                    const aliqIntSt = estDestSt ? estDestSt.imp : stPct;
+                    icmsStUnit = Math.max(0, (bcStUnit * (aliqIntSt / 100)) - icmsDebitoUnit);
+                } else if (stPct > 0 && mvaPct <= 0) {
+                    icmsStUnit = 0;
+                    console.warn('ST ignorada: necessário informar MVA válida para cálculo da BC-ST (ICMS-ST via Substituição Tributária).');
+                }
+
+                vTotalUnit = pvComDesconto + fcpUnit + icmsStUnit + fcpStUnit + difalUnit;
+                vTotal     = vTotalUnit * qtd;
+
+                custoLinhaUnit = custoFiscalUnit + icmsStUnit + difalUnit + fcpUnit + fcpStUnit;
+                custoLinha     = custoLinhaUnit * qtd;
             }
-
-            // Frete compra em % do PV: resolve abaixo junto com formação de preço
-
-            // ── 4. FORMAÇÃO DE PREÇO PROFISSIONAL ─────────────────────
-            // PV = CustoLíquido / (1 - %tributosVenda - %margem)
-            // tributosVenda = ICMS Venda (débito) + IPI Venda
-            // (FCP e ST são custos adicionados APÓS o PV base)
-            const tributosVendaPct = (icmsvPct + ipivPct) / 100;
-
-            let pvBase; // preço unitário base (sem FCP, sem ST, sem desconto, sem frete venda)
-            if (cbMode === '%') {
-                // Frete compra % incide sobre PV → resolve algebricamente.
-                // Base do markup = custoFiscalUnit (já líquido de créditos ICMS/IPI).
-                // Equação: PV × (1 - margem - tributosVendaPct - cbVal/100) = custoFiscalUnit
-                // Usar cforn bruto aqui ignoraria os créditos tributários → markup inflado.
-                const denom = 1 - margem - tributosVendaPct - (cbVal / 100);
-                pvBase = (denom > 0.001 && custoFiscalUnit > 0) ? custoFiscalUnit / denom : custoFiscalUnit;
-            } else {
-                // Frete compra em R$: já embutido no custoFiscalUnit
-                const denom = 1 - margem - tributosVendaPct;
-                pvBase = (denom > 0.001 && custoFiscalUnit > 0) ? custoFiscalUnit / denom : custoFiscalUnit;
-            }
-
-            // ── 5. FRETE VENDA ────────────────────────────────────────
-            let pvComFrete;
-            if (vvMode === 'R$') {
-                pvComFrete = pvBase + vvVal;
-            } else {
-                // Frete venda % sobre PV
-                pvComFrete = pvBase * (1 + (vvVal / 100));
-            }
-
-            // ── 6. DESCONTO ───────────────────────────────────────────
-            const pvComDesconto = pvComFrete * (1 - (desconto / 100));
-
-            // ── 7. DÉBITO ICMS VENDA ──────────────────────────────────
-            // BC ICMS ANÁLISE (Correção 3):
-            // pvBase  = PV antes do desconto e frete venda (usado na formação de preço)
-            // pvComDesconto = PV após desconto (base tributável real da operação)
-            //
-            // Fiscalmente: BC ICMS = valor da operação (art. 13 LC 87/96)
-            // = valor da NF com desconto = pvComDesconto.
-            // pvBase era usado incorretamente — gerava débito maior que o real.
-            //
-            // SEGURO alterar: pvComDesconto é a saída real faturada.
-            // Dependências verificadas: icmsDebitoUnit só alimenta icmsRecolherUnit
-            // e o painel fiscal. A formação de preço usa tributosVendaPct sobre pvBase
-            // (comportamento correto e inalterado).
-            const icmsDebitoUnit = pvComDesconto * (icmsvPct / 100); // BC ICMS = valor real da operação
-            const ipiDebitoUnit  = pvBase * (ipivPct  / 100);        // IPI: BC = valor s/ IPI (mantido)
-
-            // ── 8. FCP — sobre BC ICMS (não sobre V.Total) ───────────
-            // BC FCP = pvComDesconto (BC ICMS = PV s/ ST, s/ FCP)
-            let fcpRate = 0;
-            if (wtFcpOn) {
-                const ufDest = getUfDestino(tr);
-                fcpRate = getFcpRateForUf(ufDest);
-            }
-            const fcpUnit = pvComDesconto * (fcpRate / 100); // FCP sobre BC ICMS unitário
-
-            // ── 9. DIFAL — somente interestadual + não-contribuinte ───
-            // DIFAL = (ICMS interno destino - ICMS interestadual) × BC
-            // Partilha: vigência pós-EC87 — 100% destino a partir de 2019
-            let difalUnit = 0;
-            let difalOrigemUnit = 0;
-            let difalDestinoUnit = 0;
-            let fcpStUnit = 0;
-            const isInterestadual = _isOperacaoInterestadual(tr);
-            if (!isContribuinte && isInterestadual && !emitenteSN) {
-                const impData   = getImpostosData();
-                const ufDestStr = getUfDestino(tr);
-                const ufOrigStr = _getUfOrigem(tr);
-                const estDest   = (impData.destino || []).find(e => e.uf === ufDestStr);
-                const estOrig   = (impData.origem  || []).find(e => e.uf === ufOrigStr);
-                const aliqInternaDest = estDest ? estDest.imp     : 0; // % ICMS interno destino
-                const aliqInter       = estOrig ? estOrig.normal  : 12; // % ICMS interestadual
-                const bcDifal         = pvComDesconto; // BC DIFAL = valor da operação
-                difalUnit             = bcDifal * ((aliqInternaDest - aliqInter) / 100);
-                difalOrigemUnit       = 0;   // pós-2019: 100% destino
-                difalDestinoUnit      = difalUnit;
-                // FCP-ST sobre BC DIFAL
-                fcpStUnit             = bcDifal * (fcpRate / 100);
-            }
-
-            // ── 10. ICMS-ST VIA MVA (profissional) ───────────────────
-            // BCST = (valor operação + IPI + frete + desp) × (1 + MVA)
-            // ICMS-ST = (BCST × aliq.interna) - ICMS próprio
-            let icmsStUnit = 0;
-            let bcStUnit   = 0;
-            if (stPct > 0 && mvaPct > 0) {
-                // BC da operação por unidade
-                const bcOperacaoUnit = pvComDesconto + ipiDebitoUnit + (vvMode === 'R$' ? vvVal : pvBase * (vvVal / 100));
-                bcStUnit   = bcOperacaoUnit * (1 + (mvaPct / 100));
-                // alíquota interna destino
-                const impData2   = getImpostosData();
-                const ufDestSt   = getUfDestino(tr);
-                const estDestSt  = (impData2.destino || []).find(e => e.uf === ufDestSt);
-                const aliqIntSt  = estDestSt ? estDestSt.imp : stPct;
-                icmsStUnit = Math.max(0, (bcStUnit * (aliqIntSt / 100)) - icmsDebitoUnit);
-            } else if (stPct > 0 && mvaPct <= 0) {
-                // CORREÇÃO FISCAL: ST NÃO pode ser percentual simples sobre PV.
-                // ST exige: MVA + BC-ST + alíquota interna destino + ICMS próprio.
-                // Sem MVA válida, o cálculo seria fiscalmente incorreto — ST zerada.
-                icmsStUnit = 0;
-                console.warn('ST ignorada: necessário informar MVA válida para cálculo da BC-ST (ICMS-ST via Substituição Tributária).');
-            }
-
-            // ── 11. VALOR TOTAL DA LINHA ──────────────────────────────
-            // VTotal = (PV + frete + desc) × qtd + ST + FCP + FCP-ST + DIFAL
-            // FCP-ST: Fundo de Combate à Pobreza sobre BC do DIFAL (operação interestadual
-            // não-contribuinte). É encargo de saída — integra o valor total cobrado ao cliente.
-            let vTotalUnit = pvComDesconto + fcpUnit + icmsStUnit + fcpStUnit + difalUnit;
-            let vTotal     = vTotalUnit * qtd;
-
-            // ── 12. CUSTO REAL DA LINHA (para apuração de margem) ─────
-            // ST, DIFAL, FCP e FCP-ST são encargos não recuperáveis → entram no custo.
-            // FCP-ST: mesmo que seja recolhido ao destino, reduz a margem operacional real.
-            // ICMS crédito e IPI crédito são abatidos na entrada.
-            const custoLinhaUnit = custoFiscalUnit + icmsStUnit + difalUnit + fcpUnit + fcpStUnit;
-            const custoLinha     = custoLinhaUnit * qtd;
 
             // Persiste o custo fiscal real completo no dataset da linha.
             // Inclui: custo entrada + ST + DIFAL + FCP + FCP-ST.
@@ -6875,6 +7502,11 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
         }
 
         function _renderVTotalLucro(tr, vTotal, qtd, custoLinha) {
+            const celVUnit = tr.querySelector('.w-vunit');
+            if (celVUnit) {
+                const vUnit = qtd > 0 ? (vTotal / qtd) : vTotal;
+                celVUnit.innerText = "R$ " + vUnit.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+            }
             const celVTotal = tr.querySelector('.w-vtotal');
             celVTotal.innerText = "R$ " + vTotal.toLocaleString('pt-BR', {minimumFractionDigits:2});
             // Margem Operacional: receita - custo fiscal real (encargos não recuperáveis).
@@ -7552,7 +8184,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                     marcaOfe: tr.querySelector('.w-marca-ofe') ? tr.querySelector('.w-marca-ofe').value : '',
                     marcaRef: tr.querySelector('.w-marca-ref') ? tr.querySelector('.w-marca-ref').value : '',
                     qtd: parseFloat(tr.querySelector('.w-qtd').value) || 0,
-                    cforn: parseFloat(tr.querySelector('.w-cforn').value) || 0,
+                    cforn: _wtParseValorBR(tr.querySelector('.w-cforn').value),
                     cb: parseFloat(tr.querySelector('.w-cb').value) || 0,
                     cbMode: tr.querySelector('.w-cb').getAttribute('data-mode') || 'R$',
                     icmsc: parseFloat(tr.querySelector('.w-icmsc').value) || 0,
@@ -7598,11 +8230,9 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
 
             // Lê filtros
             const filStatus  = (document.getElementById('ag-fil-status')?.value || '');
-            const filData    = (document.getElementById('ag-fil-data')?.value || '');
+            const filDtIni   = (document.getElementById('ag-fil-dt-ini')?.value || '');
+            const filDtFim   = (document.getElementById('ag-fil-dt-fim')?.value || '');
             const filCliente = (document.getElementById('ag-fil-cliente')?.value || '').toLowerCase().trim();
-            // Se data não estiver preenchida pelo usuário, usa hoje como padrão (exibe apenas hoje)
-            const hoje = new Date().toISOString().slice(0, 10);
-            const dataFiltro = filData || hoje;
 
             const filtered = ativs.filter(a => {
                 const opp = opps.find(o => o.id === a.oppId);
@@ -7614,8 +8244,9 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                 }
                 // Filtro status
                 if (filStatus && a.status !== filStatus) return false;
-                // Filtro data
-                if (dataFiltro && a.dataAlvo !== dataFiltro) return false;
+                // Filtro intervalo de data (Data Início / Data Fim)
+                if (filDtIni && a.dataAlvo && a.dataAlvo < filDtIni) return false;
+                if (filDtFim && a.dataAlvo && a.dataAlvo > filDtFim) return false;
                 // Filtro cliente/oportunidade
                 if (filCliente) {
                     const nomeCliente = cli ? cli.nome.toLowerCase() : '';
@@ -7715,10 +8346,12 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
 
         function limparFiltrosAgenda() {
             const status = document.getElementById('ag-fil-status');
-            const data   = document.getElementById('ag-fil-data');
+            const dtIni  = document.getElementById('ag-fil-dt-ini');
+            const dtFim  = document.getElementById('ag-fil-dt-fim');
             const cli    = document.getElementById('ag-fil-cliente');
             if (status) status.value = 'Pendente';
-            if (data)   data.value = '';
+            if (dtIni)  dtIni.value = new Date().toISOString().slice(0, 10);
+            if (dtFim)  { const d30 = new Date(); d30.setDate(d30.getDate() + 30); dtFim.value = d30.toISOString().slice(0, 10); }
             if (cli)    cli.value = '';
             closeAgFilAutocomplete();
             renderAtividades();
@@ -8080,8 +8713,17 @@ De ${remetenteNome}
         // Engine de Alerta — Atividades Agenda
         setInterval(() => {
             const now = new Date();
-            const ativs = DB.get('atividades').filter(a => a.status === 'Pendente' && !a.notificado);
-            
+            // Isola o alerta ao usuário dono da tarefa (criadoPorId da atividade ou da oportunidade vinculada),
+            // para que o vencimento de uma tarefa do usuário 1 não dispare notificação para o usuário 2.
+            const _curUser = _getCurrentUser();
+            if (!_curUser) return;
+            const ativs = DB.get('atividades').filter(a => {
+                if (a.status !== 'Pendente' || a.notificado) return false;
+                const oppRef = DB.findById('oportunidades', a.oppId);
+                const donoId = a.criadoPorId || (oppRef ? oppRef.criadoPorId : null);
+                return donoId === _curUser.id;
+            });
+
             ativs.forEach(a => {
                 const alvo = new Date(`${a.dataAlvo}T${a.horaAlvo}`);
                 if(now >= alvo) {
@@ -8106,18 +8748,23 @@ De ${remetenteNome}
             if (tituloFiltro) {
                 const filCli = document.getElementById('ag-fil-cliente');
                 const filStatus = document.getElementById('ag-fil-status');
-                const filData = document.getElementById('ag-fil-data');
+                const filDtIni = document.getElementById('ag-fil-dt-ini');
+                const filDtFim = document.getElementById('ag-fil-dt-fim');
                 if (filCli) filCli.value = tituloFiltro;
                 if (filStatus) filStatus.value = '';
-                if (filData) filData.value = '';
+                if (filDtIni) filDtIni.value = '';
+                if (filDtFim) filDtFim.value = '';
                 renderAtividades();
             }
         }
 
         // --- 7. DASHBOARD ---
         function navegarAgendaHoje() {
-            const agFilData = document.getElementById('ag-fil-data');
-            if (agFilData) agFilData.value = new Date().toISOString().slice(0, 10);
+            const hoje = new Date().toISOString().slice(0, 10);
+            const agFilDtIni = document.getElementById('ag-fil-dt-ini');
+            const agFilDtFim = document.getElementById('ag-fil-dt-fim');
+            if (agFilDtIni) agFilDtIni.value = hoje;
+            if (agFilDtFim) agFilDtFim.value = hoje;
             navigate('atividades');
         }
 
@@ -9172,6 +9819,7 @@ De ${remetenteNome}
             const filDtIni   = (document.getElementById('gip-fil-dt-ini')?.value  || '');
             const filDtFim   = (document.getElementById('gip-fil-dt-fim')?.value   || '');
             const filMarca   = (document.getElementById('gip-fil-marca')?.value    || '').toLowerCase().trim();
+            const filCodigo  = (document.getElementById('gip-fil-codigo')?.value   || '').toLowerCase().trim();
             const filDesc    = (document.getElementById('gip-fil-desc')?.value     || '').toLowerCase().trim();
             const filCliente = (document.getElementById('gip-fil-cliente')?.value  || '').toLowerCase().trim();
             const filStatus  = (document.getElementById('gip-fil-status')?.value   || '');
@@ -9192,6 +9840,7 @@ De ${remetenteNome}
 
                 itensComPendencia.forEach(it => {
                     const desc       = it.desc    || '—';
+                    const codigo     = it.codigo  || '—';
                     const marca      = it.marcaOfe || it.marcaSol || '—';
                     const fornNome   = it.pendFornNome    || '—';
                     const fornEmail  = it.pendFornEmail   || '—';
@@ -9209,6 +9858,7 @@ De ${remetenteNome}
 
                     // Filtros
                     if (filMarca   && !marca.toLowerCase().includes(filMarca))   return;
+                    if (filCodigo  && !codigo.toLowerCase().includes(filCodigo)) return;
                     if (filDesc    && !desc.toLowerCase().includes(filDesc))      return;
                     if (filStatus  && status !== filStatus)                       return;
                     if (filDtIni   && dataInicioISO && dataInicioISO.slice(0,10) < filDtIni) return;
@@ -9218,7 +9868,7 @@ De ${remetenteNome}
                                        status === 'Ag retorno' ? 'pend-status-agretorno'  :
                                        'pend-status-iniciado';
 
-                    rows.push({ nrCotacao, oppId: opp.id, nomeCliente, desc, marca,
+                    rows.push({ nrCotacao, oppId: opp.id, nomeCliente, desc, codigo, marca,
                         fornNome, fornEmail, fornTel, fornPessoa,
                         status, badgeClass, dataInicioStr, dataFimStr, dataFimISO });
                 });
@@ -9240,7 +9890,7 @@ De ${remetenteNome}
 
             tbody.innerHTML = rows.map((r, i) => {
                 const sepResolvido = i > 0 && rows[i-1].status !== 'Resolvido' && r.status === 'Resolvido'
-                    ? `<tr><td colspan="10" style="padding:0;"><div class="pend-section-sep"><i class="fas fa-check-circle"></i> Itens Resolvidos</div></td></tr>`
+                    ? `<tr><td colspan="11" style="padding:0;"><div class="pend-section-sep"><i class="fas fa-check-circle"></i> Itens Resolvidos</div></td></tr>`
                     : '';
                 return sepResolvido + `
                 <tr style="${r.status === 'Resolvido' ? 'opacity:0.75;' : ''}">
@@ -9253,6 +9903,7 @@ De ${remetenteNome}
                     </td>
                     <td style="padding:8px 12px; font-size:0.82rem; font-weight:500;">${r.nomeCliente}</td>
                     <td style="padding:8px 12px; font-size:0.82rem; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${r.desc}">${r.desc}</td>
+                    <td style="padding:8px 12px; font-size:0.82rem;">${r.codigo}</td>
                     <td style="padding:8px 12px; font-size:0.82rem;">${r.marca}</td>
                     <td style="padding:8px 12px; font-size:0.82rem;">${r.fornNome}</td>
                     <td style="padding:8px 12px; font-size:0.82rem; word-break:break-all;">${r.fornEmail}</td>
@@ -9265,7 +9916,7 @@ De ${remetenteNome}
         }
 
         function _gipLimparFiltros() {
-            ['gip-fil-marca','gip-fil-desc','gip-fil-cliente'].forEach(id => {
+            ['gip-fil-marca','gip-fil-codigo','gip-fil-desc','gip-fil-cliente'].forEach(id => {
                 const el = document.getElementById(id); if(el) el.value = '';
             });
             const st = document.getElementById('gip-fil-status'); if(st) st.value = '';
@@ -9676,7 +10327,7 @@ De ${remetenteNome}
                         document.querySelectorAll('#tb-wt-items tr').forEach((tr, i) => {
                             if (i === origIdx) {
                                 const cfornInput = tr.querySelector('.w-cforn');
-                                if (cfornInput) { cfornInput.value = parseFloat(dados.precoUn)||0; calcWorktableRow(cfornInput); }
+                                if (cfornInput) { cfornInput.value = _wtFormatValorBR(parseFloat(dados.precoUn)||0); calcWorktableRow(cfornInput); }
                             }
                         });
                     }
@@ -9737,7 +10388,7 @@ De ${remetenteNome}
                         const it = oppAtual.items[i];
                         if (it && it.pendPrecoUn) {
                             const cfornInput = tr.querySelector('.w-cforn');
-                            if (cfornInput) { cfornInput.value = parseFloat(it.pendPrecoUn)||0; calcWorktableRow(cfornInput); }
+                            if (cfornInput) { cfornInput.value = _wtFormatValorBR(parseFloat(it.pendPrecoUn)||0); calcWorktableRow(cfornInput); }
                         }
                     });
                 }
@@ -9764,7 +10415,7 @@ De ${remetenteNome}
                     if (i === origIdx) {
                         const cfornInput = tr.querySelector('.w-cforn');
                         if (cfornInput) {
-                            cfornInput.value = parseFloat(val) || 0;
+                            cfornInput.value = _wtFormatValorBR(parseFloat(val) || 0);
                             calcWorktableRow(cfornInput);
                         }
                     }
@@ -10947,10 +11598,46 @@ Desde já agradeço.`;
         const _WT_COL_NCM   = ['ncm'];
         const _WT_COL_ICMS  = ['icms'];
         const _WT_COL_IPI   = ['ipi'];
+        const _WT_COL_PRAZO = ['entrega prevista','prazo forn','prazo de entrega do fornecedor','prazo entrega fornecedor','lead time'];
+        const _WT_COL_VALOR = ['valor unit','valor unitário','valor unitario','preço unit','preco unit','vlr unit','vlr. unit'];
 
         function _wtMatchCol(header, synonyms) {
             const h = header.toLowerCase().trim();
             return synonyms.some(s => h.includes(s));
+        }
+
+        // Converte valor monetário em formato brasileiro (ex: "R$ 1.234,56") para número.
+        function _wtParseValorBR(str) {
+            let s = String(str).trim().replace(/[^\d,.-]/g, '');
+            if (!s) return 0;
+            // Se possui vírgula, trata como separador decimal BR (remove pontos de milhar)
+            if (s.includes(',')) {
+                s = s.replace(/\./g, '').replace(',', '.');
+            }
+            return parseFloat(s) || 0;
+        }
+
+        // Formata um número para exibição no padrão real brasileiro: 1.234,56 (sem "R$")
+        function _wtFormatValorBR(num) {
+            num = parseFloat(num);
+            if (isNaN(num)) num = 0;
+            return num.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+        }
+
+        // Máscara "digite e formate": usada no campo Custo Fornecedor (e qualquer input de
+        // moeda BR). Extrai apenas os dígitos digitados/colados e reformata progressivamente
+        // como 1.234,56 — os 2 últimos dígitos sempre são os centavos. Funciona igual tanto
+        // para digitação quanto para colar um valor já formatado (ex: colar "2.171,25" também
+        // funciona, pois só os dígitos "217125" importam).
+        function _wtMaskMoedaInput(el) {
+            let digits = el.value.replace(/\D/g, '');
+            if (!digits) digits = '0';
+            digits = digits.replace(/^0+(?=\d)/, '');
+            while (digits.length < 3) digits = '0' + digits;
+            const cents = digits.slice(-2);
+            let intPart = digits.slice(0, -2).replace(/^0+(?=\d)/, '') || '0';
+            intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            el.value = intPart + ',' + cents;
         }
 
         // Tenta ler CSV/TXT como UTF-8-BOM; se detectar caracteres corrompidos (replacement char \uFFFD),
@@ -11052,7 +11739,7 @@ Desde já agradeço.`;
 
             // Linha 0 = cabeçalho
             const headers = rows[0].map(h => String(h).trim());
-            let iDesc = -1, iQtd = -1, iCod = -1, iMarca = -1, iNcm = -1, iIcms = -1, iIpi = -1;
+            let iDesc = -1, iQtd = -1, iCod = -1, iMarca = -1, iNcm = -1, iIcms = -1, iIpi = -1, iPrazo = -1, iValor = -1;
             headers.forEach((h, i) => {
                 if (iDesc  === -1 && _wtMatchCol(h, _WT_COL_DESC))  iDesc  = i;
                 if (iQtd   === -1 && _wtMatchCol(h, _WT_COL_QTD))   iQtd   = i;
@@ -11061,10 +11748,12 @@ Desde já agradeço.`;
                 if (iNcm   === -1 && _wtMatchCol(h, _WT_COL_NCM))   iNcm   = i;
                 if (iIcms  === -1 && _wtMatchCol(h, _WT_COL_ICMS))  iIcms  = i;
                 if (iIpi   === -1 && _wtMatchCol(h, _WT_COL_IPI))   iIpi   = i;
+                if (iPrazo === -1 && _wtMatchCol(h, _WT_COL_PRAZO)) iPrazo = i;
+                if (iValor === -1 && _wtMatchCol(h, _WT_COL_VALOR)) iValor = i;
             });
 
             // Nenhuma coluna reconhecida → não faz nada
-            if (iDesc === -1 && iQtd === -1 && iCod === -1 && iMarca === -1 && iNcm === -1 && iIcms === -1 && iIpi === -1) {
+            if (iDesc === -1 && iQtd === -1 && iCod === -1 && iMarca === -1 && iNcm === -1 && iIcms === -1 && iIpi === -1 && iPrazo === -1 && iValor === -1) {
                 statusEl.style.color = 'var(--text-muted)';
                 statusEl.textContent = 'Nenhuma coluna reconhecida.';
                 return;
@@ -11089,9 +11778,11 @@ Desde já agradeço.`;
                 const ncm    = iNcm   !== -1 ? String(row[iNcm]   || '').trim() : '';
                 const icms   = iIcms  !== -1 ? String(row[iIcms]  || '').trim() : '';
                 const ipi    = iIpi   !== -1 ? String(row[iIpi]   || '').trim() : '';
+                const prazo  = iPrazo !== -1 ? String(row[iPrazo] || '').trim() : '';
+                const valor  = iValor !== -1 ? String(row[iValor] || '').trim() : '';
 
                 // Nada a preencher nessa linha → pula
-                if (!desc && !qtdRaw && !cod && !marca && !ncm && !icms && !ipi) return;
+                if (!desc && !qtdRaw && !cod && !marca && !ncm && !icms && !ipi && !prazo && !valor) return;
 
                 let tr = existentes[idx];
                 if (!tr) {
@@ -11117,9 +11808,13 @@ Desde já agradeço.`;
                     const marcaEl = tr.querySelector('.w-marca-sol');
                     if (marcaEl) marcaEl.value = marca.toUpperCase();
                 }
+                let ncmElParaSt = null;
                 if (ncm) {
                     const ncmEl = tr.querySelector('.w-ncm');
-                    if (ncmEl) { ncmEl.value = ncm; applyNcmSt(ncmEl); }
+                    // NÃO dispara applyNcmSt aqui ainda — o lookup de MVA depende do ICMS Compra %,
+                    // preenchido logo abaixo. Disparar antes calcularia o MVA com um ICMS Compra
+                    // desatualizado (mesmo bug já corrigido em _preencherLinhaProduto).
+                    if (ncmEl) { ncmEl.value = ncm; ncmElParaSt = ncmEl; }
                 }
                 if (icms) {
                     const icmscEl = tr.querySelector('.w-icmsc');
@@ -11129,6 +11824,9 @@ Desde já agradeço.`;
                         calcWorktableRow(icmscEl);
                     }
                 }
+                // Agora sim: ICMS Compra % já está com o valor final — dispara applyNcmSt para
+                // o lookup de MVA usar a faixa correta.
+                if (ncmElParaSt) applyNcmSt(ncmElParaSt);
                 if (ipi) {
                     const ipicEl = tr.querySelector('.w-ipic');
                     if (ipicEl) {
@@ -11136,16 +11834,27 @@ Desde já agradeço.`;
                         calcWorktableRow(ipicEl);
                     }
                 }
+                if (prazo) {
+                    const prazoEl = tr.querySelector('.w-prazo-forn');
+                    if (prazoEl) prazoEl.value = prazo;
+                }
+                if (valor) {
+                    const cfornEl = tr.querySelector('.w-cforn');
+                    if (cfornEl) {
+                        cfornEl.value = _wtFormatValorBR(_wtParseValorBR(valor));
+                        calcWorktableRow(cfornEl);
+                    }
+                }
                 if (cod) {
                     const codEl = tr.querySelector('.w-codigo');
                     if (codEl) {
                         codEl.value = cod.toUpperCase();
-                        // Busca no banco apenas se o CSV não trouxe NCM/ICMS/IPI —
+                        // Busca no banco apenas se o CSV não trouxe NCM/ICMS/IPI/Valor Unitário —
                         // evita que o retorno assíncrono sobrescreva os valores já preenchidos.
-                        if (!ncm && !icms && !ipi) {
+                        if (!ncm && !icms && !ipi && !valor) {
                             buscarProdutoPorCodigo(codEl);
                         } else {
-                            // Mesmo com NCM/ICMS/IPI do CSV, busca só desc/marca/custo do banco
+                            // Mesmo com NCM/ICMS/IPI/Valor do CSV, busca só desc/marca/custo do banco
                             // sem deixar _preencherLinhaProduto sobrescrever os campos fiscais.
                             (async () => {
                                 const produtos = DB.get('produtos');
@@ -11156,13 +11865,15 @@ Desde já agradeço.`;
                                     return _normalizeRow('produtos', { ...data[0] });
                                 })();
                                 if (!prod) return;
-                                // Preenche apenas desc, marca e custo — preserva NCM/ICMS/IPI do CSV
+                                // Preenche apenas desc, marca e custo — preserva NCM/ICMS/IPI/Valor do CSV
                                 if (!desc) { const el = tr.querySelector('.w-desc');      if (el) el.value = prod.desc || prod.descricao || ''; }
                                 if (!marca){ const el = tr.querySelector('.w-marca-sol'); if (el) el.value = prod.marca || '';
                                              const oe = tr.querySelector('.w-marca-ofe'); if (oe) oe.value = prod.marca || '';
                                              const re = tr.querySelector('.w-marca-ref'); if (re) re.value = prod.marca || ''; }
-                                const cfEl = tr.querySelector('.w-cforn');
-                                if (cfEl) { cfEl.value = parseFloat(prod.custo || prod.custo_base) || 0; calcWorktableRow(cfEl); }
+                                if (!valor) {
+                                    const cfEl = tr.querySelector('.w-cforn');
+                                    if (cfEl) { cfEl.value = _wtFormatValorBR(parseFloat(prod.custo || prod.custo_base) || 0); calcWorktableRow(cfEl); }
+                                }
                             })();
                         }
                     }
@@ -11294,6 +12005,281 @@ Desde já agradeço.`;
             });
 
             calcWorktableGlobals();
+        }
+
+        // ── ALOCAR PFVP — Formação de Preço de Venda — Engenharia de Orçamento ──
+        // Armazena os templates carregados (ArrayBuffer) em memória, com persistência local
+        // (localStorage) para não exigir novo upload após atualizar o navegador ou abrir
+        // um novo orçamento. Só é substituído quando o usuário faz upload de nova planilha.
+        // "Alocar" cuida exclusivamente disso — o preenchimento com os dados do orçamento
+        // atual acontece só na hora de "Baixar Planilha" (ver baixarPFVP), sempre "ao vivo".
+        let _pfvpTemplateES = null;      // { buffer, nomeArquivo }
+        let _pfvpTemplateMG = null;      // { buffer, nomeArquivo }
+
+        const PFVP_LS_TEMPLATE_ES = 'pfvp_template_ES';
+        const PFVP_LS_TEMPLATE_MG = 'pfvp_template_MG';
+
+        const PFVP_SHEET_ANALISE = 'Análise Preço';
+        const PFVP_PROPOSTA_ES   = 'PROPOSTA COMERCIAL COMAG ES';
+        const PFVP_PROPOSTA_MG   = 'PROPOSTA COMERCIAL COMAG MG';
+
+        // Converte ArrayBuffer <-> Base64 para permitir persistência em localStorage.
+        function _pfvpBufferParaBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            const chunk = 0x8000;
+            for (let i = 0; i < bytes.length; i += chunk) {
+                binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+            }
+            return btoa(binary);
+        }
+
+        function _pfvpBase64ParaBuffer(base64) {
+            const binary = atob(base64);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            return bytes.buffer;
+        }
+
+        function _pfvpSalvarTemplateLocal(filial, tpl) {
+            try {
+                const chave = filial === 'ES' ? PFVP_LS_TEMPLATE_ES : PFVP_LS_TEMPLATE_MG;
+                localStorage.setItem(chave, JSON.stringify({ nomeArquivo: tpl.nomeArquivo, base64: tpl.base64 || _pfvpBufferParaBase64(tpl.buffer) }));
+            } catch (e) { /* Quota indisponível — mantém apenas em memória */ }
+        }
+
+        // Restaura os templates salvos localmente ao carregar a página — é isso que garante
+        // que, uma vez alocado num navegador, o modelo já esteja disponível em qualquer
+        // orçamento aberto depois, sem precisar alocar de novo.
+        function _pfvpRestaurarLocal() {
+            try {
+                const tplEs = localStorage.getItem(PFVP_LS_TEMPLATE_ES);
+                if (tplEs) {
+                    const obj = JSON.parse(tplEs);
+                    _pfvpTemplateES = { buffer: _pfvpBase64ParaBuffer(obj.base64), base64: obj.base64, nomeArquivo: obj.nomeArquivo };
+                    const nameEl = document.getElementById('pfvp-file-es-name');
+                    if (nameEl) nameEl.textContent = obj.nomeArquivo;
+                }
+                const tplMg = localStorage.getItem(PFVP_LS_TEMPLATE_MG);
+                if (tplMg) {
+                    const obj = JSON.parse(tplMg);
+                    _pfvpTemplateMG = { buffer: _pfvpBase64ParaBuffer(obj.base64), base64: obj.base64, nomeArquivo: obj.nomeArquivo };
+                    const nameEl = document.getElementById('pfvp-file-mg-name');
+                    if (nameEl) nameEl.textContent = obj.nomeArquivo;
+                }
+            } catch (e) { /* Dados locais corrompidos ou indisponíveis — ignora */ }
+        }
+        window.addEventListener('DOMContentLoaded', _pfvpRestaurarLocal);
+
+        function abrirModalPfvp() {
+            const label = document.getElementById('pfvp-filial-label');
+            if (label) label.textContent = wtFilial;
+            const statusEl = document.getElementById('pfvp-status');
+            if (statusEl) { statusEl.style.display = 'none'; statusEl.textContent = ''; }
+            document.getElementById('pfvp-modal-overlay').style.display = 'flex';
+        }
+
+        function fecharModalPfvp() {
+            document.getElementById('pfvp-modal-overlay').style.display = 'none';
+        }
+
+        function pfvpCarregarTemplate(input, filial) {
+            const file = input.files[0];
+            if (!file) return;
+            const nameEl = document.getElementById(filial === 'ES' ? 'pfvp-file-es-name' : 'pfvp-file-mg-name');
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = _pfvpBufferParaBase64(e.target.result);
+                const tpl = { buffer: e.target.result, base64: base64, nomeArquivo: file.name };
+                if (filial === 'ES') { _pfvpTemplateES = tpl; } else { _pfvpTemplateMG = tpl; }
+                _pfvpSalvarTemplateLocal(filial, tpl);
+                if (nameEl) nameEl.textContent = file.name;
+            };
+            reader.onerror = function() {
+                if (nameEl) nameEl.textContent = 'Erro ao ler arquivo.';
+            };
+            reader.readAsArrayBuffer(file);
+            input.value = '';
+        }
+
+        // Se o prazo for vazio, 0 ou 1, grava "IMEDIATA"; caso contrário, "<valor> DIAS".
+        function _pfvpFormatarPrazo(valor) {
+            if (valor === '' || valor === null || valor === undefined) return 'IMEDIATA';
+            const n = parseFloat(valor);
+            if (isNaN(n) || n === 0 || n === 1) return 'IMEDIATA';
+            return n + ' DIAS';
+        }
+
+        // Coleta os itens da tabela "Itens do Orçamento" já na estrutura necessária para o mapeamento PFVP
+        function _pfvpColetarItens() {
+            const linhas = document.querySelectorAll('#tb-wt-items tr');
+            const itens = [];
+            linhas.forEach(tr => {
+                itens.push({
+                    ncm:      tr.querySelector('.w-ncm')       ? tr.querySelector('.w-ncm').value        : '',
+                    desc:     tr.querySelector('.w-desc')      ? tr.querySelector('.w-desc').value       : '',
+                    qtd:      parseFloat(tr.querySelector('.w-qtd')       ? tr.querySelector('.w-qtd').value       : 0) || 0,
+                    marcaSol: tr.querySelector('.w-marca-sol') ? tr.querySelector('.w-marca-sol').value  : '',
+                    marcaOfe: tr.querySelector('.w-marca-ofe') ? tr.querySelector('.w-marca-ofe').value  : '',
+                    marcaRef: tr.querySelector('.w-marca-ref') ? tr.querySelector('.w-marca-ref').value  : '',
+                    cforn:    _wtParseValorBR(tr.querySelector('.w-cforn') ? tr.querySelector('.w-cforn').value : 0),
+                    icmsc:    parseFloat(tr.querySelector('.w-icmsc') ? tr.querySelector('.w-icmsc').value : 0) || 0,
+                    ipic:     parseFloat(tr.querySelector('.w-ipic')  ? tr.querySelector('.w-ipic').value  : 0) || 0,
+                    icmsv:    parseFloat(tr.querySelector('.w-icmsv') ? tr.querySelector('.w-icmsv').value : 0) || 0,
+                    prazoForn: tr.querySelector('.w-prazo-forn') ? (tr.querySelector('.w-prazo-forn').value || '') : '',
+                    prazoEnt:  tr.querySelector('.w-prazo-ent')  ? (tr.querySelector('.w-prazo-ent').value  || '') : ''
+                });
+            });
+            return itens;
+        }
+
+        // "Alocar" — confirma que a planilha modelo da filial ativa está carregada e salva
+        // localmente (localStorage). É uma ação de configuração feita uma única vez por
+        // navegador — não depende do orçamento aberto e não gera nenhum arquivo. A geração
+        // com os dados do orçamento atual acontece em baixarPFVP(), a cada clique.
+        function alocarPFVP() {
+            const statusEl = document.getElementById('pfvp-status');
+            const tpl = wtFilial === 'ES' ? _pfvpTemplateES : _pfvpTemplateMG;
+            statusEl.style.display = 'block';
+            if (!tpl) {
+                statusEl.style.color = 'var(--danger)';
+                statusEl.textContent = `Carregue a planilha modelo da Filial ${wtFilial} antes de alocar.`;
+                return;
+            }
+            statusEl.style.color = 'var(--success)';
+            statusEl.textContent = `Planilha modelo da Filial ${wtFilial} alocada com sucesso. A partir de agora, em qualquer orçamento, use "Baixar Planilha" — não é mais necessário alocar de novo, a menos que troque o arquivo modelo.`;
+        }
+
+        let _pfvpProcessando = false; // mutex — evita reentrância/travamento em cliques duplos
+
+        // Formata a data atual no padrão DD-MM-AA (ex: 23-07-26)
+        function _pfvpDataFormatada() {
+            const d = new Date();
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const yy = String(d.getFullYear()).slice(-2);
+            return `${dd}-${mm}-${yy}`;
+        }
+
+        // Gera a planilha PFVP a partir do template já alocado (localStorage) + dos dados do
+        // orçamento ATUAL (lidos na hora, direto da tela) e já dispara o download — nome padrão:
+        // PFPV <FILIAL> <NOME/RAZÃO SOCIAL DO CLIENTE> <CNPJ> <DD-MM-AA>
+        // Não depende de nenhuma etapa anterior de "alocação por orçamento": basta o template
+        // da filial já estar carregado uma vez (ver alocarPFVP) para funcionar em qualquer
+        // orçamento aberto depois, sem repetir passo nenhum.
+        async function baixarPFVP() {
+            const statusEl = document.getElementById('wt-pfvp-status');
+            const btn = document.getElementById('wt-pfvp-baixar-btn');
+            const tpl = wtFilial === 'ES' ? _pfvpTemplateES : _pfvpTemplateMG;
+
+            if (!tpl) {
+                if (statusEl) {
+                    statusEl.style.display = 'inline';
+                    statusEl.style.color = 'var(--danger)';
+                    statusEl.textContent = `Nenhuma planilha modelo alocada para a Filial ${wtFilial}. Clique em "Alocar PFVP" e carregue o arquivo primeiro.`;
+                }
+                return;
+            }
+
+            if (_pfvpProcessando) return; // já existe uma geração em andamento
+            _pfvpProcessando = true;
+            if (btn) btn.disabled = true;
+            if (statusEl) {
+                statusEl.style.display = 'inline';
+                statusEl.style.color = 'var(--text-muted)';
+                statusEl.textContent = 'Gerando planilha...';
+            }
+
+            try {
+                // Sempre reconstrói o ArrayBuffer a partir do base64 imutável (fonte de verdade),
+                // nunca do buffer em memória já usado — evita buffer mutado/detached entre downloads.
+                const bufferFresco = tpl.base64 ? _pfvpBase64ParaBuffer(tpl.base64) : tpl.buffer.slice(0);
+
+                const workbook = new ExcelJS.Workbook();
+                await workbook.xlsx.load(bufferFresco);
+
+                const wsAnalise = workbook.getWorksheet(PFVP_SHEET_ANALISE);
+                if (!wsAnalise) throw new Error(`Aba "${PFVP_SHEET_ANALISE}" não encontrada no arquivo.`);
+
+                // ── Itens do Orçamento (do orçamento aberto agora) → Análise Preço (linha 2 em diante) ──
+                const itens = _pfvpColetarItens();
+                const maxLinhaDisponivel = wsAnalise.actualRowCount || wsAnalise.rowCount;
+                let truncado = false;
+                itens.forEach((item, idx) => {
+                    const linha = idx + 2;
+                    if (linha > maxLinhaDisponivel) { truncado = true; return; }
+                    wsAnalise.getCell('A' + linha).value  = item.ncm;
+                    wsAnalise.getCell('E' + linha).value  = item.desc;
+                    wsAnalise.getCell('F' + linha).value  = item.marcaSol;
+                    wsAnalise.getCell('G' + linha).value  = item.marcaOfe;
+                    wsAnalise.getCell('H' + linha).value  = item.marcaRef;
+                    wsAnalise.getCell('J' + linha).value  = item.qtd;
+                    wsAnalise.getCell('O' + linha).value  = item.cforn;
+                    wsAnalise.getCell('Y' + linha).value  = item.icmsc;
+                    wsAnalise.getCell('AA' + linha).value = item.ipic;
+                    wsAnalise.getCell('AC' + linha).value = item.icmsv;
+                    wsAnalise.getCell('L' + linha).value  = _pfvpFormatarPrazo(item.prazoForn);
+                    wsAnalise.getCell('M' + linha).value  = _pfvpFormatarPrazo(item.prazoEnt);
+                });
+
+                // ── UF Destino (Cliente) e FCP ──
+                const opp = currentOppId ? DB.findById('oportunidades', currentOppId) : null;
+                const cli = opp ? DB.findById('clientes', opp.clienteId) : null;
+                const ufDestino = cli && cli.uf ? cli.uf.toUpperCase() : '';
+
+                wsAnalise.getCell('F104').value = ufDestino;
+
+                const fcpPct = ufDestino ? getFcpRateForUf(ufDestino) : 0;
+                if (fcpPct > 0) {
+                    wsAnalise.getCell('F105').value = 'SIM';
+                    wsAnalise.getCell('F106').value = fcpPct;
+                } else {
+                    wsAnalise.getCell('F105').value = 'NÃO';
+                    // F106 permanece intacto — não é alterado quando não há FCP.
+                }
+
+                // ── Cliente (Nome e CNPJ) → Proposta Comercial ──
+                const nomePropostaSheet = wtFilial === 'ES' ? PFVP_PROPOSTA_ES : PFVP_PROPOSTA_MG;
+                const wsProposta = workbook.getWorksheet(nomePropostaSheet);
+                if (wsProposta && cli) {
+                    wsProposta.getCell('K6').value = cli.nome || '';
+                    wsProposta.getCell('L6').value = cli.doc || '';
+                }
+
+                // ── Gera arquivo preservando fórmulas, fontes, cores e formatação originais ──
+                const outBuffer = await workbook.xlsx.writeBuffer();
+                const clienteNome = cli ? (cli.nome || '') : '';
+                const clienteDoc  = cli ? (cli.doc  || '') : '';
+
+                // ── Dispara o download imediatamente — sem etapa intermediária de "alocação" ──
+                const blob = new Blob([outBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `PFPV ${wtFilial} ${clienteNome} ${clienteDoc} ${_pfvpDataFormatada()}.xlsx`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                // Revoga a URL após um pequeno atraso para garantir que o download
+                // seja iniciado corretamente em todos os navegadores antes de liberá-la.
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+                if (statusEl) {
+                    statusEl.style.color = truncado ? 'var(--pending)' : 'var(--success)';
+                    statusEl.textContent = truncado
+                        ? `Planilha baixada, porém alguns itens excederam as ${maxLinhaDisponivel - 1} linhas disponíveis e não foram incluídos.`
+                        : 'Planilha baixada com sucesso.';
+                }
+            } catch (err) {
+                if (statusEl) {
+                    statusEl.style.display = 'inline';
+                    statusEl.style.color = 'var(--danger)';
+                    statusEl.textContent = 'Erro ao gerar planilha: ' + err.message;
+                }
+            } finally {
+                if (btn) btn.disabled = false;
+                _pfvpProcessando = false;
+            }
         }
 
         // ── OCULTAR / REVELAR SEÇÕES — Engenharia de Orçamento ──
