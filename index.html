@@ -1,3 +1,8 @@
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -3113,7 +3118,11 @@
                 let erro = false;
                 for (let i = 0; i < novos.length; i += CHUNK) {
                     const lote = novos.slice(i, i + CHUNK).map(n => _toSnakeCase(table, n));
-                    const { error } = await _supabase.from(table).insert(lote);
+                    // upsert com ignoreDuplicates: se UMA linha do lote colidir com um código já
+                    // existente no banco (ex.: cache local defasado em relação ao Supabase), o
+                    // Postgres pula só essa linha e segue inserindo as demais — em vez de rejeitar
+                    // o lote de 500 inteiro por causa de uma única duplicata (erro 23505/409).
+                    const { error } = await _supabase.from(table).upsert(lote, { onConflict: 'codigo', ignoreDuplicates: true });
                     if (error) { console.error('Supabase bulk insert error:', table, error); erro = true; }
                 }
                 if (erro) _showDbError('Parte dos registros de NCM pode não ter sido salva no banco de dados. Verifique a conexão e reimporte se necessário.');
