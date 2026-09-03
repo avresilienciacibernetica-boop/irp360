@@ -1902,6 +1902,21 @@
                             </div>
                         </div>
 
+                        <div class="wt-toggle-group" style="border-bottom:none; padding:0;">
+                            <span class="wt-toggle-label"><i class="fas fa-shipping-fast"></i> Modalidade de Frete</span>
+                            <div class="wt-segmented" id="wt-frete-tipo-toggle">
+                                <button onclick="setFreteTipo('FOB', this)">FOB</button>
+                                <button class="active" onclick="setFreteTipo('CIF', this)">CIF</button>
+                            </div>
+                        </div>
+
+                        <div class="wt-toggle-group" style="border-bottom:none; padding:0; min-width:200px; max-width:260px;">
+                            <span class="wt-toggle-label"><i class="fas fa-address-book"></i> Contato da Proposta</span>
+                            <select id="wt-contato-proposta-select" class="wt-filter-select" style="width:100%; font-size:0.78rem; padding:6px 8px;" onchange="onContatoPropostaChange(this)">
+                                <option value="0">— Nenhum contato cadastrado —</option>
+                            </select>
+                        </div>
+
                         <div class="wt-toggle-group" style="border-bottom:none; padding:0; min-width:110px;">
                             <span class="wt-toggle-label"><i class="fas fa-truck"></i> T. Frt C</span>
                             <div id="wt-total-frtc" title="Duplo clique para distribuir frete de compra nas linhas" ondblclick="wtAbrirModalFrete('C')" style="font-size:0.85rem; font-weight:700; color:var(--text-muted); cursor:pointer; text-decoration:underline dotted;">R$ 0,00</div>
@@ -2929,8 +2944,16 @@
             idx.ncm = headersNorm.findIndex(h => h.includes('ncm'));
             idx.icmsVenda = headersNorm.findIndex(h => h.includes('icms') && h.includes('venda'));
             idx.difal = headersNorm.findIndex(h => h.includes('difal'));
-            const mvaIdxs = [];
+            let mvaIdxs = [];
             headersNorm.forEach((h, i) => { if (h.includes('mva')) mvaIdxs.push(i); });
+            // Fallback: alguns arquivos trazem as faixas de MVA como número puro no cabeçalho
+            // (ex.: "4", "7", "12", "18", "0"), sem a palavra "MVA" na frente. Só ativa se
+            // nenhuma coluna com "mva" foi encontrada — não interfere nos arquivos que já
+            // funcionam hoje com o rótulo completo.
+            if (mvaIdxs.length === 0) {
+                const faixasValidas = ['0', '4', '7', '12', '17', '18'];
+                headersNorm.forEach((h, i) => { if (faixasValidas.includes(h)) mvaIdxs.push(i); });
+            }
             const findMva = n => { const i = mvaIdxs.find(i => digitsOf(headersNorm[i]) === n); return i === undefined ? -1 : i; };
             idx.mva4 = findMva(4);
             idx.mva7 = findMva(7);
@@ -3231,6 +3254,8 @@
         let wtDestinatario = 'contrib'; // 'contrib' | 'ncontrib' (não-contribuinte / consumidor final)
         let wtUfVendDefault = '';  // UF padrão para ES Custo Venda nas novas linhas (ex: 'estado_SP', 'imp', '')
         let _wtLoadedOppId  = null; // ID da oportunidade efetivamente carregada no worktable (≠ currentOppId)
+        let wtFreteTipo = 'CIF';        // 'FOB' | 'CIF' — modalidade de frete exibida na Cotação
+        let wtContatoPropostaIdx = 0;   // índice do contato do cliente selecionado para a Cotação (cascata)
 
         // ── AUTOCOMPLETE UF PADRÃO VENDA ─────────────────────────────
         // Lista usada pelo autocomplete — disponível após IMP_ESTADOS ser definido
@@ -3399,6 +3424,32 @@
                 const anyInput = tr.querySelector('.w-qtd');
                 if (anyInput) calcWorktableRow(anyInput);
             });
+        }
+
+        // Modalidade de Frete (FOB/CIF) — só reflete no campo "FRETE:" da Cotação gerada,
+        // não entra em nenhum cálculo fiscal (é puramente informativo na proposta).
+        function setFreteTipo(tipo, btn) {
+            wtFreteTipo = tipo;
+            document.querySelectorAll('#wt-frete-tipo-toggle button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // Popula o seletor "Contato da Proposta" (cascata) com os contatos cadastrados do
+        // cliente da oportunidade aberta. Chamado sempre que um orçamento é carregado.
+        function _wtPopularContatoProposta(cli) {
+            const sel = document.getElementById('wt-contato-proposta-select');
+            if (!sel) return;
+            wtContatoPropostaIdx = 0;
+            const contatos = cli ? (cli.contatos && cli.contatos.length > 0 ? cli.contatos : (cli.contato ? [cli.contato] : [])) : [];
+            if (contatos.length === 0) {
+                sel.innerHTML = '<option value="0">— Nenhum contato cadastrado —</option>';
+                return;
+            }
+            sel.innerHTML = contatos.map((c, i) => `<option value="${i}">${c.nome || '(sem nome)'}${c.cargo ? ' — ' + c.cargo : ''}</option>`).join('');
+        }
+
+        function onContatoPropostaChange(sel) {
+            wtContatoPropostaIdx = parseInt(sel.value) || 0;
         }
 
         // --- 2. NAVEGAÇÃO ---
@@ -6332,6 +6383,9 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                 wtUfVendDefault = '';
             }
 
+            // Contato da Proposta (cascata): repopula sempre com os contatos do cliente atual
+            _wtPopularContatoProposta(cli);
+
             if (id !== _wtLoadedOppId) {
                 // Troca de orçamento: para o timer atual, atualiza o id e carrega o estado do novo
                 clearInterval(wtTimerInterval);
@@ -6340,6 +6394,9 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                 wtTimerStarted  = false;
                 currentOppId    = id;
                 _wtLoadedOppId  = id;
+                // Modalidade de Frete volta ao padrão CIF em cada novo orçamento aberto
+                wtFreteTipo = 'CIF';
+                document.querySelectorAll('#wt-frete-tipo-toggle button').forEach(b => b.classList.toggle('active', b.textContent.trim() === 'CIF'));
                 const tbody = document.getElementById('tb-wt-items');
                 tbody.innerHTML = '';
                 if(!opp.items || opp.items.length === 0) addWorktableRow();
@@ -7512,7 +7569,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                 celVUnit.innerText = "R$ " + vUnit.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
             }
             const celVTotal = tr.querySelector('.w-vtotal');
-            celVTotal.innerText = "R$ " + vTotal.toLocaleString('pt-BR', {minimumFractionDigits:2});
+            celVTotal.innerText = "R$ " + vTotal.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
             // Margem Operacional: receita - custo fiscal real (encargos não recuperáveis).
             // NÃO é lucro líquido contábil: PIS, COFINS, IRPJ, CSLL, comissão e
             // encargos financeiros NÃO estão contemplados neste cálculo.
@@ -7589,7 +7646,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                 }
             });
 
-            document.getElementById('wt-total').innerText = "R$ " + totalVenda.toLocaleString('pt-BR', {minimumFractionDigits:2});
+            document.getElementById('wt-total').innerText = "R$ " + totalVenda.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
 
             // Atualiza T. Frt C e T. Frt V
             const frtCEl = document.getElementById('wt-total-frtc');
@@ -7715,18 +7772,38 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                 linhas.push({ num: idx+1, desc, ncm, qtd, marcaSol, marcaOfe, vtotal, prazoEnt, icms: icmscVal });
             });
 
-            const rowsHTML = linhas.map(r => `
-                <tr>
-                    <td style="text-align:center;">${r.num}</td>
-                    <td>${r.ncm || '-'}</td>
-                    <td style="text-align:center;">${r.qtd}</td>
-                    <td style="text-align:center;">${parseFloat(r.icms)||0}%</td>
-                    <td>${r.desc || '-'}</td>
-                    <td style="text-align:center;">${r.marcaSol || '-'}</td>
-                    <td style="text-align:center;">${r.marcaOfe || r.marcaSol || '-'}</td>
-                    <td style="text-align:center;">${r.prazoEnt !== '-' ? r.prazoEnt + ' dias' : '-'}</td>
-                    <td style="text-align:right; font-weight:600;">${r.vtotal}</td>
-                </tr>`).join('');
+            // Contato principal do cliente (já existe no cadastro — mesma fonte usada na tela da Oportunidade)
+            const listaContatosCli = cli ? (cli.contatos && cli.contatos.length > 0 ? cli.contatos : (cli.contato ? [cli.contato] : [])) : [];
+            const contatoCli = listaContatosCli[wtContatoPropostaIdx] || listaContatosCli[0] || null;
+            const contatoNome  = contatoCli ? (contatoCli.nome  || '-') : '-';
+            const contatoEmail = contatoCli ? (contatoCli.email || '-') : '-';
+            const contatoTel   = contatoCli ? (contatoCli.tel || contatoCli.cel || '') : '';
+            const contatoCargo = contatoCli ? (contatoCli.cargo || '') : '';
+
+            // Data por extenso no padrão "21 agosto, 2026" (mesma data já extraída, só muda a formatação)
+            const _mesesPt = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+            const _agoraData = new Date();
+            const hojeExtenso = `${_agoraData.getDate()} ${_mesesPt[_agoraData.getMonth()]}, ${_agoraData.getFullYear()}`;
+
+            // Linhas da tabela de itens no formato do novo modelo (Item / Qtd / Unid / NCM / Produto / ICMS / Prazo / Preço Unit. / Sub Total)
+            const rowsHTML = linhas.map(r => {
+                const qtdNum = parseFloat(r.qtd) || 0;
+                const subtotalNum = parseFloat(String(r.vtotal).replace('R$','').trim().replace(/\./g,'').replace(',','.')) || 0;
+                const precoUnitNum = qtdNum > 0 ? (subtotalNum / qtdNum) : subtotalNum;
+                const precoUnitFmt = 'R$ ' + precoUnitNum.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+                return `
+      <tr>
+        <td class="text-center">${r.num}</td>
+        <td class="text-center">${qtdNum || '-'}</td>
+        <td class="text-center">PÇ</td>
+        <td class="text-center">${r.ncm || '-'}</td>
+        <td>${r.desc || '-'}</td>
+        <td class="text-center">${parseFloat(r.icms)||0}%</td>
+        <td class="text-center">${_pfvpFormatarPrazo(r.prazoEnt)}</td>
+        <td class="text-right">${precoUnitFmt}</td>
+        <td class="text-right">${r.vtotal}</td>
+      </tr>`;
+            }).join('');
 
             const html = `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -7734,365 +7811,318 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
 <meta charset="UTF-8">
 <title>Proposta Comercial Nº ${nrCotacao}</title>
 <style>
-  @page { size: A4 portrait; margin: 10mm 12mm 14mm 12mm; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 9pt; color: #1F2937; background: #fff; }
-
-  /* ── CABEÇALHO ── */
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding-bottom: 10px;
-    margin-bottom: 0;
-    border-bottom: 3px solid #1A3A6B;
-  }
-  .header-logo-block { display: flex; flex-direction: column; gap: 3px; }
-  .header-logo {
-    font-size: 20pt;
-    font-weight: 900;
-    color: #1A3A6B;
-    letter-spacing: -0.5px;
-    line-height: 1;
-  }
-  .header-logo-sub {
-    font-size: 7pt;
-    color: #6B7280;
-    font-weight: 400;
-    letter-spacing: 0.03em;
-    line-height: 1.5;
-  }
-  .header-right {
-    text-align: right;
-    font-size: 7.5pt;
-    color: #4B5563;
-    line-height: 1.65;
-  }
-  .header-right .empresa-nome {
-    font-size: 9pt;
-    font-weight: 700;
-    color: #1A3A6B;
-    display: block;
-    margin-bottom: 2px;
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
   }
 
-  /* ── FAIXA PROPOSTA Nº + DATA ── */
-  .proposta-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #1A3A6B;
-    color: #fff;
-    padding: 6px 12px;
-    margin-top: 0;
-    margin-bottom: 10px;
+  *, *::before, *::after {
+    box-sizing: border-box;
   }
-  .proposta-bar .nr {
-    font-size: 9.5pt;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-  }
-  .proposta-bar .data-emissao {
+
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #000000;
+    background-color: #ffffff;
     font-size: 8pt;
-    font-weight: 400;
-    color: #CBD5E1;
-  }
-  .proposta-bar .data-emissao strong {
-    color: #fff;
-    font-weight: 700;
+    line-height: 1.2;
   }
 
-  /* ── DADOS DO CLIENTE ── */
-  .dados-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 0;
-    border: 1px solid #D1D5DB;
-    margin-bottom: 10px;
-  }
-  .dados-grid .cell {
-    padding: 5px 9px;
-    border-right: 1px solid #D1D5DB;
-    border-bottom: 1px solid #D1D5DB;
-  }
-  .dados-grid .cell:last-child { border-right: none; }
-  .dados-grid .cell.full { grid-column: 1 / -1; }
-  .dados-grid .cell.half2 { grid-column: span 2; }
-  .dados-grid .cell-label {
-    font-size: 6.5pt;
-    font-weight: 700;
-    color: #6B7280;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    display: block;
-    margin-bottom: 2px;
-  }
-  .dados-grid .cell-value {
-    font-size: 8.5pt;
-    font-weight: 600;
-    color: #111827;
-  }
-  .dados-grid .cell-value.big {
-    font-size: 10pt;
-    font-weight: 700;
-  }
-  .dados-grid .header-row {
-    grid-column: 1 / -1;
-    background: #F3F4F6;
-    padding: 4px 9px;
-    font-size: 7pt;
-    font-weight: 700;
-    color: #374151;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    border-bottom: 1px solid #D1D5DB;
+  /* Main Border Wrapper */
+  .page-wrapper {
+    border: 2px solid #000000;
+    padding: 0;
+    width: 100%;
   }
 
-  /* ── TABELA DE ITENS ── */
-  .section-label {
-    font-size: 7pt;
-    font-weight: 700;
-    color: #374151;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    background: #F3F4F6;
-    border: 1px solid #D1D5DB;
-    border-bottom: none;
-    padding: 4px 9px;
+  /* Section Divider Lines */
+  .thick-border-bottom {
+    border-bottom: 2px solid #000000;
   }
-  table {
+
+  .thin-border-bottom {
+    border-bottom: 1px solid #000000;
+  }
+
+  /* Header Section */
+  .header-table {
     width: 100%;
     border-collapse: collapse;
-    border: 1px solid #D1D5DB;
-    margin-bottom: 10px;
   }
-  thead tr {
-    background: #1A3A6B;
-    color: #F9FAFB;
+
+  .header-table td {
+    padding: 6px 8px;
+    vertical-align: top;
   }
-  thead th {
-    padding: 6px 7px;
-    text-align: center;
-    font-size: 7pt;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-right: 1px solid #2D4F8A;
-    white-space: nowrap;
+
+  .header-left {
+    width: 35%;
   }
-  thead th:last-child { border-right: none; }
-  thead th.th-desc { text-align: left; }
-  tbody tr { border-bottom: 1px solid #E5E7EB; }
-  tbody tr:nth-child(even) { background: #F8FAFC; }
-  tbody tr:hover { background: #EEF2FF; }
-  tbody td {
-    padding: 5px 7px;
+
+  .header-right {
+    width: 65%;
+    text-align: right;
+    font-size: 7.5pt;
+    color: #000000;
+    line-height: 1.35;
+  }
+
+  .logo-text-top {
+    font-size: 8.5pt;
+    font-weight: bold;
+    color: #cc0000;
+  }
+
+  .red-text {
+    color: #cc0000;
+    font-weight: bold;
+  }
+
+  .bold {
+    font-weight: bold;
+  }
+
+  /* Date Bar */
+  .date-bar {
+    text-align: right;
+    padding: 3px 8px;
     font-size: 8pt;
+  }
+
+  /* Client Info Grid */
+  .client-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .client-table td {
+    padding: 3px 6px;
     vertical-align: middle;
-    border-right: 1px solid #E5E7EB;
+    font-size: 7.5pt;
+  }
+
+  .bg-gray-light {
+    background-color: #f2f2f2;
+  }
+
+  /* Items Table */
+  .items-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .items-table th {
+    background-color: #f2f2f2;
+    border: 1px solid #000000;
+    font-size: 7.5pt;
+    font-weight: bold;
+    padding: 4px 2px;
     text-align: center;
   }
-  tbody td:last-child { border-right: none; }
-  tbody td.td-desc { text-align: left; font-size: 7.8pt; line-height: 1.35; }
-  tbody td.td-right { text-align: right; font-weight: 600; }
 
-  /* Linha Total */
-  .total-row { background: #1A3A6B !important; }
-  .total-row td {
-    font-weight: 700;
-    font-size: 9pt;
-    color: #fff !important;
-    border-right: 1px solid #2D4F8A;
-    padding-top: 7px;
-    padding-bottom: 7px;
-  }
-  .total-row td:last-child { border-right: none; }
-
-  /* ── CONDIÇÕES DE FORNECIMENTO + VENDEDOR ── */
-  .bottom-section {
-    display: grid;
-    grid-template-columns: 58% 42%;
-    gap: 0;
-    border: 1px solid #D1D5DB;
-    margin-bottom: 10px;
-  }
-  .cond-block { border-right: 1px solid #D1D5DB; }
-  .cond-header, .vend-header {
-    background: #F3F4F6;
-    padding: 4px 9px;
+  .items-table td {
+    border: 1px solid #000000;
+    padding: 4px 4px;
     font-size: 7pt;
-    font-weight: 700;
-    color: #374151;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    border-bottom: 1px solid #D1D5DB;
-  }
-  .cond-row {
-    display: flex;
-    border-bottom: 1px solid #E5E7EB;
-  }
-  .cond-row:last-child { border-bottom: none; }
-  .cond-key {
-    font-size: 7.5pt;
-    font-weight: 700;
-    color: #374151;
-    padding: 4px 9px;
-    min-width: 145px;
-    border-right: 1px solid #E5E7EB;
-    background: #FAFAFA;
-  }
-  .cond-val {
-    font-size: 7.5pt;
-    color: #1F2937;
-    padding: 4px 9px;
-    flex: 1;
-  }
-  .vend-block { display: flex; flex-direction: column; justify-content: center; padding: 10px 12px; gap: 5px; }
-  .vend-row { display: flex; flex-direction: column; gap: 1px; }
-  .vend-label { font-size: 6.5pt; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.06em; }
-  .vend-value { font-size: 8pt; font-weight: 600; color: #111827; }
-
-  /* ── NOTA DE RODAPÉ ── */
-  .nota-rodape {
-    border-top: 1px solid #D1D5DB;
-    padding-top: 7px;
-    margin-top: 4px;
-  }
-  .nota-rodape p {
-    font-size: 6.5pt;
-    color: #6B7280;
-    line-height: 1.55;
-    margin-bottom: 3px;
-  }
-  .nota-rodape p.bold { font-weight: 700; color: #374151; }
-  .nota-rodape p.importante { color: #B45309; font-weight: 600; }
-
-  /* ── RODAPÉ PÁGINA ── */
-  .page-footer {
-    margin-top: 10px;
-    padding-top: 6px;
-    border-top: 1px solid #E5E7EB;
-    display: flex;
-    justify-content: space-between;
-    font-size: 6.5pt;
-    color: #9CA3AF;
+    vertical-align: middle;
   }
 
-  @media print {
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .text-center { text-align: center; }
+  .text-right { text-align: right; }
+  .text-left { text-align: left; }
+
+  /* Total Box */
+  .total-container {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 6px;
+    margin-bottom: 6px;
+  }
+
+  .total-container td {
+    padding: 4px 8px;
+    font-size: 8.5pt;
+    font-weight: bold;
+  }
+
+  .total-box-cell {
+    border: 2px solid #000000;
+    width: 25%;
+    text-align: right;
+  }
+
+  /* Conditions Table */
+  .conditions-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .conditions-header {
+    background-color: #f2f2f2;
+    border: 1px solid #000000;
+    text-align: center;
+    font-weight: bold;
+    font-size: 8pt;
+    padding: 3px;
+  }
+
+  .conditions-table td {
+    border: 1px solid #000000;
+    padding: 2.5px 5px;
+    font-size: 7pt;
+  }
+
+  /* Footer Legal Notes */
+  .notes-container {
+    padding: 4px 6px;
+    font-size: 7pt;
+    line-height: 1.25;
+  }
+
+  .notes-container p {
+    margin: 2px 0;
   }
 </style>
 </head>
 <body>
 
-<!-- ── CABEÇALHO ── -->
-<div class="header">
-  <div class="header-logo-block">
-    <div class="header-logo">Comag</div>
-    <div class="header-logo-sub">Comercial Comag Ltda</div>
-  </div>
-  <div class="header-right">
-    <span class="empresa-nome">${empresaInfo.nome}</span>
-    ${empresaInfo.end}<br>
-    ${empresaInfo.cnpj}${empresaInfo.ie ? ' &nbsp;|&nbsp; ' + empresaInfo.ie : ''}<br>
-    www.comercialcomag.com.br
-  </div>
-</div>
+<div class="page-wrapper">
 
-<!-- ── FAIXA PROPOSTA / DATA ── -->
-<div class="proposta-bar">
-  <span class="nr">PROPOSTA Nº &nbsp;${nrCotacao}</span>
-  <span class="data-emissao">Data de Emissão: <strong>${hoje}</strong> &nbsp;&nbsp;·&nbsp;&nbsp; Validade: <strong>5 dias úteis</strong></span>
-</div>
-
-<!-- ── DADOS DO CLIENTE ── -->
-<div class="dados-grid">
-  <div class="header-row">Dados do Cliente</div>
-  <div class="cell half2">
-    <span class="cell-label">Razão Social / Cliente</span>
-    <span class="cell-value big">${nomeCliente}</span>
-  </div>
-  <div class="cell">
-    <span class="cell-label">CNPJ</span>
-    <span class="cell-value">${cnpjCliente || '—'}</span>
-  </div>
-  <div class="cell full">
-    <span class="cell-label">Endereço</span>
-    <span class="cell-value">${endCliente || '—'}</span>
-  </div>
-</div>
-
-<!-- ── ITENS ── -->
-<div class="section-label">Itens da Proposta</div>
-<table>
-  <thead>
+  <!-- Header -->
+  <table class="header-table thick-border-bottom">
     <tr>
-      <th style="width:24px;">Item</th>
-      <th style="width:38px;">Qtd.</th>
-      <th style="width:26px;">Un.</th>
-      <th style="width:68px;">NCM</th>
-      <th class="th-desc">Produto / Serviço</th>
-      <th style="width:42px;">ICMS</th>
-      <th style="width:88px;">Prazo Entrega</th>
-      <th style="width:80px;">Marca Sol.</th>
-      <th style="width:80px;">Marca Ofe.</th>
-      <th style="width:88px; text-align:right;">Preço Unit.</th>
-      <th style="width:88px; text-align:right;">Sub Total</th>
+      <td class="header-left">
+        <svg width="140" height="42" viewBox="0 0 160 50">
+          <path d="M 30,5 C 10,5 0,18 0,25 C 0,32 10,45 30,45 C 45,45 52,35 52,32 L 40,32 C 38,34 34,37 28,37 C 16,37 10,29 10,25 C 10,21 16,13 28,13 C 34,13 38,16 40,18 L 52,18 C 52,15 45,5 30,5 Z" fill="#0b1b60" />
+          <path d="M 12,20 L 48,20 C 50,20 52,22 52,25 C 52,28 50,30 48,30 L 12,30 C 18,27 18,23 12,20 Z" fill="#0b1b60" />
+          <circle cx="28" cy="25" r="5" fill="#ffffff" />
+          <text x="58" y="38" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="22" fill="#0b1b60">Comag</text>
+        </svg>
+      </td>
+      <td class="header-right">
+        <span class="logo-text-top">${empresaInfo.nome} ${wtFilial}</span><br>
+        ${empresaInfo.end}<br>
+        <span class="red-text">${empresaInfo.cnpj}</span>${empresaInfo.ie ? ' / ' + empresaInfo.ie : ''}<br>
+        ${empresaInfo.telefone ? 'Fone: ' + empresaInfo.telefone + '<br>' : ''}
+        www.comercialcomag.com.br
+      </td>
     </tr>
-  </thead>
-  <tbody>
-    ${linhas.map(r => `
+  </table>
+
+  <!-- Date Bar -->
+  <div class="date-bar thick-border-bottom">
+    ${hojeExtenso}
+  </div>
+
+  <!-- Client Info Grid -->
+  <table class="client-table thick-border-bottom">
     <tr>
-      <td>${r.num}</td>
-      <td>${r.qtd}</td>
-      <td>PÇ</td>
-      <td>${r.ncm || '—'}</td>
-      <td class="td-desc">${r.desc || '—'}</td>
-      <td>${parseFloat(r.icms)||0}%</td>
-      <td>${r.prazoEnt !== '-' ? r.prazoEnt + ' dias úteis' : '—'}</td>
-      <td>${r.marcaSol || '—'}</td>
-      <td>${r.marcaOfe || r.marcaSol || '—'}</td>
-      <td class="td-right">—</td>
-      <td class="td-right">${r.vtotal}</td>
-    </tr>`).join('')}
-    <tr class="total-row">
-      <td colspan="10" style="text-align:right; letter-spacing:0.05em;">Total</td>
-      <td style="text-align:right;">${totalVenda}</td>
+      <td class="bold" style="width: 12%;">PROPOSTA Nº:</td>
+      <td style="width: 25%;">${nrCotacao}</td>
+      <td colspan="2"></td>
     </tr>
-  </tbody>
-</table>
+    <tr>
+      <td class="bold">Cliente:</td>
+      <td colspan="2" class="bg-gray-light text-center bold">${nomeCliente.toUpperCase()}</td>
+      <td style="width: 30%;">
+        <span class="bold">CNPJ:</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${cnpjCliente || '-'}
+      </td>
+    </tr>
+    <tr>
+      <td class="bold">Contato:</td>
+      <td colspan="2" class="bg-gray-light text-center">${contatoNome}</td>
+      <td>
+        <span class="bold">Fone:</span> ${contatoTel}
+      </td>
+    </tr>
+    <tr>
+      <td class="bold">Email</td>
+      <td colspan="2" class="bg-gray-light text-center">${contatoEmail}</td>
+      <td>
+        <span class="bold">Setor:</span> ${contatoCargo}
+      </td>
+    </tr>
+  </table>
 
-<!-- ── CONDIÇÕES + VENDEDOR ── -->
-<div class="bottom-section">
-  <div class="cond-block">
-    <div class="cond-header">Condições de Fornecimento</div>
-    <div class="cond-row"><span class="cond-key">Prazo de Pagamento</span><span class="cond-val">30 DIAS</span></div>
-    <div class="cond-row"><span class="cond-key">IPI</span><span class="cond-val">0%</span></div>
-    <div class="cond-row"><span class="cond-key">ICMS / PIS / COFINS</span><span class="cond-val">Inclusos — nos itens de ST: ICMS = 0%</span></div>
-    <div class="cond-row"><span class="cond-key">Frete</span><span class="cond-val">CIF</span></div>
-    <div class="cond-row"><span class="cond-key">Prazo de Validade</span><span class="cond-val">5 dias úteis</span></div>
+  <!-- Items Table -->
+  <table class="items-table">
+    <thead>
+      <tr>
+        <th style="width: 5%;">Item</th>
+        <th style="width: 6%;">Qtd.</th>
+        <th style="width: 6%;">Unid.</th>
+        <th style="width: 9%;">NCM</th>
+        <th style="width: 44%;">Produto/Serviço</th>
+        <th style="width: 6%;">ICMS</th>
+        <th style="width: 9%;">Prazo Entrega</th>
+        <th style="width: 8%;">Preço Unit.</th>
+        <th style="width: 7%;">Sub Total</th>
+      </tr>
+    </thead>
+    <tbody>${rowsHTML}
+    </tbody>
+  </table>
+
+  <!-- Total Row -->
+  <table class="total-container">
+    <tr>
+      <td style="width: 75%;"></td>
+      <td class="total-box-cell">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td class="text-left bold" style="padding: 0;">Total</td>
+            <td class="text-right red-text" style="padding: 0;">${totalVenda}</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Conditions of Supply -->
+  <table class="conditions-table">
+    <tr>
+      <td colspan="2" class="conditions-header">CONDIÇÕES DE FORNECIMENTO</td>
+      <td rowspan="6" style="width: 38%; text-align: center; vertical-align: middle;">
+        <div class="bold" style="font-size: 8pt; margin-bottom: 4px;">${vendedorNome.toUpperCase()} - VENDEDOR</div>
+        <div class="bold" style="font-size: 8pt; margin-bottom: 4px;">${vendedorCelular ? 'CEL.:' + vendedorCelular : ''}</div>
+        <div class="bold" style="font-size: 7.5pt;">${vendedorEmail}</div>
+      </td>
+    </tr>
+    <tr>
+      <td class="bold" style="width: 25%;">PRAZO DE PAGAMENTO:</td>
+      <td class="text-center" style="width: 37%;">30 DIAS</td>
+    </tr>
+    <tr>
+      <td class="bold">IPI:</td>
+      <td class="text-center">0%</td>
+    </tr>
+    <tr>
+      <td class="bold">ICMS/PIS/CONFINS:</td>
+      <td class="text-center">INCLUSOS - NOS ITENS DE ST ICMS=0%</td>
+    </tr>
+    <tr>
+      <td class="bold">FRETE:</td>
+      <td class="text-center">${wtFreteTipo}</td>
+    </tr>
+    <tr>
+      <td class="bold">PRAZO DE VALIDADE:</td>
+      <td class="text-center">5 DIAS ÚTEIS</td>
+    </tr>
+  </table>
+
+  <!-- Legal Notes -->
+  <div class="notes-container thin-border-bottom">
+    <p><span class="red-text">IMPORTANTE: DIFAL NÃO INCLUSO NOS PREÇOS</span> - <span class="bold">NÃO CONTRIBUINTES E CONTRIBUINTES DE ICMS COM MATERIAL PARA USO E CONSUMO DEVERÃO RECOLHER O DIFAL.</span></p>
   </div>
-  <div>
-    <div class="vend-header">Vendedor Responsável</div>
-    <div class="vend-block">
-      <div class="vend-row"><span class="vend-label">Nome</span><span class="vend-value">${vendedorNome}</span></div>
-      <div class="vend-row"><span class="vend-label">Celular / WhatsApp</span><span class="vend-value">${vendedorCelular}</span></div>
-      <div class="vend-row"><span class="vend-label">E-mail</span><span class="vend-value">${vendedorEmail}</span></div>
-    </div>
+  <div class="notes-container thin-border-bottom">
+    <p><span class="red-text">NÃO ACATAREMOS DEVOLUÇÃO</span> <span class="bold">DE MATERIAIS DE RETALHOS; TAIS COMO CABOS, SEALTUBOS E MANGUEIRAS;TAMBÉM DE MATERIAL IMPORTADO OU NACIONAL ADQUIRIDO ESPECIFICAMENTE PARA ATENDER A ORDEM DE COMPRA.</span></p>
   </div>
-</div>
+  <div class="notes-container">
+    <p class="red-text">FATURAMENTO COMAG - ${wtFilial}.</p>
+  </div>
 
-<!-- ── NOTA RODAPÉ ── -->
-<div class="nota-rodape">
-  <p class="bold">Faturamento Comag</p>
-  <p>Não acataremos devolução de materiais de retalhos; tais como cabos, sealtubos e mangueiras; também de material importado ou nacional adquirido especificamente para atender a ordem de compra.</p>
-  <p class="importante">IMPORTANTE: DIFAL não incluso nos preços — não contribuintes e contribuintes de ICMS com material para uso e consumo deverão recolher o DIFAL.</p>
-</div>
-
-<!-- ── RODAPÉ PÁGINA ── -->
-<div class="page-footer">
-  <span>${empresaInfo.nome} &nbsp;·&nbsp; ${empresaInfo.cnpj}</span>
-  <span>Proposta Nº ${nrCotacao} &nbsp;·&nbsp; Emissão: ${hoje}</span>
 </div>
 
 <script>window.onload = function(){ window.print(); };<\/script>
