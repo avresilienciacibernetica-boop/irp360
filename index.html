@@ -1,8 +1,5 @@
 
 
-
-
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -1917,6 +1914,13 @@
                             </select>
                         </div>
 
+                        <div class="wt-toggle-group" id="wt-vendedor-group" style="border-bottom:none; padding:0; min-width:200px; max-width:260px; display:none;">
+                            <span class="wt-toggle-label"><i class="fas fa-user-tie"></i> Vendedor</span>
+                            <select id="wt-vendedor-select" class="wt-filter-select" style="width:100%; font-size:0.78rem; padding:6px 8px;" onchange="onVendedorChange(this)">
+                                <option value="">— Vendedor logado —</option>
+                            </select>
+                        </div>
+
                         <div class="wt-toggle-group" style="border-bottom:none; padding:0; min-width:110px;">
                             <span class="wt-toggle-label"><i class="fas fa-truck"></i> T. Frt C</span>
                             <div id="wt-total-frtc" title="Duplo clique para distribuir frete de compra nas linhas" ondblclick="wtAbrirModalFrete('C')" style="font-size:0.85rem; font-weight:700; color:var(--text-muted); cursor:pointer; text-decoration:underline dotted;">R$ 0,00</div>
@@ -1925,6 +1929,11 @@
                         <div class="wt-toggle-group" style="border-bottom:none; padding:0; min-width:110px;">
                             <span class="wt-toggle-label"><i class="fas fa-truck"></i> T. Frt V</span>
                             <div id="wt-total-frtv" title="Duplo clique para distribuir frete de venda nas linhas" ondblclick="wtAbrirModalFrete('V')" style="font-size:0.85rem; font-weight:700; color:var(--primary); cursor:pointer; text-decoration:underline dotted;">R$ 0,00</div>
+                        </div>
+
+                        <div class="wt-toggle-group" style="border-bottom:none; padding:0; min-width:110px;">
+                            <span class="wt-toggle-label"><i class="fas fa-percentage"></i> Markup T.</span>
+                            <input type="number" step="0.01" id="wt-markup-total-input" class="wt-input-cell" placeholder="%" style="width:100%; font-size:0.78rem; padding:6px 8px;" onchange="onWtMarkupTotalChange(this)">
                         </div>
 
                     </div>
@@ -3256,6 +3265,7 @@
         let _wtLoadedOppId  = null; // ID da oportunidade efetivamente carregada no worktable (≠ currentOppId)
         let wtFreteTipo = 'CIF';        // 'FOB' | 'CIF' — modalidade de frete exibida na Cotação
         let wtContatoPropostaIdx = 0;   // índice do contato do cliente selecionado para a Cotação (cascata)
+        let wtVendedorSelecionadoId = ''; // id do usuário (Nível 1) selecionado como Vendedor — Admin/Diretoria/Gestores
 
         // ── AUTOCOMPLETE UF PADRÃO VENDA ─────────────────────────────
         // Lista usada pelo autocomplete — disponível após IMP_ESTADOS ser definido
@@ -3450,6 +3460,31 @@
 
         function onContatoPropostaChange(sel) {
             wtContatoPropostaIdx = parseInt(sel.value) || 0;
+        }
+
+        // Popula o seletor "Vendedor" com os usuários Nível 1 cadastrados. Visível exclusivamente
+        // para Admin, Diretoria (Nível 3) e Gestores (Nível 2) — demais usuários não veem o campo.
+        function _wtPopularVendedorSelect() {
+            const grupo = document.getElementById('wt-vendedor-group');
+            const sel = document.getElementById('wt-vendedor-select');
+            if (!grupo || !sel) return;
+            const curUser = _getCurrentUser();
+            const nivel = curUser ? curUser.nivel : '';
+            const podeVerVendedor = nivel === 'Admin' || nivel === '3' || nivel === '2';
+            if (!podeVerVendedor) {
+                grupo.style.display = 'none';
+                wtVendedorSelecionadoId = '';
+                return;
+            }
+            grupo.style.display = '';
+            const vendedores = DB.get('usuarios').filter(u => u.nivel === '1');
+            sel.innerHTML = '<option value="">— Vendedor logado —</option>' +
+                vendedores.map(u => `<option value="${u.id}">${u.nome}${u.sobrenome ? ' ' + u.sobrenome : ''}</option>`).join('');
+            sel.value = wtVendedorSelecionadoId || '';
+        }
+
+        function onVendedorChange(sel) {
+            wtVendedorSelecionadoId = sel.value || '';
         }
 
         // --- 2. NAVEGAÇÃO ---
@@ -5530,9 +5565,22 @@ Data/Hora: ${autorData}`);
             const exibirNrCotacao = STAGES_COM_COTACAO.includes(opp.stage);
             const nrCotacaoOpp = opp.id ? opp.id.slice(-6).toUpperCase() : '—';
 
+            // Cód Matriz / Cód Filial: exclusivamente editáveis por usuário da área Fiscal
+            const curUserOppDados = _getCurrentUser();
+            const isFiscalOppDados = !!(curUserOppDados && curUserOppDados.area === 'Fiscal');
+            const codMatrizFilialHtml = !cli ? '' : (isFiscalOppDados ? `
+                <div class="opp-info-row"><span>Cód Matriz</span><span><input type="text" id="opp-cod-matriz-input" class="wt-input-cell" style="padding:4px 8px; font-size:0.8rem;" value="${cli.codMatriz || ''}"></span></div>
+                <div class="opp-info-row"><span>Cód Filial</span><span><input type="text" id="opp-cod-filial-input" class="wt-input-cell" style="padding:4px 8px; font-size:0.8rem;" value="${cli.codFilial || ''}"></span></div>
+                <div style="display:flex; justify-content:flex-end; margin-top:6px;"><button class="btn-primary" style="padding:6px 12px; font-size:0.75rem;" onclick="salvarCodMatrizFilial('${cli.id}')"><i class="fas fa-save"></i> Gravar Alteração</button></div>
+            ` : `
+                <div class="opp-info-row"><span>Cód Matriz</span><span>${cli.codMatriz || '-'}</span></div>
+                <div class="opp-info-row"><span>Cód Filial</span><span>${cli.codFilial || '-'}</span></div>
+            `);
+
             const dadosHtml = cli ? `
                 <div class="opp-info-row"><span>Razão Social</span><span><a href="#" onclick="navigate('cadastros'); setTimeout(()=>{ const el=document.getElementById('search-cli'); if(el){el.value='${cli.nome.replace(/'/g,"\\'")}'; renderTableClientes();} },200); return false;" style="color:var(--primary); text-decoration:underline dotted; font-weight:700;" title="Ver cadastro do cliente">${cli.nome}</a></span></div>
                 <div class="opp-info-row"><span>CNPJ/CPF</span><span>${cli.doc || '-'}</span></div>
+                ${codMatrizFilialHtml}
                 <div class="opp-info-row"><span>Endereço</span><span>${[cli.endereco, cli.numero, cli.complemento].filter(Boolean).join(', ') || '-'}</span></div>
                 <div class="opp-info-row"><span>CEP</span><span>${cli.cep || '-'}</span></div>
                 <div class="opp-info-row"><span>Cidade / UF</span><span>${cli.cidade || '-'} / ${cli.uf || '-'}</span></div>
@@ -5560,6 +5608,22 @@ Data/Hora: ${autorData}`);
             renderOppNotas(opp);
             atualizarBtnAgendarOpp(opp);
             navigate('oportunidade');
+        }
+
+        // Grava Cód Matriz / Cód Filial do cliente — exclusivo para usuário da área Fiscal
+        async function salvarCodMatrizFilial(cliId) {
+            const curUser = _getCurrentUser();
+            if (!curUser || curUser.area !== 'Fiscal') {
+                alert('Apenas usuários da área Fiscal podem gravar esta alteração.');
+                return;
+            }
+            const codMatrizEl = document.getElementById('opp-cod-matriz-input');
+            const codFilialEl = document.getElementById('opp-cod-filial-input');
+            const codMatriz = codMatrizEl ? codMatrizEl.value.trim() : '';
+            const codFilial = codFilialEl ? codFilialEl.value.trim() : '';
+            await DB.update('clientes', cliId, { codMatriz, codFilial });
+            alert('Alteração gravada com sucesso.');
+            openOppPage(currentOppId);
         }
 
         function atualizarBtnAgendarOpp(opp) {
@@ -6385,6 +6449,9 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
 
             // Contato da Proposta (cascata): repopula sempre com os contatos do cliente atual
             _wtPopularContatoProposta(cli);
+
+            // Vendedor (Admin/Diretoria/Gestores): repopula sempre que um orçamento é aberto
+            _wtPopularVendedorSelect();
 
             if (id !== _wtLoadedOppId) {
                 // Troca de orçamento: para o timer atual, atualiza o id e carrega o estado do novo
@@ -7597,6 +7664,50 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
             calcWorktableRow(el);
         }
 
+        // ── MARKUP T. — aplica o markup preenchido a todas as linhas, mediante confirmação ──
+        function onWtMarkupTotalChange(el) {
+            const val = parseFloat(el.value);
+            if (el.value === '' || isNaN(val)) return;
+            wtAbrirModalMarkupTotal(val);
+        }
+
+        function wtAbrirModalMarkupTotal(val) {
+            const antigo = document.getElementById('_modal-markup-total');
+            if (antigo) antigo.remove();
+
+            const overlay = document.createElement('div');
+            overlay.id = '_modal-markup-total';
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(17,24,39,0.55);z-index:6000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);';
+            overlay.innerHTML = `
+                <div style="background:#fff;border-radius:14px;padding:28px 32px;max-width:380px;width:92%;box-shadow:0 16px 48px rgba(0,0,0,0.22);">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+                        <i class="fas fa-percentage" style="color:var(--primary);font-size:1.1rem;"></i>
+                        <span style="font-size:0.95rem;font-weight:700;color:#1F2937;">Markup T.</span>
+                    </div>
+                    <p style="font-size:0.85rem;color:#374151;margin-bottom:20px;">Deseja aplicar o Markup T. de <b>${val}%</b> a todos os itens do orçamento?</p>
+                    <div style="display:flex;gap:8px;">
+                        <button id="_mkt-fechar" style="flex:1;padding:10px 0;border-radius:8px;border:1px solid var(--border-color);background:#F3F4F6;font-weight:600;font-size:0.875rem;cursor:pointer;color:#374151;">Fechar</button>
+                        <button id="_mkt-sim" style="flex:1;padding:10px 0;border-radius:8px;border:none;background:var(--primary);color:#fff;font-weight:700;font-size:0.875rem;cursor:pointer;">Sim</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(overlay);
+
+            overlay.querySelector('#_mkt-fechar').onclick = () => overlay.remove();
+            overlay.querySelector('#_mkt-sim').onclick = () => {
+                overlay.remove();
+                wtAplicarMarkupTodasLinhas(val);
+            };
+            overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+        }
+
+        function wtAplicarMarkupTodasLinhas(val) {
+            document.querySelectorAll('#tb-wt-items tr .w-markup').forEach(el => {
+                el.value = val;
+                calcWorktableRowFromMarkup(el);
+            });
+            calcWorktableGlobals();
+        }
+
         function calcWorktableGlobals() {
             let totalVenda = 0;
             let totalCustoReal = 0; // custo fiscal real — reutilizado do motor da linha
@@ -7746,11 +7857,14 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
             const hoje = new Date().toLocaleDateString('pt-BR');
             const nrCotacao   = currentOppId ? currentOppId.slice(-6).toUpperCase() : '------';
 
-            // Dados do vendedor (usuário logado)
+            // Dados do vendedor: usuário logado, ou o Vendedor selecionado em Config. da Cotação
+            // (campo disponível apenas para Admin/Diretoria/Gestores)
             const userLogado = _getCurrentUser();
-            const vendedorNome = userLogado ? (userLogado.nome + (userLogado.sobrenome ? ' ' + userLogado.sobrenome : '')) : '-';
-            const vendedorEmail = userLogado ? (userLogado.email || '-') : '-';
-            const vendedorCelular = userLogado ? (userLogado.celular || '-') : '-';
+            const vendedorSelecionado = wtVendedorSelecionadoId ? DB.findById('usuarios', wtVendedorSelecionadoId) : null;
+            const vendedorParaProposta = vendedorSelecionado || userLogado;
+            const vendedorNome = vendedorParaProposta ? (vendedorParaProposta.nome + (vendedorParaProposta.sobrenome ? ' ' + vendedorParaProposta.sobrenome : '')) : '-';
+            const vendedorEmail = vendedorParaProposta ? (vendedorParaProposta.email || '-') : '-';
+            const vendedorCelular = vendedorParaProposta ? (vendedorParaProposta.celular || '-') : '-';
 
             // Dados da empresa emissora conforme filial ativa
             const empresaInfo = wtFilial === 'ES'
@@ -11625,15 +11739,15 @@ Desde já agradeço.`;
 
         // ── IMPORTAR ARQUIVO — Engenharia de Orçamento ──
         // Detecta colunas de descrição, quantidade, código e marca por sinônimos (case-insensitive)
-        const _WT_COL_DESC  = ['descri','produto','item','material','especif','nome','título','titulo','description'];
+        const _WT_COL_DESC  = ['descri','produto'];
         const _WT_COL_QTD   = ['qtd','quant','qty','quantidade','amount','qte','un.','unid'];
         const _WT_COL_COD   = ['cod','code','código','codigo','ref','referência','referencia','sku','part'];
-        const _WT_COL_MARCA = ['marca','brand','fabricante','manufat','fornec'];
+        const _WT_COL_MARCA = ['marca'];
         const _WT_COL_NCM   = ['ncm'];
         const _WT_COL_ICMS  = ['icms'];
         const _WT_COL_IPI   = ['ipi'];
-        const _WT_COL_PRAZO = ['entrega prevista','prazo forn','prazo de entrega do fornecedor','prazo entrega fornecedor','lead time'];
-        const _WT_COL_VALOR = ['valor unit','valor unitário','valor unitario','preço unit','preco unit','vlr unit','vlr. unit'];
+        const _WT_COL_PRAZO = ['prazo','entrega'];
+        const _WT_COL_VALOR = ['custo','preço','preco','valor'];
 
         function _wtMatchCol(header, synonyms) {
             const h = header.toLowerCase().trim();
