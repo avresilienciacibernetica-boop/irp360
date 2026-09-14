@@ -2380,6 +2380,8 @@
                 if (row.criado_em !== undefined && row.createdAt === undefined) row.createdAt = row.criado_em;
                 if (row.criado_por !== undefined && row.criadoPor === undefined) row.criadoPor = row.criado_por;
                 if (row.criado_por_id !== undefined && row.criadoPorId === undefined) row.criadoPorId = row.criado_por_id;
+                if (row.cod_matriz !== undefined && row.codMatriz === undefined) row.codMatriz = row.cod_matriz;
+                if (row.cod_filial !== undefined && row.codFilial === undefined) row.codFilial = row.cod_filial;
             }
             if (table === 'atividades') {
                 if (row.opp_id !== undefined && row.oppId === undefined) row.oppId = row.opp_id;
@@ -2451,8 +2453,8 @@
 
         // Colunas permitidas por tabela no Supabase (apenas estas são enviadas)
         const _SUPABASE_COLS = {
-            clientes:      ['id','nome','doc','ie','im','uf','cidade','endereco','cep','numero','complemento','segmento','potencial','tipoCliente','tipoArea','tipoEstabelecimento','contato','contatos','dados_empresa','criado_por','criado_por_id','criado_em','atualizado_em','autorizacao_vinculo'],
-            oportunidades: ['id','titulo','cliente_id','stage','criado_por','criado_por_id','criado_em','atualizado_em','notas','tarefas','items','history','motivo_perdido','obs_perdido','fechado_em','worktable','valor_total','canal','analise_dir'],
+            clientes:      ['id','nome','doc','ie','im','uf','cidade','endereco','cep','numero','complemento','segmento','potencial','tipoCliente','tipoArea','tipoEstabelecimento','contato','contatos','dados_empresa','criado_por','criado_por_id','criado_em','atualizado_em','autorizacao_vinculo','cod_matriz','cod_filial'],
+            oportunidades: ['id','titulo','cliente_id','stage','criado_por','criado_por_id','criado_em','atualizado_em','notas','tarefas','items','history','motivo_perdido','obs_perdido','fechado_em','worktable','valor_total','canal','analise_dir','pov'],
             usuarios:      ['id','nome','sobrenome','email','senha','nivel','area','direto_para','direto_assistente','criado_em'],
             produtos:      ['id','ncm','codigo','marca','descricao','icms','ipi','custo_base','criado_em'],
             fornecedores:  ['id','nome','email','telefone','pessoa_contato','criado_em'],
@@ -2470,6 +2472,8 @@
                 if (mapped.criadoPor   !== undefined) mapped.criado_por    = mapped.criadoPor;
                 if (mapped.createdAt   !== undefined) mapped.criado_em     = mapped.createdAt;
                 if (mapped.updatedAt   !== undefined) mapped.atualizado_em = mapped.updatedAt;
+                if (mapped.codMatriz   !== undefined) mapped.cod_matriz    = mapped.codMatriz;
+                if (mapped.codFilial   !== undefined) mapped.cod_filial    = mapped.codFilial;
             }
             if (table === 'oportunidades') {
                 if (mapped.clienteId     !== undefined) mapped.cliente_id    = mapped.clienteId;
@@ -4024,6 +4028,16 @@
                         </div>
                     </div>
                     <div class="form-grid">
+                        <div class="form-group">
+                            <label>Cód Matriz</label>
+                            <input type="text" id="cad-cod-matriz" class="wt-input-cell" value="${c.codMatriz || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Cód Filial</label>
+                            <input type="text" id="cad-cod-filial" class="wt-input-cell" value="${c.codFilial || ''}">
+                        </div>
+                    </div>
+                    <div class="form-grid">
                         <div class="form-group"><label>Inscrição Estadual (IE)</label><input type="text" id="cad-ie" class="wt-input-cell" placeholder="Opcional" value="${c.ie || ''}"></div>
                         <div class="form-group"><label>Inscrição Municipal (IM)</label><input type="text" id="cad-im" class="wt-input-cell" placeholder="Opcional" value="${c.im || ''}"></div>
                         <div class="form-group" style="max-width:160px;"><label>Data de Abertura</label><input type="text" id="cad-data-abertura" class="wt-input-cell" placeholder="00/00/0000" value="${c.dataAbertura || ''}"></div>
@@ -4476,6 +4490,8 @@ Data/Hora: ${autorData}`);
                 tipoCliente: document.getElementById('cad-tipo-cliente')?.value || '',
                 tipoArea: document.getElementById('cad-tipo-area')?.value || '',
                 tipoEstabelecimento: document.getElementById('cad-tipo-estab')?.value || '',
+                codMatriz: document.getElementById('cad-cod-matriz')?.value || '',
+                codFilial: document.getElementById('cad-cod-filial')?.value || '',
                 contato: contatos.length > 0 ? contatos[0] : { nome:'', cargo:'', email:'', tel:'', cel:'' },
                 contatos: contatos
             };
@@ -5587,6 +5603,7 @@ Data/Hora: ${autorData}`);
                 <div class="opp-info-row"><span>Canal</span><span>${opp.canal || '-'}</span></div>
                 <div class="opp-info-row"><span>Stage</span><span style="color:var(--primary); font-weight:700;">${opp.stage}</span></div>
                 ${exibirNrCotacao ? `<div class="opp-info-row"><span>Nº Cotação</span><span style="font-family:monospace; font-weight:700; color:var(--primary);">${nrCotacaoOpp}</span></div>` : ''}
+                <div class="opp-info-row"><span>POV</span><span><input type="text" id="opp-pov-input" class="wt-input-cell" style="padding:4px 8px; font-size:0.8rem;" placeholder="Opcional" value="${opp.pov || ''}" onchange="salvarPovOportunidade('${opp.id}', this.value)"></span></div>
                 <div class="opp-info-row"><span>Responsável</span><span style="color:var(--text-main); font-weight:600;">${nomeResponsavel}</span></div>
                 ${oppsHtml}
             ` : '<p style="color:var(--text-muted); font-size:0.8rem;">Cliente não encontrado.</p>';
@@ -5624,6 +5641,11 @@ Data/Hora: ${autorData}`);
             await DB.update('clientes', cliId, { codMatriz, codFilial });
             alert('Alteração gravada com sucesso.');
             openOppPage(currentOppId);
+        }
+
+        // Grava o POV (opcional) da Oportunidade/Cotação — auto-save ao sair do campo
+        async function salvarPovOportunidade(oppId, valor) {
+            await DB.update('oportunidades', oppId, { pov: (valor || '').trim() });
         }
 
         function atualizarBtnAgendarOpp(opp) {
@@ -6109,6 +6131,73 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
         let _pendFecharFornsList = [];
         let _pendFecharFornSelecionado = 0; // índice do fornecedor selecionado para Custo Fornecedor
 
+        // ── PC (Pendente de Compra) — caixa suspensa por item com Salvar/Editar/Excluir ──
+        function abrirPopoverPC(btn) {
+            const tr = btn.closest('tr');
+            const numEl = tr.querySelector('.wt-item-num');
+            if (!numEl) return;
+
+            const antigoBox = document.getElementById('_popover-pc');
+            if (antigoBox) antigoBox.remove();
+            const antigoOverlay = document.getElementById('_popover-pc-overlay');
+            if (antigoOverlay) antigoOverlay.remove();
+
+            const rect = btn.getBoundingClientRect();
+            const overlay = document.createElement('div');
+            overlay.id = '_popover-pc-overlay';
+            overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; z-index:6000;';
+            document.body.appendChild(overlay);
+
+            const dataFat = numEl.dataset.pcDataFat || '';
+            const dataFinalCliente = numEl.dataset.pcDataFinalCliente || '';
+            const temDados = !!(dataFat || dataFinalCliente);
+
+            const box = document.createElement('div');
+            box.id = '_popover-pc';
+            box.style.cssText = `position:fixed; top:${rect.bottom + 6}px; left:${rect.left}px; z-index:6001; background:#fff; border-radius:10px; box-shadow:0 12px 32px rgba(0,0,0,0.25); border:1px solid var(--border-color); padding:16px; min-width:230px;`;
+            box.innerHTML = `
+                <div style="font-size:0.8rem; font-weight:700; color:#1F2937; margin-bottom:10px; display:flex; align-items:center; gap:6px;"><i class="fas fa-shopping-cart" style="color:#F59E0B;"></i> Pendente de Compra</div>
+                <label style="display:block; font-size:0.7rem; color:var(--text-muted); margin-bottom:3px;">Data de Faturamento</label>
+                <input type="date" id="pc-data-fat-input" value="${dataFat}" ${temDados ? 'disabled' : ''} class="wt-input-cell" style="width:100%; margin-bottom:10px; padding:5px 8px; font-size:0.8rem;">
+                <label style="display:block; font-size:0.7rem; color:var(--text-muted); margin-bottom:3px;">Data Final Cliente</label>
+                <input type="date" id="pc-data-final-cliente-input" value="${dataFinalCliente}" ${temDados ? 'disabled' : ''} class="wt-input-cell" style="width:100%; margin-bottom:12px; padding:5px 8px; font-size:0.8rem;">
+                <div style="display:flex; gap:6px;">
+                    <button id="pc-btn-salvar" style="flex:1; padding:7px 0; border-radius:6px; border:none; background:var(--primary); color:#fff; font-weight:700; font-size:0.75rem; cursor:pointer; ${temDados ? 'display:none;' : ''}">Salvar</button>
+                    <button id="pc-btn-editar" style="flex:1; padding:7px 0; border-radius:6px; border:1px solid var(--border-color); background:#F3F4F6; color:#374151; font-weight:600; font-size:0.75rem; cursor:pointer; ${temDados ? '' : 'display:none;'}">Editar</button>
+                    <button id="pc-btn-excluir" style="flex:1; padding:7px 0; border-radius:6px; border:none; background:var(--danger); color:#fff; font-weight:700; font-size:0.75rem; cursor:pointer; ${temDados ? '' : 'display:none;'}">Excluir</button>
+                </div>`;
+            document.body.appendChild(box);
+
+            function fecharPopoverPC() {
+                box.remove();
+                overlay.remove();
+            }
+            overlay.onclick = fecharPopoverPC;
+
+            box.querySelector('#pc-btn-salvar').onclick = () => {
+                const fat = document.getElementById('pc-data-fat-input').value;
+                const finalCli = document.getElementById('pc-data-final-cliente-input').value;
+                numEl.dataset.pcDataFat = fat;
+                numEl.dataset.pcDataFinalCliente = finalCli;
+                btn.style.background = (fat || finalCli) ? '#10B981' : '#F59E0B';
+                saveWorktable(true);
+                fecharPopoverPC();
+            };
+            box.querySelector('#pc-btn-editar').onclick = () => {
+                document.getElementById('pc-data-fat-input').disabled = false;
+                document.getElementById('pc-data-final-cliente-input').disabled = false;
+                box.querySelector('#pc-btn-salvar').style.display = '';
+                box.querySelector('#pc-btn-editar').style.display = 'none';
+            };
+            box.querySelector('#pc-btn-excluir').onclick = () => {
+                delete numEl.dataset.pcDataFat;
+                delete numEl.dataset.pcDataFinalCliente;
+                btn.style.background = '#F59E0B';
+                saveWorktable(true);
+                fecharPopoverPC();
+            };
+        }
+
         function _renderFornecedoresModal() {
             const container = document.getElementById('pend-fechar-forns-container');
             if (!container) return;
@@ -6536,6 +6625,8 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                         data-pend-forn-tel="${data.pendFornTel || ''}"
                         data-pend-forn-pessoa="${data.pendFornPessoa || ''}"
                         data-pend-forn-list="${data.pendFornList ? JSON.stringify(data.pendFornList).replace(/"/g,'&quot;') : ''}"
+                        data-pc-data-fat="${data.pcDataFat || ''}"
+                        data-pc-data-final-cliente="${data.pcDataFinalCliente || ''}"
                     >${itemNum}</span>
                     <div style="margin-top:4px;">
                         <button title="Duplicar linha" onclick="duplicateWorktableRow(this)"
@@ -6548,6 +6639,13 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                     <div style="margin-top:3px;">
                         <button title="Excluir esta linha" onclick="confirmarExcluirLinha(this)"
                             style="background:var(--danger); color:#fff; border:none; border-radius:4px; padding:2px 6px; font-size:0.68rem; font-weight:700; cursor:pointer; letter-spacing:0.03em;">L-</button>
+                    </div>
+                    <div style="margin-top:3px; visibility:hidden;">
+                        <button style="background:var(--danger); color:#fff; border:none; border-radius:4px; padding:2px 6px; font-size:0.68rem; font-weight:700;">L-</button>
+                    </div>
+                    <div style="margin-top:3px;">
+                        <button title="Pendente de Compra" onclick="abrirPopoverPC(this)"
+                            style="background:${(data.pcDataFat || data.pcDataFinalCliente) ? '#10B981' : '#F59E0B'}; color:#fff; border:none; border-radius:4px; padding:2px 6px; font-size:0.68rem; font-weight:700; cursor:pointer; letter-spacing:0.03em;">PC</button>
                     </div>
                 </td>
                 <td>
@@ -8322,6 +8420,8 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                     pendFornSelecionadoIdx: numEl ? (parseInt(numEl.dataset.pendFornSelecionadoIdx) || 0) : 0,
                     pendFornExtras:  numEl ? (numEl.dataset.pendFornExtras ? JSON.parse(numEl.dataset.pendFornExtras) : []) : [],
                     pendFornList:    numEl ? (numEl.dataset.pendFornList ? JSON.parse(numEl.dataset.pendFornList) : []) : [],
+                    pcDataFat:            numEl ? (numEl.dataset.pcDataFat            || '') : '',
+                    pcDataFinalCliente:   numEl ? (numEl.dataset.pcDataFinalCliente   || '') : '',
                     lmaisNota: lmaisNota ? lmaisNota.value : '',
                     ncm: tr.querySelector('.w-ncm') ? tr.querySelector('.w-ncm').value : '',
                     st: parseFloat(tr.querySelector('.w-st') ? tr.querySelector('.w-st').value : 0) || 0,
