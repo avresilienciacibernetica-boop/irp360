@@ -847,6 +847,7 @@
             <button onclick="navigate('orcamentos')" class="nav-item" id="nav-orcamentos"><i class="fas fa-file-invoice-dollar"></i> <span>Orçamentos (Worktable)</span></button>
             <button onclick="abrirImpostos()" class="nav-item" id="nav-impostos"><i class="fas fa-percentage"></i> <span>Tabela de Impostos</span></button>
             <button onclick="navigate('itenspendentes')" class="nav-item" id="nav-itenspendentes"><i class="fas fa-clipboard-list"></i> <span>Itens Pendentes</span></button>
+            <button onclick="navigate('pendentecompra')" class="nav-item" id="nav-pendentecompra"><i class="fas fa-shopping-cart"></i> <span>Pendente de Compra</span></button>
             <button onclick="navigate('mensagens')" class="nav-item" id="nav-mensagens"><i class="fas fa-envelope"></i> <span>Mensagens</span></button>
         </nav>
     </aside>
@@ -1431,6 +1432,52 @@
                         </table>
                     </div>
                     <p id="gip-empty" style="font-size:0.85rem; color:var(--text-muted); margin:20px; display:none;"><i class="fas fa-check-circle" style="color:var(--success);"></i> Nenhum item pendente encontrado.</p>
+                </div>
+            </div>
+
+            <!-- ACOMPANHAMENTO DE PENDENTE DE COMPRA -->
+            <div id="page-pendentecompra" class="page-content">
+                <div class="page-header" style="margin-bottom:16px;">
+                    <h1><i class="fas fa-shopping-cart" style="color:var(--primary);"></i> Acompanhamento de Pendente de Compra</h1>
+                </div>
+
+                <!-- FILTROS: uma search bar por coluna -->
+                <div class="section-card" style="padding:10px 16px; margin-bottom:16px; display:flex; justify-content:flex-end;">
+                    <button class="btn-secondary" onclick="_pcompLimparFiltros()" style="padding:8px 14px; font-size:0.8rem;" title="Limpar filtros"><i class="fas fa-times"></i> Limpar Filtros</button>
+                </div>
+
+                <!-- TABELA -->
+                <div class="section-card" style="padding:0; overflow:hidden;">
+                    <div style="overflow-x:auto; overflow-y:auto; max-height:calc(100vh - 300px);">
+                        <table style="min-width:1200px; border-collapse:collapse; width:100%;">
+                            <thead>
+                                <tr>
+                                    <th style="white-space:nowrap; min-width:110px;">Nº da Cotação</th>
+                                    <th style="min-width:110px;">POV</th>
+                                    <th style="min-width:160px;">Cliente</th>
+                                    <th style="min-width:110px;">Marca</th>
+                                    <th style="min-width:220px;">Descrição</th>
+                                    <th style="min-width:80px;">Qtd</th>
+                                    <th style="min-width:130px;" title="Duplo clique para alterar">Status</th>
+                                    <th style="min-width:140px; white-space:nowrap;">Data de Faturamento</th>
+                                    <th style="min-width:140px; white-space:nowrap;">Data Final Cliente</th>
+                                </tr>
+                                <tr>
+                                    <th style="padding:6px 8px;"><input type="text" id="pcomp-fil-cotacao" class="wt-input-cell" style="width:100%; font-size:0.72rem; padding:5px 6px; font-weight:400;" placeholder="Buscar..." oninput="renderPendenteCompraGlobal()" autocomplete="off"></th>
+                                    <th style="padding:6px 8px;"><input type="text" id="pcomp-fil-pov" class="wt-input-cell" style="width:100%; font-size:0.72rem; padding:5px 6px; font-weight:400;" placeholder="Buscar..." oninput="renderPendenteCompraGlobal()" autocomplete="off"></th>
+                                    <th style="padding:6px 8px;"><input type="text" id="pcomp-fil-cliente" class="wt-input-cell" style="width:100%; font-size:0.72rem; padding:5px 6px; font-weight:400;" placeholder="Buscar..." oninput="renderPendenteCompraGlobal()" autocomplete="off"></th>
+                                    <th style="padding:6px 8px;"><input type="text" id="pcomp-fil-marca" class="wt-input-cell" style="width:100%; font-size:0.72rem; padding:5px 6px; font-weight:400;" placeholder="Buscar..." oninput="renderPendenteCompraGlobal()" autocomplete="off"></th>
+                                    <th style="padding:6px 8px;"><input type="text" id="pcomp-fil-desc" class="wt-input-cell" style="width:100%; font-size:0.72rem; padding:5px 6px; font-weight:400;" placeholder="Buscar..." oninput="renderPendenteCompraGlobal()" autocomplete="off"></th>
+                                    <th style="padding:6px 8px;"><input type="text" id="pcomp-fil-qtd" class="wt-input-cell" style="width:100%; font-size:0.72rem; padding:5px 6px; font-weight:400;" placeholder="Buscar..." oninput="renderPendenteCompraGlobal()" autocomplete="off"></th>
+                                    <th style="padding:6px 8px;"><input type="text" id="pcomp-fil-status" class="wt-input-cell" style="width:100%; font-size:0.72rem; padding:5px 6px; font-weight:400;" placeholder="Buscar..." oninput="renderPendenteCompraGlobal()" autocomplete="off"></th>
+                                    <th style="padding:6px 8px;"><input type="text" id="pcomp-fil-datafat" class="wt-input-cell" style="width:100%; font-size:0.72rem; padding:5px 6px; font-weight:400;" placeholder="dd/mm/aaaa" oninput="renderPendenteCompraGlobal()" autocomplete="off"></th>
+                                    <th style="padding:6px 8px;"><input type="text" id="pcomp-fil-datafinal" class="wt-input-cell" style="width:100%; font-size:0.72rem; padding:5px 6px; font-weight:400;" placeholder="dd/mm/aaaa" oninput="renderPendenteCompraGlobal()" autocomplete="off"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="tb-pcomp-body"></tbody>
+                        </table>
+                    </div>
+                    <p id="pcomp-empty" style="font-size:0.85rem; color:var(--text-muted); margin:20px; display:none;"><i class="fas fa-check-circle" style="color:var(--success);"></i> Nenhum item pendente de compra encontrado.</p>
                 </div>
             </div>
 
@@ -3532,6 +3579,7 @@
                 }
                 renderItensPendentesGlobal();
             }
+            if(pageId === 'pendentecompra') renderPendenteCompraGlobal();
             if(pageId === 'mensagens') { _clearTabTitleMensagem(); renderMensagens(); }
         }
 
@@ -6154,13 +6202,19 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
 
             const box = document.createElement('div');
             box.id = '_popover-pc';
-            box.style.cssText = `position:fixed; top:${rect.bottom + 6}px; left:${rect.left}px; z-index:6001; background:#fff; border-radius:10px; box-shadow:0 12px 32px rgba(0,0,0,0.25); border:1px solid var(--border-color); padding:16px; min-width:230px;`;
+            box.style.cssText = `position:fixed; top:${rect.bottom + 6}px; left:${rect.left}px; z-index:6001; background:#fff; border-radius:10px; box-shadow:0 12px 32px rgba(0,0,0,0.25); border:1px solid var(--border-color); padding:16px; min-width:360px;`;
             box.innerHTML = `
                 <div style="font-size:0.8rem; font-weight:700; color:#1F2937; margin-bottom:10px; display:flex; align-items:center; gap:6px;"><i class="fas fa-shopping-cart" style="color:#F59E0B;"></i> Pendente de Compra</div>
-                <label style="display:block; font-size:0.7rem; color:var(--text-muted); margin-bottom:3px;">Data de Faturamento</label>
-                <input type="date" id="pc-data-fat-input" value="${dataFat}" ${temDados ? 'disabled' : ''} class="wt-input-cell" style="width:100%; margin-bottom:10px; padding:5px 8px; font-size:0.8rem;">
-                <label style="display:block; font-size:0.7rem; color:var(--text-muted); margin-bottom:3px;">Data Final Cliente</label>
-                <input type="date" id="pc-data-final-cliente-input" value="${dataFinalCliente}" ${temDados ? 'disabled' : ''} class="wt-input-cell" style="width:100%; margin-bottom:12px; padding:5px 8px; font-size:0.8rem;">
+                <div style="display:flex; gap:10px; margin-bottom:12px;">
+                    <div style="flex:1;">
+                        <label style="display:block; font-size:0.7rem; color:var(--text-muted); margin-bottom:3px;">Data de Faturamento</label>
+                        <input type="date" id="pc-data-fat-input" value="${dataFat}" ${temDados ? 'disabled' : ''} class="wt-input-cell" style="width:100%; padding:5px 8px; font-size:0.8rem;">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="display:block; font-size:0.7rem; color:var(--text-muted); margin-bottom:3px;">Data Final Cliente</label>
+                        <input type="date" id="pc-data-final-cliente-input" value="${dataFinalCliente}" ${temDados ? 'disabled' : ''} class="wt-input-cell" style="width:100%; padding:5px 8px; font-size:0.8rem;">
+                    </div>
+                </div>
                 <div style="display:flex; gap:6px;">
                     <button id="pc-btn-salvar" style="flex:1; padding:7px 0; border-radius:6px; border:none; background:var(--primary); color:#fff; font-weight:700; font-size:0.75rem; cursor:pointer; ${temDados ? 'display:none;' : ''}">Salvar</button>
                     <button id="pc-btn-editar" style="flex:1; padding:7px 0; border-radius:6px; border:1px solid var(--border-color); background:#F3F4F6; color:#374151; font-weight:600; font-size:0.75rem; cursor:pointer; ${temDados ? '' : 'display:none;'}">Editar</button>
@@ -6179,6 +6233,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                 const finalCli = document.getElementById('pc-data-final-cliente-input').value;
                 numEl.dataset.pcDataFat = fat;
                 numEl.dataset.pcDataFinalCliente = finalCli;
+                if (fat || finalCli) numEl.dataset.pcStatus = numEl.dataset.pcStatus || 'Ag retorno';
                 btn.style.background = (fat || finalCli) ? '#10B981' : '#F59E0B';
                 saveWorktable(true);
                 fecharPopoverPC();
@@ -6192,6 +6247,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
             box.querySelector('#pc-btn-excluir').onclick = () => {
                 delete numEl.dataset.pcDataFat;
                 delete numEl.dataset.pcDataFinalCliente;
+                delete numEl.dataset.pcStatus;
                 btn.style.background = '#F59E0B';
                 saveWorktable(true);
                 fecharPopoverPC();
@@ -6627,6 +6683,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                         data-pend-forn-list="${data.pendFornList ? JSON.stringify(data.pendFornList).replace(/"/g,'&quot;') : ''}"
                         data-pc-data-fat="${data.pcDataFat || ''}"
                         data-pc-data-final-cliente="${data.pcDataFinalCliente || ''}"
+                        data-pc-status="${data.pcStatus || ''}"
                     >${itemNum}</span>
                     <div style="margin-top:4px;">
                         <button title="Duplicar linha" onclick="duplicateWorktableRow(this)"
@@ -8422,6 +8479,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                     pendFornList:    numEl ? (numEl.dataset.pendFornList ? JSON.parse(numEl.dataset.pendFornList) : []) : [],
                     pcDataFat:            numEl ? (numEl.dataset.pcDataFat            || '') : '',
                     pcDataFinalCliente:   numEl ? (numEl.dataset.pcDataFinalCliente   || '') : '',
+                    pcStatus:             numEl ? (numEl.dataset.pcStatus            || '') : '',
                     lmaisNota: lmaisNota ? lmaisNota.value : '',
                     ncm: tr.querySelector('.w-ncm') ? tr.querySelector('.w-ncm').value : '',
                     st: parseFloat(tr.querySelector('.w-st') ? tr.querySelector('.w-st').value : 0) || 0,
@@ -10161,6 +10219,144 @@ De ${remetenteNome}
                     <td style="padding:8px 12px; font-size:0.78rem; color:${r.dataFimISO ? 'var(--success)' : 'var(--text-muted)'}; white-space:nowrap;">${r.dataFimStr}</td>
                 </tr>`;
             }).join('');
+        }
+
+        // ── ACOMPANHAMENTO DE PENDENTE DE COMPRA (PC) ──
+        function renderPendenteCompraGlobal() {
+            const opps     = DB.get('oportunidades');
+            const tbody    = document.getElementById('tb-pcomp-body');
+            const emptyMsg = document.getElementById('pcomp-empty');
+            if (!tbody) return;
+
+            const filCotacao   = (document.getElementById('pcomp-fil-cotacao')?.value   || '').toLowerCase().trim();
+            const filPov       = (document.getElementById('pcomp-fil-pov')?.value       || '').toLowerCase().trim();
+            const filCliente   = (document.getElementById('pcomp-fil-cliente')?.value   || '').toLowerCase().trim();
+            const filMarca     = (document.getElementById('pcomp-fil-marca')?.value     || '').toLowerCase().trim();
+            const filDesc      = (document.getElementById('pcomp-fil-desc')?.value      || '').toLowerCase().trim();
+            const filQtd       = (document.getElementById('pcomp-fil-qtd')?.value       || '').toLowerCase().trim();
+            const filStatus    = (document.getElementById('pcomp-fil-status')?.value    || '').toLowerCase().trim();
+            const filDataFat   = (document.getElementById('pcomp-fil-datafat')?.value   || '').toLowerCase().trim();
+            const filDataFinal = (document.getElementById('pcomp-fil-datafinal')?.value || '').toLowerCase().trim();
+
+            const rows = [];
+
+            opps.forEach(opp => {
+                if (!opp.items) return;
+                const cli = DB.findById('clientes', opp.clienteId);
+                const nomeCliente = cli ? cli.nome : '—';
+                const nrCotacao   = opp.id ? opp.id.slice(-6).toUpperCase() : '------';
+                const pov         = opp.pov || '—';
+
+                if (filCotacao && !nrCotacao.toLowerCase().includes(filCotacao)) return;
+                if (filPov     && !pov.toLowerCase().includes(filPov))           return;
+                if (filCliente && !nomeCliente.toLowerCase().includes(filCliente)) return;
+
+                opp.items.forEach((it, itemIdx) => {
+                    if (!(it.pcDataFat || it.pcDataFinalCliente || it.pcStatus)) return;
+
+                    const desc   = it.desc || '—';
+                    const marca  = it.marcaOfe || it.marcaSol || '—';
+                    const qtd    = it.qtd !== undefined ? it.qtd : '—';
+                    const status = it.pcStatus || 'Ag retorno';
+
+                    const dataFatISO   = it.pcDataFat || '';
+                    const dataFinalISO = it.pcDataFinalCliente || '';
+                    const dataFatStr   = dataFatISO   ? new Date(dataFatISO   + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
+                    const dataFinalStr = dataFinalISO ? new Date(dataFinalISO + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
+
+                    if (filMarca     && !marca.toLowerCase().includes(filMarca))         return;
+                    if (filDesc      && !desc.toLowerCase().includes(filDesc))           return;
+                    if (filQtd       && !String(qtd).toLowerCase().includes(filQtd))     return;
+                    if (filStatus    && !status.toLowerCase().includes(filStatus))       return;
+                    if (filDataFat   && !dataFatStr.toLowerCase().includes(filDataFat))     return;
+                    if (filDataFinal && !dataFinalStr.toLowerCase().includes(filDataFinal)) return;
+
+                    const badgeClass = status === 'Resolvido' ? 'pend-status-resolvido' :
+                                       status === 'Cancelado' ? 'pend-status-cancelado' :
+                                       'pend-status-agretorno';
+
+                    rows.push({ oppId: opp.id, itemIdx, nrCotacao, pov, nomeCliente, marca, desc, qtd,
+                        status, badgeClass, dataFatStr, dataFinalStr });
+                });
+            });
+
+            if (rows.length === 0) {
+                tbody.innerHTML = '';
+                emptyMsg.style.display = 'block';
+                return;
+            }
+            emptyMsg.style.display = 'none';
+
+            const ordemStatus = { 'Ag retorno': 0, 'Resolvido': 1, 'Cancelado': 2 };
+            rows.sort((a, b) => (ordemStatus[a.status] ?? 0) - (ordemStatus[b.status] ?? 0));
+
+            tbody.innerHTML = rows.map(r => `
+                <tr>
+                    <td style="padding:8px 12px; font-family:monospace; font-weight:700; color:var(--primary); font-size:0.85rem;">${r.nrCotacao}</td>
+                    <td style="padding:8px 12px; font-size:0.82rem;">${r.pov}</td>
+                    <td style="padding:8px 12px; font-size:0.82rem; font-weight:500;">${r.nomeCliente}</td>
+                    <td style="padding:8px 12px; font-size:0.82rem;">${r.marca}</td>
+                    <td style="padding:8px 12px; font-size:0.82rem; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${r.desc}">${r.desc}</td>
+                    <td style="padding:8px 12px; font-size:0.82rem;">${r.qtd}</td>
+                    <td style="padding:8px 12px;" title="Duplo clique para alterar">
+                        <span class="pend-status-badge ${r.badgeClass}" style="cursor:pointer;" ondblclick="abrirDropdownStatusPC(this, '${r.oppId}', ${r.itemIdx})">${r.status}</span>
+                    </td>
+                    <td style="padding:8px 12px; font-size:0.82rem; white-space:nowrap;">${r.dataFatStr}</td>
+                    <td style="padding:8px 12px; font-size:0.82rem; white-space:nowrap;">${r.dataFinalStr}</td>
+                </tr>`).join('');
+        }
+
+        // Duplo clique no Status: abre dropdown ancorado à própria linha clicada (this),
+        // garantindo que a alteração afete exclusivamente aquele item/oportunidade.
+        function abrirDropdownStatusPC(el, oppId, itemIdx) {
+            const antigoBox = document.getElementById('_dropdown-status-pc');
+            if (antigoBox) antigoBox.remove();
+            const antigoOverlay = document.getElementById('_dropdown-status-pc-overlay');
+            if (antigoOverlay) antigoOverlay.remove();
+
+            const rect = el.getBoundingClientRect();
+            const overlay = document.createElement('div');
+            overlay.id = '_dropdown-status-pc-overlay';
+            overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; z-index:6000;';
+            document.body.appendChild(overlay);
+
+            const opcoes = [
+                { valor: 'Ag retorno', classe: 'pend-status-agretorno' },
+                { valor: 'Resolvido',  classe: 'pend-status-resolvido' },
+                { valor: 'Cancelado',  classe: 'pend-status-cancelado' }
+            ];
+
+            const box = document.createElement('div');
+            box.id = '_dropdown-status-pc';
+            box.style.cssText = `position:fixed; top:${rect.bottom + 4}px; left:${rect.left}px; z-index:6001; background:#fff; border-radius:8px; box-shadow:0 12px 32px rgba(0,0,0,0.25); border:1px solid var(--border-color); overflow:hidden; min-width:150px;`;
+            box.innerHTML = opcoes.map(op => `
+                <div class="_status-pc-opcao" data-op="${op.valor}" style="padding:9px 14px; cursor:pointer;" onmouseover="this.style.background='#F3F4F6'" onmouseout="this.style.background=''">
+                    <span class="pend-status-badge ${op.classe}" style="pointer-events:none;">${op.valor}</span>
+                </div>`).join('');
+            document.body.appendChild(box);
+
+            function fecharDropdown() { box.remove(); overlay.remove(); }
+            overlay.onclick = fecharDropdown;
+
+            box.querySelectorAll('._status-pc-opcao').forEach(opEl => {
+                opEl.onclick = () => {
+                    const opp = DB.findById('oportunidades', oppId);
+                    if (opp && opp.items && opp.items[itemIdx]) {
+                        opp.items[itemIdx].pcStatus = opEl.dataset.op;
+                        DB.update('oportunidades', oppId, { items: opp.items });
+                    }
+                    fecharDropdown();
+                    renderPendenteCompraGlobal();
+                };
+            });
+        }
+
+        function _pcompLimparFiltros() {
+            ['pcomp-fil-cotacao','pcomp-fil-pov','pcomp-fil-cliente','pcomp-fil-marca','pcomp-fil-desc',
+             'pcomp-fil-qtd','pcomp-fil-status','pcomp-fil-datafat','pcomp-fil-datafinal'].forEach(id => {
+                const el = document.getElementById(id); if (el) el.value = '';
+            });
+            renderPendenteCompraGlobal();
         }
 
         function _gipLimparFiltros() {
