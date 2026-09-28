@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -1018,6 +1017,30 @@
                     <div class="v360-kpi-grid" id="v360-canal-cards" style="grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));"></div>
                 </div>
 
+                <!-- OPORTUNIDADE RANKING MARCAS (por estágio + gráfico dinâmico por período) -->
+                <div class="section-card" style="margin-bottom:20px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                        <span style="font-size:0.8rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;"><i class="fas fa-tags" style="color:#0035F7;"></i> Oportunidade Ranking Marcas — Por Estágio (Top 5)</span>
+                    </div>
+                    <div id="v360-rank-marca-estagios" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin-bottom:20px;"></div>
+                    <div style="border-top:1px solid var(--border-color); padding-top:16px;">
+                        <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px;"><i class="fas fa-chart-bar"></i> Marca Mais Procurada — Período Selecionado</div>
+                        <div id="v360-chart-marcas"></div>
+                    </div>
+                </div>
+
+                <!-- OPORTUNIDADE RANKING PRODUTOS (por estágio + gráfico dinâmico por período) -->
+                <div class="section-card" style="margin-bottom:20px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                        <span style="font-size:0.8rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;"><i class="fas fa-barcode" style="color:#0035F7;"></i> Oportunidade Ranking Produtos — Por Estágio (Top 5)</span>
+                    </div>
+                    <div id="v360-rank-produto-estagios" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin-bottom:20px;"></div>
+                    <div style="border-top:1px solid var(--border-color); padding-top:16px;">
+                        <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px;"><i class="fas fa-chart-bar"></i> Produto Mais Procurado — Período Selecionado</div>
+                        <div id="v360-chart-produtos"></div>
+                    </div>
+                </div>
+
                 <!-- TIPO DE FECHAMENTO DE OPORTUNIDADE -->
                 <div class="section-card" style="margin-bottom:20px;">
                     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
@@ -1122,6 +1145,104 @@
                                 <i class="fas fa-chart-bar" style="color:#6366F1;"></i> Média de Valor por Orçamento
                             </div>
                             <table class="v360-rank-table"><thead><tr><th>#</th><th>Vendedor</th><th>Ticket Médio</th></tr></thead><tbody id="v360-rank-media"></tbody></table>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- RANKING DE FORNECEDORES -->
+                <div class="section-card" style="margin-bottom:20px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+                        <span class="v360-section-title" style="margin:0;"><i class="fas fa-truck-loading" style="color:#0D9488;"></i> Ranking de Fornecedores</span>
+                    </div>
+                    <p style="font-size:0.72rem; color:var(--text-muted); margin:-6px 0 12px;">Baseado nos fornecedores associados em Itens Pendentes, no período selecionado.</p>
+                    <div style="overflow-x:auto;"><table class="v360-rank-table"><thead><tr><th>#</th><th>Fornecedor</th><th>Nº de Itens</th><th>Orçamentos</th></tr></thead><tbody id="v360-rank-fornecedores"></tbody></table></div>
+                </div>
+
+                <!-- RANKINGS DE MARCAS E PRODUTOS -->
+                <div class="section-card" style="margin-bottom:20px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; flex-wrap:wrap; gap:10px;">
+                        <span class="v360-section-title" style="margin:0;"><i class="fas fa-tags" style="color:#6366F1;"></i> Rankings de Marcas & Produtos — Período Selecionado</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
+
+                        <div>
+                            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; display:flex; align-items:center; gap:7px;">
+                                <i class="fas fa-star" style="color:#D97706;"></i> Marca Solicitada — Mais Procurada (Top 30)
+                            </div>
+                            <div style="font-size:0.68rem; color:var(--text-muted); margin:-6px 0 8px;">Marca pedida pelo cliente, em qualquer orçamento.</div>
+                            <table class="v360-rank-table"><thead><tr><th>#</th><th>Marca</th><th>Ocorrências</th></tr></thead><tbody id="v360-rank-marca-freq"></tbody></table>
+                        </div>
+
+                        <div>
+                            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; display:flex; align-items:center; gap:7px;">
+                                <i class="fas fa-tag" style="color:#6366F1;"></i> Marca Ofertada/Referência — Mais Utilizada (Top 30)
+                            </div>
+                            <div style="font-size:0.68rem; color:var(--text-muted); margin:-6px 0 8px;">Marca efetivamente cotada/oferecida, em qualquer orçamento.</div>
+                            <table class="v360-rank-table"><thead><tr><th>#</th><th>Marca</th><th>Ocorrências</th></tr></thead><tbody id="v360-rank-marca-ofe-freq"></tbody></table>
+                        </div>
+
+                        <div>
+                            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; display:flex; align-items:center; gap:7px;">
+                                <i class="fas fa-file-invoice" style="color:#0D9488;"></i> Qtd. de Orçamentos por Marca (Solicitada)
+                            </div>
+                            <table class="v360-rank-table"><thead><tr><th>#</th><th>Marca</th><th>Orçamentos</th></tr></thead><tbody id="v360-rank-marca-opp"></tbody></table>
+                        </div>
+
+                        <div>
+                            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; display:flex; align-items:center; gap:7px;">
+                                <i class="fas fa-box" style="color:var(--primary);"></i> Produto com Maior Frequência (Top 30)
+                            </div>
+                            <table class="v360-rank-table"><thead><tr><th>#</th><th>Código</th><th>Descrição</th><th>Frequência</th></tr></thead><tbody id="v360-rank-produto-freq"></tbody></table>
+                        </div>
+
+                        <div>
+                            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; display:flex; align-items:center; gap:7px;">
+                                <i class="fas fa-check-circle" style="color:var(--success);"></i> Marcas (Ofertada) — Maior Taxa de Ganho
+                            </div>
+                            <table class="v360-rank-table"><thead><tr><th>#</th><th>Marca</th><th>Ganhos/Total</th><th>Taxa</th></tr></thead><tbody id="v360-rank-marca-ganho"></tbody></table>
+                        </div>
+
+                        <div>
+                            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; display:flex; align-items:center; gap:7px;">
+                                <i class="fas fa-times-circle" style="color:var(--danger);"></i> Marcas (Ofertada) — Maior Taxa de Perda
+                            </div>
+                            <table class="v360-rank-table"><thead><tr><th>#</th><th>Marca</th><th>Perdidos/Total</th><th>Taxa</th></tr></thead><tbody id="v360-rank-marca-perda"></tbody></table>
+                        </div>
+
+                        <div>
+                            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; display:flex; align-items:center; gap:7px;">
+                                <i class="fas fa-chart-line" style="color:var(--success);"></i> Marcas (Ofertada) — Maior Margem (Ganhos)
+                            </div>
+                            <table class="v360-rank-table"><thead><tr><th>#</th><th>Marca</th><th>Margem Média</th><th>Lucro Total</th></tr></thead><tbody id="v360-rank-marca-margem"></tbody></table>
+                        </div>
+
+                        <div>
+                            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; display:flex; align-items:center; gap:7px;">
+                                <i class="fas fa-arrow-up" style="color:var(--success);"></i> Produtos — Maior Margem (Top 30, Ganhos)
+                            </div>
+                            <table class="v360-rank-table"><thead><tr><th>#</th><th>Código</th><th>Descrição</th><th>Margem Média</th><th>Lucro Total</th></tr></thead><tbody id="v360-rank-produto-margem-maior"></tbody></table>
+                        </div>
+
+                        <div>
+                            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; display:flex; align-items:center; gap:7px;">
+                                <i class="fas fa-arrow-down" style="color:var(--danger);"></i> Produtos — Menor Margem (Top 30, Ganhos)
+                            </div>
+                            <table class="v360-rank-table"><thead><tr><th>#</th><th>Código</th><th>Descrição</th><th>Margem Média</th><th>Lucro Total</th></tr></thead><tbody id="v360-rank-produto-margem-menor"></tbody></table>
+                        </div>
+
+                        <div>
+                            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; display:flex; align-items:center; gap:7px;">
+                                <i class="fas fa-bolt" style="color:#0D9488;"></i> Produtos — Menor Tempo Início→Fechamento (Top 30, Ganhos)
+                            </div>
+                            <table class="v360-rank-table"><thead><tr><th>#</th><th>Código</th><th>Descrição</th><th>Tempo Médio</th></tr></thead><tbody id="v360-rank-produto-tempo"></tbody></table>
+                        </div>
+
+                        <div>
+                            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; display:flex; align-items:center; gap:7px;">
+                                <i class="fas fa-bolt" style="color:#6366F1;"></i> Marcas (Ofertada) — Menor Tempo Início→Fechamento (Ganhos)
+                            </div>
+                            <table class="v360-rank-table"><thead><tr><th>#</th><th>Marca</th><th>Tempo Médio</th></tr></thead><tbody id="v360-rank-marca-tempo"></tbody></table>
                         </div>
 
                     </div>
@@ -2501,7 +2622,7 @@
         // Colunas permitidas por tabela no Supabase (apenas estas são enviadas)
         const _SUPABASE_COLS = {
             clientes:      ['id','nome','doc','ie','im','uf','cidade','endereco','cep','numero','complemento','segmento','potencial','tipoCliente','tipoArea','tipoEstabelecimento','contato','contatos','dados_empresa','criado_por','criado_por_id','criado_em','atualizado_em','autorizacao_vinculo','cod_matriz','cod_filial'],
-            oportunidades: ['id','titulo','cliente_id','stage','criado_por','criado_por_id','criado_em','atualizado_em','notas','tarefas','items','history','motivo_perdido','obs_perdido','fechado_em','worktable','valor_total','canal','analise_dir','pov'],
+            oportunidades: ['id','titulo','cliente_id','stage','criado_por','criado_por_id','criado_em','atualizado_em','notas','tarefas','items','history','motivo_perdido','obs_perdido','fechado_em','worktable','valor_total','canal','analise_dir','pov','pc','dav'],
             usuarios:      ['id','nome','sobrenome','email','senha','nivel','area','direto_para','direto_assistente','criado_em'],
             produtos:      ['id','ncm','codigo','marca','descricao','icms','ipi','custo_base','criado_em'],
             fornecedores:  ['id','nome','email','telefone','pessoa_contato','criado_em'],
@@ -5651,7 +5772,20 @@ Data/Hora: ${autorData}`);
                 <div class="opp-info-row"><span>Canal</span><span>${opp.canal || '-'}</span></div>
                 <div class="opp-info-row"><span>Stage</span><span style="color:var(--primary); font-weight:700;">${opp.stage}</span></div>
                 ${exibirNrCotacao ? `<div class="opp-info-row"><span>Nº Cotação</span><span style="font-family:monospace; font-weight:700; color:var(--primary);">${nrCotacaoOpp}</span></div>` : ''}
-                <div class="opp-info-row"><span>POV</span><span><input type="text" id="opp-pov-input" class="wt-input-cell" style="padding:4px 8px; font-size:0.8rem;" placeholder="Opcional" value="${opp.pov || ''}" onchange="salvarPovOportunidade('${opp.id}', this.value)"></span></div>
+                <div class="opp-info-row"><span style="display:flex; gap:6px;">
+                    <span style="display:flex; flex-direction:column; gap:2px; flex:1; min-width:0;">
+                        <span style="font-size:0.7rem; font-weight:600; color:var(--text-muted); text-transform:uppercase;">PC</span>
+                        <input type="text" id="opp-pc-input" class="wt-input-cell" style="padding:4px 6px; font-size:0.76rem; width:100%;" title="PC — Pedido de Compra" value="${opp.pc || ''}" onchange="salvarPcOportunidade('${opp.id}', this.value)">
+                    </span>
+                    <span style="display:flex; flex-direction:column; gap:2px; flex:1; min-width:0;">
+                        <span style="font-size:0.7rem; font-weight:600; color:var(--text-muted); text-transform:uppercase;">POV</span>
+                        <input type="text" id="opp-pov-input" class="wt-input-cell" style="padding:4px 6px; font-size:0.76rem; width:100%;" title="POV" value="${opp.pov || ''}" onchange="salvarPovOportunidade('${opp.id}', this.value)">
+                    </span>
+                    <span style="display:flex; flex-direction:column; gap:2px; flex:1; min-width:0;">
+                        <span style="font-size:0.7rem; font-weight:600; color:var(--text-muted); text-transform:uppercase;">DAV</span>
+                        <input type="text" id="opp-dav-input" class="wt-input-cell" style="padding:4px 6px; font-size:0.76rem; width:100%;" title="DAV" value="${opp.dav || ''}" onchange="salvarDavOportunidade('${opp.id}', this.value)">
+                    </span>
+                </span></div>
                 <div class="opp-info-row"><span>Responsável</span><span style="color:var(--text-main); font-weight:600;">${nomeResponsavel}</span></div>
                 ${oppsHtml}
             ` : '<p style="color:var(--text-muted); font-size:0.8rem;">Cliente não encontrado.</p>';
@@ -5694,6 +5828,16 @@ Data/Hora: ${autorData}`);
         // Grava o POV (opcional) da Oportunidade/Cotação — auto-save ao sair do campo
         async function salvarPovOportunidade(oppId, valor) {
             await DB.update('oportunidades', oppId, { pov: (valor || '').trim() });
+        }
+
+        // Grava o PC / OC — Pedido de Compra (opcional) da Oportunidade/Cotação — auto-save ao sair do campo
+        async function salvarPcOportunidade(oppId, valor) {
+            await DB.update('oportunidades', oppId, { pc: (valor || '').trim() });
+        }
+
+        // Grava o DAV (opcional) da Oportunidade/Cotação — auto-save ao sair do campo
+        async function salvarDavOportunidade(oppId, valor) {
+            await DB.update('oportunidades', oppId, { dav: (valor || '').trim() });
         }
 
         function atualizarBtnAgendarOpp(opp) {
@@ -6814,7 +6958,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                         </div>
                         <div style="display:flex; align-items:center; gap:4px;">
                             <span style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; width:56px; text-align:right; flex-shrink:0;">Prazo Ent.</span>
-                            <input type="number" min="0" class="wt-input-cell w-prazo-ent wt-cell-sm" value="${data.prazoEnt || ''}" placeholder="0" style="flex:1; min-width:0; width:38px;">
+                            <input type="text" class="wt-input-cell w-prazo-ent wt-cell-sm" value="${data.prazoEnt || ''}" placeholder="0" style="flex:1; min-width:0; width:38px;" oninput="this.value = this.value.toUpperCase()">
                             <span style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; flex-shrink:0;">dias</span>
                         </div>
                     </div>
@@ -9247,6 +9391,8 @@ De ${remetenteNome}
         let _v360CustomEnd   = null; // Date object or null
         let _v360FiltroModo  = 'todos'; // 'todos' | 'hierarquia' | 'usuario'
         let _v360OppsAtuais  = []; // oportunidades filtradas na última renderização de calcVisao360()
+        let _v360RankMarcaPorEstagio   = {}; // { estagio: [{valor, qtd, oppIds}] } — Top 5 por estágio
+        let _v360RankProdutoPorEstagio = {}; // idem, por código de produto
 
         function v360ToggleCustomDate(btn) {
             const row = document.getElementById('v360-custom-date-row');
@@ -9297,8 +9443,9 @@ De ${remetenteNome}
             if (!bar) return;
 
             const todos = DB.get('usuarios');
-            // Usuários filtraveis: todos exceto Admin/2/3
-            const membros = todos.filter(u => u.nivel !== '2' && u.nivel !== '3' && u.nivel !== 'Admin');
+            // Usuários filtraveis: todos exceto Gestores (Nível 2) — Admin e Diretoria (Nível 3)
+            // agora são selecionáveis para permitir consultar oportunidades criadas por eles
+            const membros = todos.filter(u => u.nivel !== '2');
 
             bar.style.display = 'flex';
 
@@ -9375,8 +9522,8 @@ De ${remetenteNome}
             // Retorna null = sem restrição, ou Set de IDs
             if (_v360FiltroModo === 'todos') return null;
             if (_v360FiltroModo === 'hierarquia') {
-                // Todos do time comercial e não-comercial exceto Admin/2/3
-                return new Set(usuarios.filter(u => u.nivel !== '2' && u.nivel !== '3' && u.nivel !== 'Admin').map(u => u.id));
+                // Todos os usuários exceto Nível 2 (Gerencial) — Admin e Diretoria (Nível 3) incluídos no filtro
+                return new Set(usuarios.filter(u => u.nivel !== '2').map(u => u.id));
             }
             if (_v360FiltroModo === 'usuario') {
                 const sel = document.getElementById('v360-filtro-usuario')?.value;
@@ -9430,6 +9577,48 @@ De ${remetenteNome}
             if (h > 0) return `${h}h ${m}m`;
             if (m > 0) return `${m}m ${s}s`;
             return `${s}s`;
+        }
+
+        // Marca efetiva do item: prioriza Ofertada, cai para Solicitada se vazia
+        function _v360ItemMarca(it) {
+            const ofe = (it.marcaOfe || '').trim();
+            if (ofe) return ofe;
+            return (it.marcaSol || '').trim();
+        }
+
+        // Código de produto efetivo do item
+        function _v360ItemCodigo(it) {
+            return (it.codigo || '').trim();
+        }
+
+        // Drilldown ao clicar no número de um card de Ranking Marcas/Produtos — reutiliza o modal do funil
+        function _v360AbrirRankingDetalhe(tipo, stage, valor) {
+            const oppsEstagio = (_v360OppsAtuais || []).filter(o => o.stage === stage);
+            const oppsFiltrados = oppsEstagio.filter(o => (o.items || []).some(it =>
+                tipo === 'marca' ? _v360ItemMarca(it) === valor : _v360ItemCodigo(it) === valor
+            ));
+
+            const titulo = document.getElementById('v360-funil-detalhe-titulo');
+            const sub = document.getElementById('v360-funil-detalhe-sub');
+            const tbody = document.getElementById('v360-funil-detalhe-tbody');
+            if (titulo) titulo.textContent = tipo === 'marca' ? `Orçamentos — Marca ${valor}` : `Orçamentos — Produto ${valor}`;
+            if (sub) sub.textContent = `Estágio: ${stage} (${oppsFiltrados.length} orçamento${oppsFiltrados.length === 1 ? '' : 's'})`;
+            if (tbody) {
+                tbody.innerHTML = oppsFiltrados.length === 0
+                    ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Nenhum orçamento encontrado.</td></tr>'
+                    : oppsFiltrados.map(o => {
+                        const nrCotacao = o.id ? o.id.slice(-6).toUpperCase() : '------';
+                        const cli = DB.findById('clientes', o.clienteId);
+                        const nomeCliente = cli ? cli.nome : '—';
+                        return `<tr>
+                            <td><a href="#" onclick="_v360FecharFunilDetalhe(); openOppPage('${o.id}'); return false;" style="color:var(--primary); font-weight:700; font-family:monospace; text-decoration:underline dotted;" title="Abrir oportunidade">${nrCotacao}</a></td>
+                            <td>${nomeCliente}</td>
+                            <td>${_v360FmtBRL(o.valorTotal||0)}</td>
+                            <td>${o.createdAt ? new Date(o.createdAt).toLocaleDateString('pt-BR') : '—'}</td>
+                        </tr>`;
+                    }).join('');
+            }
+            document.getElementById('modal-v360-funil-detalhe').style.display = 'flex';
         }
 
         function _v360GetMetas() {
@@ -9499,6 +9688,11 @@ De ${remetenteNome}
             const idsAtivos = isAlto ? _v360GetIdsAtivos(usuarios) : null;
             const opps = idsAtivos === null ? todasOpps : todasOpps.filter(o => idsAtivos.has(o.criadoPorId));
             _v360OppsAtuais = opps;
+
+            // Usuário Admin/Diretoria selecionado no filtro 'Por usuário' (se houver) — usado para
+            // incluí-lo nas categorias de ranking abaixo, que normalmente listam só o time comercial
+            const usrSelAtivo = (_v360FiltroModo === 'usuario') ? (document.getElementById('v360-filtro-usuario')?.value || null) : null;
+            const _ehAdminDir = (u) => u.nivel === 'Admin' || u.nivel === '3';
 
             const { start, end } = _v360PeriodRange();
             const metas = _v360GetMetas();
@@ -9649,6 +9843,151 @@ De ${remetenteNome}
                 }
             }
 
+            // ── RANKING MARCAS / PRODUTOS POR ESTÁGIO (sem filtro de período — mesma base do funil) ──
+            _v360RankMarcaPorEstagio = {};
+            _v360RankProdutoPorEstagio = {};
+            STAGES.forEach(st => {
+                const oppsEstagio = opps.filter(o => o.stage === st);
+                const marcaMap = {};
+                const prodMap  = {};
+                oppsEstagio.forEach(o => {
+                    const marcasNoOpp = new Set();
+                    const codigosNoOpp = new Set();
+                    (o.items || []).forEach(it => {
+                        const m = _v360ItemMarca(it);
+                        if (m) marcasNoOpp.add(m);
+                        const c = _v360ItemCodigo(it);
+                        if (c) codigosNoOpp.add(c);
+                    });
+                    marcasNoOpp.forEach(m => {
+                        if (!marcaMap[m]) marcaMap[m] = { qtd: 0, oppIds: [] };
+                        marcaMap[m].qtd++;
+                        marcaMap[m].oppIds.push(o.id);
+                    });
+                    codigosNoOpp.forEach(c => {
+                        if (!prodMap[c]) prodMap[c] = { qtd: 0, oppIds: [] };
+                        prodMap[c].qtd++;
+                        prodMap[c].oppIds.push(o.id);
+                    });
+                });
+                _v360RankMarcaPorEstagio[st] = Object.entries(marcaMap)
+                    .map(([valor, d]) => ({ valor, qtd: d.qtd, oppIds: d.oppIds }))
+                    .sort((a, b) => b.qtd - a.qtd)
+                    .slice(0, 5);
+                _v360RankProdutoPorEstagio[st] = Object.entries(prodMap)
+                    .map(([valor, d]) => ({ valor, qtd: d.qtd, oppIds: d.oppIds }))
+                    .sort((a, b) => b.qtd - a.qtd)
+                    .slice(0, 5);
+            });
+
+            const rankMarcaWrap = document.getElementById('v360-rank-marca-estagios');
+            if (rankMarcaWrap) {
+                rankMarcaWrap.innerHTML = STAGES.map(st => {
+                    const lista = _v360RankMarcaPorEstagio[st];
+                    const cor = stageColors[st] || '#6B7280';
+                    const maxQtd = lista.length > 0 ? lista[0].qtd : 1;
+                    return `<div class="v360-fech-block">
+                        <h4><i class="fas fa-tag" style="color:${cor};"></i> ${st}</h4>
+                        ${lista.length === 0
+                            ? `<p style="font-size:0.78rem; color:var(--text-muted);">Nenhuma marca neste estágio.</p>`
+                            : lista.map((r, i) => {
+                                const pct = ((r.qtd / maxQtd) * 100).toFixed(0);
+                                return `<div class="v360-fech-row">
+                                    <span class="v360-fech-pos">${i+1}</span>
+                                    <span class="v360-fech-nome">${r.valor}</span>
+                                    <div class="v360-fech-bar-wrap">
+                                        <div class="v360-fech-bar-bg"><div class="v360-fech-bar-fill" style="width:${pct}%; background:${cor};"></div></div>
+                                    </div>
+                                    <span class="v360-fech-count" style="color:${cor}; cursor:pointer; text-decoration:underline dotted;" onclick="_v360AbrirRankingDetalhe('marca','${st.replace(/'/g,"\\'")}','${r.valor.replace(/'/g,"\\'")}')" title="Ver orçamentos">${r.qtd}</span>
+                                </div>`;
+                            }).join('')
+                        }
+                    </div>`;
+                }).join('');
+            }
+
+            const rankProdutoWrap = document.getElementById('v360-rank-produto-estagios');
+            if (rankProdutoWrap) {
+                rankProdutoWrap.innerHTML = STAGES.map(st => {
+                    const lista = _v360RankProdutoPorEstagio[st];
+                    const cor = stageColors[st] || '#6B7280';
+                    const maxQtd = lista.length > 0 ? lista[0].qtd : 1;
+                    return `<div class="v360-fech-block">
+                        <h4><i class="fas fa-barcode" style="color:${cor};"></i> ${st}</h4>
+                        ${lista.length === 0
+                            ? `<p style="font-size:0.78rem; color:var(--text-muted);">Nenhum produto neste estágio.</p>`
+                            : lista.map((r, i) => {
+                                const pct = ((r.qtd / maxQtd) * 100).toFixed(0);
+                                return `<div class="v360-fech-row">
+                                    <span class="v360-fech-pos">${i+1}</span>
+                                    <span class="v360-fech-nome" style="font-family:monospace;">${r.valor}</span>
+                                    <div class="v360-fech-bar-wrap">
+                                        <div class="v360-fech-bar-bg"><div class="v360-fech-bar-fill" style="width:${pct}%; background:${cor};"></div></div>
+                                    </div>
+                                    <span class="v360-fech-count" style="color:${cor}; cursor:pointer; text-decoration:underline dotted;" onclick="_v360AbrirRankingDetalhe('produto','${st.replace(/'/g,"\\'")}','${r.valor.replace(/'/g,"\\'")}')" title="Ver orçamentos">${r.qtd}</span>
+                                </div>`;
+                            }).join('')
+                        }
+                    </div>`;
+                }).join('');
+            }
+
+            // ── GRÁFICO DE BARRAS DINÂMICO (muda conforme período) — todos os estágios juntos ──
+            (function() {
+                const marcaMapPeriodo = {};
+                const prodMapPeriodo  = {};
+                criadosNoPeriodo.forEach(o => {
+                    const marcasNoOpp = new Set();
+                    const codigosNoOpp = new Set();
+                    (o.items || []).forEach(it => {
+                        const m = _v360ItemMarca(it);
+                        if (m) marcasNoOpp.add(m);
+                        const c = _v360ItemCodigo(it);
+                        if (c) codigosNoOpp.add(c);
+                    });
+                    marcasNoOpp.forEach(m => { marcaMapPeriodo[m] = (marcaMapPeriodo[m] || 0) + 1; });
+                    codigosNoOpp.forEach(c => { prodMapPeriodo[c] = (prodMapPeriodo[c] || 0) + 1; });
+                });
+
+                const cores = ['#0035F7','#0D9488','#6366F1','#D97706','#10B981','#EF4444','#8B5CF6','#0891B2','#DC2626','#059669'];
+
+                const chartMarcaEl = document.getElementById('v360-chart-marcas');
+                if (chartMarcaEl) {
+                    const rank = Object.entries(marcaMapPeriodo).sort((a,b) => b[1]-a[1]).slice(0, 10);
+                    const max = rank.length > 0 ? rank[0][1] : 1;
+                    chartMarcaEl.innerHTML = rank.length === 0
+                        ? `<p style="font-size:0.82rem; color:var(--text-muted); padding:8px 0;">Nenhuma marca no período selecionado.</p>`
+                        : rank.map(([marca, qtd], i) => {
+                            const pct = ((qtd / max) * 100).toFixed(1);
+                            return `<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                                <span style="width:150px; font-size:0.78rem; font-weight:600; color:var(--text-main); flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${marca}">${marca}</span>
+                                <div style="flex:1; background:#F3F4F6; border-radius:6px; height:20px; overflow:hidden;">
+                                    <div style="height:100%; width:${pct}%; background:${cores[i % cores.length]}; border-radius:6px; transition:width 0.4s;"></div>
+                                </div>
+                                <span style="width:32px; text-align:right; font-size:0.8rem; font-weight:800; color:var(--text-main); flex-shrink:0;">${qtd}</span>
+                            </div>`;
+                        }).join('');
+                }
+
+                const chartProdutoEl = document.getElementById('v360-chart-produtos');
+                if (chartProdutoEl) {
+                    const rank = Object.entries(prodMapPeriodo).sort((a,b) => b[1]-a[1]).slice(0, 10);
+                    const max = rank.length > 0 ? rank[0][1] : 1;
+                    chartProdutoEl.innerHTML = rank.length === 0
+                        ? `<p style="font-size:0.82rem; color:var(--text-muted); padding:8px 0;">Nenhum produto no período selecionado.</p>`
+                        : rank.map(([codigo, qtd], i) => {
+                            const pct = ((qtd / max) * 100).toFixed(1);
+                            return `<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                                <span style="width:150px; font-size:0.78rem; font-weight:600; color:var(--text-main); flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:monospace;" title="${codigo}">${codigo}</span>
+                                <div style="flex:1; background:#F3F4F6; border-radius:6px; height:20px; overflow:hidden;">
+                                    <div style="height:100%; width:${pct}%; background:${cores[i % cores.length]}; border-radius:6px; transition:width 0.4s;"></div>
+                                </div>
+                                <span style="width:32px; text-align:right; font-size:0.8rem; font-weight:800; color:var(--text-main); flex-shrink:0;">${qtd}</span>
+                            </div>`;
+                        }).join('');
+                }
+            })();
+
             // TIPO DE FECHAMENTO — INTELIGÊNCIA DE NEGÓCIO
             const fechWrap = document.getElementById('v360-fechamento-wrap');
             if (fechWrap) {
@@ -9724,12 +10063,13 @@ De ${remetenteNome}
             // RANKING FATURAMENTO
             const tbFat = document.getElementById('v360-tb-rank-fat');
             if (tbFat) {
-                const rankFat = usuarios.filter(u => u.nivel === '1').map(u => {
+                const rankFat = usuarios.filter(u => u.nivel === '1' || (usrSelAtivo && u.id === usrSelAtivo && _ehAdminDir(u))).map(u => {
                     const nome = u.nome + (u.sobrenome ? ' ' + u.sobrenome : '');
+                    const nivelLabel = u.nivel === 'Admin' ? 'Admin' : u.nivel === '3' ? 'Diretoria' : 'Nível 1';
                     const minhasGanhas = oppsGanhas.filter(o => o.criadoPorId === u.id);
                     const fat = minhasGanhas.reduce((a,o)=>a+(o.valorTotal||0),0);
                     const ticket = minhasGanhas.length > 0 ? fat/minhasGanhas.length : 0;
-                    return { nome, fat, qtd: minhasGanhas.length, ticket };
+                    return { nome, nivelLabel, fat, qtd: minhasGanhas.length, ticket };
                 }).sort((a,b) => b.fat - a.fat);
                 tbFat.innerHTML = rankFat.length === 0
                     ? `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhum dado disponível.</td></tr>`
@@ -9737,7 +10077,7 @@ De ${remetenteNome}
                         const bClass = i===0?'v360-rank-1':i===1?'v360-rank-2':i===2?'v360-rank-3':'v360-rank-n';
                         return `<tr><td><span class="v360-rank-badge ${bClass}">${i+1}</span></td>
                             <td style="font-weight:700;">${r.nome}</td>
-                            <td><span style="font-size:0.7rem; background:#E0E7FF; color:#4338CA; padding:2px 8px; border-radius:10px; font-weight:700;">Nível 1</span></td>
+                            <td><span style="font-size:0.7rem; background:#E0E7FF; color:#4338CA; padding:2px 8px; border-radius:10px; font-weight:700;">${r.nivelLabel}</span></td>
                             <td style="font-weight:700; color:var(--primary);">${_v360FmtBRL(r.fat)}</td>
                             <td>${r.qtd}</td>
                             <td>${r.ticket > 0 ? _v360FmtBRL(r.ticket) : '—'}</td>
@@ -9748,8 +10088,9 @@ De ${remetenteNome}
             // RANKING RENTABILIDADE (usa margem armazenada nos items se disponível)
             const tbRent = document.getElementById('v360-tb-rank-rent');
             if (tbRent) {
-                const rankRent = usuarios.filter(u => u.nivel === '1').map(u => {
+                const rankRent = usuarios.filter(u => u.nivel === '1' || (usrSelAtivo && u.id === usrSelAtivo && _ehAdminDir(u))).map(u => {
                     const nome = u.nome + (u.sobrenome ? ' ' + u.sobrenome : '');
+                    const nivelLabel = u.nivel === 'Admin' ? 'Admin' : u.nivel === '3' ? 'Diretoria' : 'Nível 1';
                     const minhasGanhas = oppsGanhas.filter(o => o.criadoPorId === u.id);
                     // Calcula margem média dos items se disponível
                     let totalMargem = 0, countMargem = 0, lucroTotal = 0;
@@ -9765,7 +10106,7 @@ De ${remetenteNome}
                         });
                     });
                     const margemMedia = countMargem > 0 ? (totalMargem/countMargem) : 0;
-                    return { nome, margemMedia, lucroTotal, qtd: minhasGanhas.length };
+                    return { nome, nivelLabel, margemMedia, lucroTotal, qtd: minhasGanhas.length };
                 }).sort((a,b) => b.margemMedia - a.margemMedia);
                 tbRent.innerHTML = rankRent.length === 0
                     ? `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhum dado disponível.</td></tr>`
@@ -9774,7 +10115,7 @@ De ${remetenteNome}
                         const mColor = r.margemMedia >= 20 ? 'var(--success)' : r.margemMedia >= 10 ? 'var(--pending)' : 'var(--danger)';
                         return `<tr><td><span class="v360-rank-badge ${bClass}">${i+1}</span></td>
                             <td style="font-weight:700;">${r.nome}</td>
-                            <td><span style="font-size:0.7rem; background:#E0E7FF; color:#4338CA; padding:2px 8px; border-radius:10px; font-weight:700;">Nível 1</span></td>
+                            <td><span style="font-size:0.7rem; background:#E0E7FF; color:#4338CA; padding:2px 8px; border-radius:10px; font-weight:700;">${r.nivelLabel}</span></td>
                             <td style="font-weight:700; color:${mColor};">${r.margemMedia > 0 ? r.margemMedia.toFixed(1)+'%' : '—'}</td>
                             <td style="color:var(--success);">${r.lucroTotal > 0 ? _v360FmtBRL(r.lucroTotal) : '—'}</td>
                             <td>${r.qtd}</td>
@@ -9823,7 +10164,7 @@ De ${remetenteNome}
             const tbCom = document.getElementById('v360-tb-com');
             const incAss = document.getElementById('v360-com-com-ass')?.checked || false;
             if (tbCom) {
-                const comerciais = usuarios.filter(u => u.nivel === '1');
+                const comerciais = usuarios.filter(u => u.nivel === '1' || (usrSelAtivo && u.id === usrSelAtivo && _ehAdminDir(u)));
                 const rows = comerciais.map(u => {
                     const nome = u.nome + (u.sobrenome ? ' ' + u.sobrenome : '');
                     const proprias = opps.filter(o => o.criadoPorId === u.id);
@@ -9940,7 +10281,7 @@ De ${remetenteNome}
             // TIMER — TEMPO GASTO POR ORÇAMENTO
             const tbTimer = document.getElementById('v360-tb-timer');
             if (tbTimer) {
-                const comerciaisAll = usuarios.filter(u => ['1','assistente','externo'].includes(u.nivel));
+                const comerciaisAll = usuarios.filter(u => ['1','assistente','externo'].includes(u.nivel) || (usrSelAtivo && u.id === usrSelAtivo && _ehAdminDir(u)));
                 const rows = comerciaisAll.map(u => {
                     const nome = u.nome + (u.sobrenome ? ' '+u.sobrenome : '');
                     const minhasOpps = opps.filter(o => o.criadoPorId === u.id);
@@ -9978,7 +10319,7 @@ De ${remetenteNome}
             // RANKING DE ORÇAMENTOS — Período selecionado
             (function() {
                 // Todos os comerciais/assistentes/externos cadastrados
-                const vendedores = usuarios.filter(u => ['1','assistente','externo','staff'].includes(u.nivel));
+                const vendedores = usuarios.filter(u => ['1','assistente','externo','staff'].includes(u.nivel) || (usrSelAtivo && u.id === usrSelAtivo && _ehAdminDir(u)));
 
                 // Opps criadas no período (qualquer stage)
                 const oppsRankPeriodo = opps.filter(o => _v360InPeriod(o.createdAt));
@@ -10002,8 +10343,8 @@ De ${remetenteNome}
                     return `<span class="v360-rank-badge ${cls}">${i+1}</span>`;
                 };
                 const nivelTag = (n) => {
-                    const map = {'1':'Nível 1','assistente':'Assistente','externo':'Externo','staff':'Staff'};
-                    const colors = {'1':'#E0E7FF:#4338CA','assistente':'#D1FAE5:#065F46','externo':'#FEF3C7:#92400E','staff':'#F3F4F6:#374151'};
+                    const map = {'1':'Nível 1','assistente':'Assistente','externo':'Externo','staff':'Staff','Admin':'Admin','3':'Diretoria'};
+                    const colors = {'1':'#E0E7FF:#4338CA','assistente':'#D1FAE5:#065F46','externo':'#FEF3C7:#92400E','staff':'#F3F4F6:#374151','Admin':'#FEE2E2:#991B1B','3':'#EDE9FE:#6D28D9'};
                     const [bg, col] = (colors[n]||'#F3F4F6:#374151').split(':');
                     return `<span style="font-size:0.65rem; background:${bg}; color:${col}; padding:2px 7px; border-radius:8px; font-weight:700;">${map[n]||n}</span>`;
                 };
@@ -10051,6 +10392,232 @@ De ${remetenteNome}
                         <td>${badge(i)}</td>
                         <td><span style="font-weight:700;">${r.nome}</span> ${nivelTag(r.nivel)}</td>
                         <td style="font-weight:800; color:#6366F1;">${_v360FmtBRL(r.media)}</td>
+                    </tr>`).join('');
+                }
+
+                // ── RANKING DE FORNECEDORES, MARCAS E PRODUTOS — mesmo período selecionado ──
+                const fornecedorMap = {};
+                const marcaSolMap = {};   // Marca Solicitada (demanda do cliente) — frequência/orçamentos
+                const marcaOfeMap = {};   // Marca Ofertada/Referência — ligada ao resultado (ganho/perda/margem/tempo)
+                const produtoMap = {};
+
+                oppsRankPeriodo.forEach(o => {
+                    const isGanho = o.stage === 'Ganho';
+                    const isPerdido = o.stage === 'Perdido';
+                    const diasFechamento = (isGanho && o.fechadoEm && o.createdAt)
+                        ? Math.max(0, Math.round((new Date(o.fechadoEm) - new Date(o.createdAt)) / 86400000))
+                        : null;
+
+                    (o.items || []).forEach(it => {
+                        const marcaSol = (it.marcaSol || '').trim();
+                        const marcaOfe = (it.marcaOfe || '').trim();
+                        const codigo = (it.codigo || '').trim();
+                        const desc   = (it.desc || '').trim();
+                        const vt     = parseFloat(it.vtotal || it.pvenda || 0);
+                        const lucro  = parseFloat(it.lucro || 0);
+                        const temMargem  = vt > 0 && lucro !== 0;
+                        const margemPct  = temMargem ? (lucro/vt)*100 : null;
+                        const fornNome   = (it.pendFornNome || '').trim();
+
+                        if (fornNome) {
+                            if (!fornecedorMap[fornNome]) fornecedorMap[fornNome] = { nome: fornNome, itens: 0, oppsSet: new Set() };
+                            fornecedorMap[fornNome].itens++;
+                            fornecedorMap[fornNome].oppsSet.add(o.id);
+                        }
+
+                        // Marca Solicitada — demanda do cliente, só frequência/orçamentos
+                        if (marcaSol) {
+                            if (!marcaSolMap[marcaSol]) marcaSolMap[marcaSol] = { nome: marcaSol, ocorrencias: 0, oppsSet: new Set() };
+                            const ms = marcaSolMap[marcaSol];
+                            ms.ocorrencias++;
+                            ms.oppsSet.add(o.id);
+                        }
+
+                        // Marca Ofertada — efetivamente cotada, ligada ao resultado do orçamento
+                        if (marcaOfe) {
+                            if (!marcaOfeMap[marcaOfe]) marcaOfeMap[marcaOfe] = { nome: marcaOfe, ocorrencias: 0, oppsSet: new Set(), oppsGanhoSet: new Set(), oppsPerdidoSet: new Set(), somaMargem: 0, countMargem: 0, lucroTotal: 0, somaDias: 0, countDias: 0 };
+                            const mo = marcaOfeMap[marcaOfe];
+                            mo.ocorrencias++;
+                            mo.oppsSet.add(o.id);
+                            if (isGanho) mo.oppsGanhoSet.add(o.id);
+                            if (isPerdido) mo.oppsPerdidoSet.add(o.id);
+                            if (isGanho && temMargem) { mo.somaMargem += margemPct; mo.countMargem++; mo.lucroTotal += lucro; }
+                            if (isGanho && diasFechamento !== null) { mo.somaDias += diasFechamento; mo.countDias++; }
+                        }
+
+                        if (codigo || desc) {
+                            const chave = codigo || ('__desc__' + desc);
+                            if (!produtoMap[chave]) produtoMap[chave] = { codigo: codigo || '—', desc: desc || '—', ocorrencias: 0, somaMargem: 0, countMargem: 0, lucroTotal: 0, somaDias: 0, countDias: 0 };
+                            const p = produtoMap[chave];
+                            p.ocorrencias++;
+                            if (isGanho && temMargem) { p.somaMargem += margemPct; p.countMargem++; p.lucroTotal += lucro; }
+                            if (isGanho && diasFechamento !== null) { p.somaDias += diasFechamento; p.countDias++; }
+                        }
+                    });
+                });
+
+                const fornecedores = Object.values(fornecedorMap).map(f => ({ nome: f.nome, itens: f.itens, orcamentos: f.oppsSet.size })).sort((a,b) => b.itens - a.itens);
+                const marcasSol = Object.values(marcaSolMap);
+                const marcasOfe = Object.values(marcaOfeMap);
+                const produtos  = Object.values(produtoMap);
+                const emptyRank = (cols) => `<tr><td colspan="${cols}" style="text-align:center; color:var(--text-muted); padding:16px; font-size:0.82rem;">Nenhum dado no período.</td></tr>`;
+
+                // FORNECEDORES
+                const tbForn = document.getElementById('v360-rank-fornecedores');
+                if (tbForn) {
+                    tbForn.innerHTML = fornecedores.length === 0 ? emptyRank(4) : fornecedores.map((f,i) => `<tr>
+                        <td>${badge(i)}</td>
+                        <td style="font-weight:700;">${f.nome}</td>
+                        <td style="text-align:center; font-weight:700; color:var(--primary);">${f.itens}</td>
+                        <td style="text-align:center; color:var(--text-muted);">${f.orcamentos}</td>
+                    </tr>`).join('');
+                }
+
+                // MARCA SOLICITADA — MAIS PROCURADA (Top 30)
+                const tbMarcaFreq = document.getElementById('v360-rank-marca-freq');
+                if (tbMarcaFreq) {
+                    const rankM = [...marcasSol].sort((a,b) => b.ocorrencias - a.ocorrencias).slice(0, 30);
+                    tbMarcaFreq.innerHTML = rankM.length === 0 ? emptyRank(3) : rankM.map((m,i) => `<tr>
+                        <td>${badge(i)}</td>
+                        <td style="font-weight:700;">${m.nome}</td>
+                        <td style="text-align:center; font-weight:800; color:var(--primary);">${m.ocorrencias}</td>
+                    </tr>`).join('');
+                }
+
+                // MARCA OFERTADA/REFERÊNCIA — MAIS UTILIZADA (Top 30)
+                const tbMarcaOfeFreq = document.getElementById('v360-rank-marca-ofe-freq');
+                if (tbMarcaOfeFreq) {
+                    const rankM = [...marcasOfe].sort((a,b) => b.ocorrencias - a.ocorrencias).slice(0, 30);
+                    tbMarcaOfeFreq.innerHTML = rankM.length === 0 ? emptyRank(3) : rankM.map((m,i) => `<tr>
+                        <td>${badge(i)}</td>
+                        <td style="font-weight:700;">${m.nome}</td>
+                        <td style="text-align:center; font-weight:800; color:#6366F1;">${m.ocorrencias}</td>
+                    </tr>`).join('');
+                }
+
+                // MARCA SOLICITADA — QTD DE ORÇAMENTOS
+                const tbMarcaOpp = document.getElementById('v360-rank-marca-opp');
+                if (tbMarcaOpp) {
+                    const rankM = [...marcasSol].sort((a,b) => b.oppsSet.size - a.oppsSet.size);
+                    tbMarcaOpp.innerHTML = rankM.length === 0 ? emptyRank(3) : rankM.map((m,i) => `<tr>
+                        <td>${badge(i)}</td>
+                        <td style="font-weight:700;">${m.nome}</td>
+                        <td style="text-align:center; font-weight:800; color:#0D9488;">${m.oppsSet.size}</td>
+                    </tr>`).join('');
+                }
+
+                // PRODUTO — MAIOR FREQUÊNCIA (Top 30)
+                const tbProdFreq = document.getElementById('v360-rank-produto-freq');
+                if (tbProdFreq) {
+                    const rankP = [...produtos].sort((a,b) => b.ocorrencias - a.ocorrencias).slice(0, 30);
+                    tbProdFreq.innerHTML = rankP.length === 0 ? emptyRank(4) : rankP.map((p,i) => `<tr>
+                        <td>${badge(i)}</td>
+                        <td style="font-family:monospace; font-weight:700; color:var(--primary);">${p.codigo}</td>
+                        <td>${p.desc}</td>
+                        <td style="text-align:center; font-weight:800;">${p.ocorrencias}</td>
+                    </tr>`).join('');
+                }
+
+                // MARCAS (OFERTADA) — MAIOR TAXA DE GANHO
+                const tbMarcaGanho = document.getElementById('v360-rank-marca-ganho');
+                if (tbMarcaGanho) {
+                    const rankM = marcasOfe.map(m => {
+                        const definitivos = m.oppsGanhoSet.size + m.oppsPerdidoSet.size;
+                        const tx = definitivos > 0 ? (m.oppsGanhoSet.size/definitivos)*100 : 0;
+                        return { nome: m.nome, ganhos: m.oppsGanhoSet.size, definitivos, tx };
+                    }).filter(m => m.definitivos > 0).sort((a,b) => b.tx - a.tx);
+                    tbMarcaGanho.innerHTML = rankM.length === 0 ? emptyRank(4) : rankM.map((m,i) => `<tr>
+                        <td>${badge(i)}</td>
+                        <td style="font-weight:700;">${m.nome}</td>
+                        <td style="text-align:center; color:var(--success); font-weight:700;">${m.ganhos}/${m.definitivos}</td>
+                        <td style="text-align:center;"><span class="v360-conv-pill ${m.tx>=40?'good':m.tx>=20?'mid':'low'}">${m.tx.toFixed(1)}%</span></td>
+                    </tr>`).join('');
+                }
+
+                // MARCAS (OFERTADA) — MAIOR TAXA DE PERDA
+                const tbMarcaPerda = document.getElementById('v360-rank-marca-perda');
+                if (tbMarcaPerda) {
+                    const rankM = marcasOfe.map(m => {
+                        const definitivos = m.oppsGanhoSet.size + m.oppsPerdidoSet.size;
+                        const tx = definitivos > 0 ? (m.oppsPerdidoSet.size/definitivos)*100 : 0;
+                        return { nome: m.nome, perdidos: m.oppsPerdidoSet.size, definitivos, tx };
+                    }).filter(m => m.definitivos > 0).sort((a,b) => b.tx - a.tx);
+                    tbMarcaPerda.innerHTML = rankM.length === 0 ? emptyRank(4) : rankM.map((m,i) => `<tr>
+                        <td>${badge(i)}</td>
+                        <td style="font-weight:700;">${m.nome}</td>
+                        <td style="text-align:center; color:var(--danger); font-weight:700;">${m.perdidos}/${m.definitivos}</td>
+                        <td style="text-align:center;"><span class="v360-conv-pill ${m.tx>=40?'low':m.tx>=20?'mid':'good'}">${m.tx.toFixed(1)}%</span></td>
+                    </tr>`).join('');
+                }
+
+                // MARCAS (OFERTADA) — MAIOR MARGEM (exclusivo Ganhos)
+                const tbMarcaMargem = document.getElementById('v360-rank-marca-margem');
+                if (tbMarcaMargem) {
+                    const rankM = marcasOfe.filter(m => m.countMargem > 0)
+                        .map(m => ({ nome: m.nome, margemMedia: m.somaMargem/m.countMargem, lucroTotal: m.lucroTotal }))
+                        .sort((a,b) => b.margemMedia - a.margemMedia);
+                    tbMarcaMargem.innerHTML = rankM.length === 0 ? emptyRank(4) : rankM.map((m,i) => `<tr>
+                        <td>${badge(i)}</td>
+                        <td style="font-weight:700;">${m.nome}</td>
+                        <td style="text-align:center; font-weight:800; color:var(--success);">${m.margemMedia.toFixed(1)}%</td>
+                        <td style="text-align:right; color:var(--success);">${_v360FmtBRL(m.lucroTotal)}</td>
+                    </tr>`).join('');
+                }
+
+                // PRODUTOS — MAIOR MARGEM (Top 30, exclusivo Ganhos)
+                const tbProdMargemMaior = document.getElementById('v360-rank-produto-margem-maior');
+                if (tbProdMargemMaior) {
+                    const rankP = produtos.filter(p => p.countMargem > 0)
+                        .map(p => ({ codigo: p.codigo, desc: p.desc, margemMedia: p.somaMargem/p.countMargem, lucroTotal: p.lucroTotal }))
+                        .sort((a,b) => b.margemMedia - a.margemMedia).slice(0, 30);
+                    tbProdMargemMaior.innerHTML = rankP.length === 0 ? emptyRank(5) : rankP.map((p,i) => `<tr>
+                        <td>${badge(i)}</td>
+                        <td style="font-family:monospace; font-weight:700; color:var(--primary);">${p.codigo}</td>
+                        <td>${p.desc}</td>
+                        <td style="text-align:center; font-weight:800; color:var(--success);">${p.margemMedia.toFixed(1)}%</td>
+                        <td style="text-align:right; color:var(--success);">${_v360FmtBRL(p.lucroTotal)}</td>
+                    </tr>`).join('');
+                }
+
+                // PRODUTOS — MENOR MARGEM (Top 30, exclusivo Ganhos)
+                const tbProdMargemMenor = document.getElementById('v360-rank-produto-margem-menor');
+                if (tbProdMargemMenor) {
+                    const rankP = produtos.filter(p => p.countMargem > 0)
+                        .map(p => ({ codigo: p.codigo, desc: p.desc, margemMedia: p.somaMargem/p.countMargem, lucroTotal: p.lucroTotal }))
+                        .sort((a,b) => a.margemMedia - b.margemMedia).slice(0, 30);
+                    tbProdMargemMenor.innerHTML = rankP.length === 0 ? emptyRank(5) : rankP.map((p,i) => `<tr>
+                        <td>${badge(i)}</td>
+                        <td style="font-family:monospace; font-weight:700; color:var(--primary);">${p.codigo}</td>
+                        <td>${p.desc}</td>
+                        <td style="text-align:center; font-weight:800; color:var(--danger);">${p.margemMedia.toFixed(1)}%</td>
+                        <td style="text-align:right; color:var(--text-muted);">${_v360FmtBRL(p.lucroTotal)}</td>
+                    </tr>`).join('');
+                }
+
+                // PRODUTOS — MENOR TEMPO INÍCIO→FECHAMENTO (Top 30, exclusivo Ganhos)
+                const tbProdTempo = document.getElementById('v360-rank-produto-tempo');
+                if (tbProdTempo) {
+                    const rankP = produtos.filter(p => p.countDias > 0)
+                        .map(p => ({ codigo: p.codigo, desc: p.desc, mediaDias: p.somaDias/p.countDias }))
+                        .sort((a,b) => a.mediaDias - b.mediaDias).slice(0, 30);
+                    tbProdTempo.innerHTML = rankP.length === 0 ? emptyRank(4) : rankP.map((p,i) => `<tr>
+                        <td>${badge(i)}</td>
+                        <td style="font-family:monospace; font-weight:700; color:var(--primary);">${p.codigo}</td>
+                        <td>${p.desc}</td>
+                        <td style="text-align:center; font-weight:800; color:#0D9488;">${p.mediaDias.toFixed(1)} dias</td>
+                    </tr>`).join('');
+                }
+
+                // MARCAS (OFERTADA) — MENOR TEMPO INÍCIO→FECHAMENTO (exclusivo Ganhos)
+                const tbMarcaTempo = document.getElementById('v360-rank-marca-tempo');
+                if (tbMarcaTempo) {
+                    const rankM = marcasOfe.filter(m => m.countDias > 0)
+                        .map(m => ({ nome: m.nome, mediaDias: m.somaDias/m.countDias }))
+                        .sort((a,b) => a.mediaDias - b.mediaDias);
+                    tbMarcaTempo.innerHTML = rankM.length === 0 ? emptyRank(3) : rankM.map((m,i) => `<tr>
+                        <td>${badge(i)}</td>
+                        <td style="font-weight:700;">${m.nome}</td>
+                        <td style="text-align:center; font-weight:800; color:#0D9488;">${m.mediaDias.toFixed(1)} dias</td>
                     </tr>`).join('');
                 }
             })();
@@ -12546,12 +13113,18 @@ Desde já agradeço.`;
             input.value = '';
         }
 
-        // Se o prazo for vazio, 0 ou 1, grava "IMEDIATA"; caso contrário, "<valor> DIAS".
+        // Se o prazo for vazio, 0 ou 1, grava "IMEDIATA"; se for número, "<valor> DIAS";
+        // se for texto livre (ex: digitado em "Prazo Ent."), mantém o texto em maiúsculo.
         function _pfvpFormatarPrazo(valor) {
             if (valor === '' || valor === null || valor === undefined) return 'IMEDIATA';
-            const n = parseFloat(valor);
-            if (isNaN(n) || n === 0 || n === 1) return 'IMEDIATA';
-            return n + ' DIAS';
+            const str = String(valor).trim();
+            const ehNumerico = /^\d+([.,]\d+)?$/.test(str);
+            if (ehNumerico) {
+                const n = parseFloat(str.replace(',', '.'));
+                if (isNaN(n) || n === 0 || n === 1) return 'IMEDIATA';
+                return n + ' DIAS';
+            }
+            return str.toUpperCase();
         }
 
         // Coleta os itens da tabela "Itens do Orçamento" já na estrutura necessária para o mapeamento PFVP
