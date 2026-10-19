@@ -678,6 +678,7 @@
                 <select id="at-tipo" class="wt-filter-select">
                     <option value="Conferir Retorno Item Pendente">🔍 Conferir Retorno Item Pendente</option>
                     <option value="E-mail">📧 E-mail</option>
+                    <option value="Financeiro/Limite">💰 Financeiro/Limite</option>
                     <option value="Lançamento Portal">🖥️ Lançamento Portal</option>
                     <option value="Ligação">📞 Ligação</option>
                     <option value="Msg WhatsApp">💬 Msg WhatsApp</option>
@@ -992,6 +993,8 @@
                         <option value="">— Selecione o usuário —</option>
                     </select>
                 </div>
+
+                <div id="v360-foto-info" style="display:none; margin-bottom:16px; font-size:0.8rem; color:var(--text-main); background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.25); border-radius:8px; padding:8px 14px; align-items:center; gap:8px; flex-wrap:wrap;"></div>
 
                 <!-- PIPELINE FINANCEIRO -->
                 <div class="v360-section-title"><i class="fas fa-funnel-dollar" style="color:var(--primary);"></i> Pipeline Financeiro</div>
@@ -2070,8 +2073,8 @@
                         <div class="wt-toggle-group" style="border-bottom:none; padding:0;">
                             <span class="wt-toggle-label"><i class="fas fa-shipping-fast"></i> Modalidade de Frete</span>
                             <div class="wt-segmented" id="wt-frete-tipo-toggle">
-                                <button onclick="setFreteTipo('FOB', this)">FOB</button>
-                                <button class="active" onclick="setFreteTipo('CIF', this)">CIF</button>
+                                <button class="active" onclick="setFreteTipo('FOB', this)">FOB</button>
+                                <button onclick="setFreteTipo('CIF', this)">CIF</button>
                             </div>
                         </div>
 
@@ -2584,6 +2587,7 @@
             }
             if (table === 'ncm_matriz_mg' || table === 'ncm_filial_es') {
                 if (row.icms_venda !== undefined && row.icmsVenda === undefined) row.icmsVenda = row.icms_venda;
+                if (table === 'ncm_matriz_mg' && row.mva18 !== undefined && row.mva17 === undefined) row.mva17 = row.mva18;
                 if (row.criado_por_id !== undefined && row.criadoPorId === undefined) row.criadoPorId = row.criado_por_id;
                 if (row.criado_em !== undefined && row.createdAt === undefined) row.createdAt = row.criado_em;
                 if (row.atualizado_em !== undefined && row.updatedAt === undefined) row.updatedAt = row.atualizado_em;
@@ -2628,7 +2632,7 @@
             fornecedores:  ['id','nome','email','telefone','pessoa_contato','criado_em'],
             atividades:    ['id','opp_id','tipo','data_alvo','hora_alvo','status','notificado','historico_seguro','criado_em'],
             mensagens:     ['id','de_id','para_id','lido','mensagens','criado_em'],
-            ncm_matriz_mg: ['id','codigo','pct','mva4','mva7','mva12','mva17','mva0','icms_venda','difal','criado_por_id','criado_em','atualizado_em'],
+            ncm_matriz_mg: ['id','codigo','pct','mva4','mva7','mva12','mva18','mva0','icms_venda','difal','criado_por_id','criado_em','atualizado_em'],
             ncm_filial_es: ['id','codigo','pct','mva4','mva7','mva12','mva17','mva0','icms_venda','difal','criado_por_id','criado_em','atualizado_em']
         };
 
@@ -2680,6 +2684,7 @@
             }
             if (table === 'ncm_matriz_mg' || table === 'ncm_filial_es') {
                 if (mapped.icmsVenda   !== undefined) mapped.icms_venda    = mapped.icmsVenda;
+                if (table === 'ncm_matriz_mg' && mapped.mva17 !== undefined) mapped.mva18 = mapped.mva17;
                 if (mapped.criadoPorId !== undefined) mapped.criado_por_id = mapped.criadoPorId;
                 if (mapped.createdAt   !== undefined) mapped.criado_em     = mapped.createdAt;
                 if (mapped.updatedAt   !== undefined) mapped.atualizado_em = mapped.updatedAt;
@@ -2714,7 +2719,7 @@
             },
             save(table, data) {
                 _dbCache[table] = data;
-                localStorage.setItem('irp_' + table, JSON.stringify(data));
+                try { localStorage.setItem('irp_' + table, JSON.stringify(data)); } catch(e) { /* quota excedida: cache em memória mantido */ }
             },
             async insert(table, obj) {
                 obj.id = Date.now().toString();
@@ -3435,7 +3440,7 @@
         let wtDestinatario = 'contrib'; // 'contrib' | 'ncontrib' (não-contribuinte / consumidor final)
         let wtUfVendDefault = '';  // UF padrão para ES Custo Venda nas novas linhas (ex: 'estado_SP', 'imp', '')
         let _wtLoadedOppId  = null; // ID da oportunidade efetivamente carregada no worktable (≠ currentOppId)
-        let wtFreteTipo = 'CIF';        // 'FOB' | 'CIF' — modalidade de frete exibida na Cotação
+        let wtFreteTipo = 'FOB';        // 'FOB' (padrão) | 'CIF' — modalidade de frete exibida na Cotação
         let wtContatoPropostaIdx = 0;   // índice do contato do cliente selecionado para a Cotação (cascata)
         let wtVendedorSelecionadoId = ''; // id do usuário (Nível 1) selecionado como Vendedor — Admin/Diretoria/Gestores
 
@@ -3464,6 +3469,7 @@
         function setUfVend(uf) {
             // Define o default global e aplica em todas as linhas existentes
             wtUfVendDefault = uf === 'Imp' ? 'imp' : 'estado_' + uf;
+            _wtFcpAutoPorUf(uf);   // posiciona o seletor FCP (ON/OFF) conforme a base de FCP da UF
             // Aplica em todas as linhas abertas na tabela
             document.querySelectorAll('#tb-wt-items tr').forEach(tr => {
                 const selVend = tr.querySelector('.w-es-vend');
@@ -6209,6 +6215,16 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
             });
         }
 
+        // FCP automático pela UF Destino: se a alíquota de FCP da base (Cadastro de Impostos) for diferente
+        // de zero/vazio, o seletor vai para ON; se for zero ou vazia, vai para OFF. Só define a posição
+        // do seletor ao abrir o orçamento / trocar a UF Destino — o usuário pode alterar manualmente depois.
+        function _wtFcpAutoPorUf(uf) {
+            const ufNorm = String(uf || '').trim().toUpperCase();
+            if (!ufNorm) return;
+            const on = (parseFloat(getFcpRateForUf(ufNorm)) || 0) > 0;
+            if (on !== wtFcpOn) setFcp(on);
+        }
+
         function setFcp(on, btn) {
             wtFcpOn = on;
             const toggleBtns = document.querySelectorAll('#wt-fcp-toggle button');
@@ -6750,14 +6766,15 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                 wtTimerStarted  = false;
                 currentOppId    = id;
                 _wtLoadedOppId  = id;
-                // Modalidade de Frete volta ao padrão CIF em cada novo orçamento aberto
-                wtFreteTipo = 'CIF';
-                document.querySelectorAll('#wt-frete-tipo-toggle button').forEach(b => b.classList.toggle('active', b.textContent.trim() === 'CIF'));
+                // Modalidade de Frete volta ao padrão FOB em cada novo orçamento aberto
+                wtFreteTipo = 'FOB';
+                document.querySelectorAll('#wt-frete-tipo-toggle button').forEach(b => b.classList.toggle('active', b.textContent.trim() === 'FOB'));
                 const tbody = document.getElementById('tb-wt-items');
                 tbody.innerHTML = '';
                 if(!opp.items || opp.items.length === 0) addWorktableRow();
                 else opp.items.forEach(it => addWorktableRow(it));
                 calcWorktableGlobals();
+                _wtFcpAutoPorUf(cli && cli.uf ? cli.uf : '');   // FCP ON/OFF conforme a UF do cliente
                 // Restaura timer do localStorage para este orçamento (pode ter acumulado anterior)
                 wtTimerRestore();
             } else {
@@ -8108,7 +8125,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
             if (countEl) countEl.textContent = pendentes;
             if (badgeEl) badgeEl.style.opacity = pendentes > 0 ? '1' : '0.4';
 
-            // Atualiza infobar FCP e auto-OFF quando alíquota da UF = 0
+            // Atualiza infobar FCP (o seletor não é mais desligado automaticamente aqui — ver _wtFcpAutoPorUf)
             if (wtFcpOn) {
                 const rows = document.querySelectorAll('#tb-wt-items tr');
                 const ufsUsadas = [];
@@ -8116,20 +8133,10 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
                     const uf = getUfDestino(tr);
                     if (uf && !ufsUsadas.includes(uf)) ufsUsadas.push(uf);
                 });
-                // Auto-OFF: se houver UF(s) selecionada(s) e todas tiverem FCP = 0, desliga o toggle
-                if (ufsUsadas.length > 0 && ufsUsadas.every(uf => getFcpRateForUf(uf) === 0)) {
-                    // vira OFF visualmente e no estado sem recalcular (evita loop)
-                    wtFcpOn = false;
-                    const toggleBtns = document.querySelectorAll('#wt-fcp-toggle button');
-                    if (toggleBtns[0]) toggleBtns[0].className = 'active-off';
-                    if (toggleBtns[1]) toggleBtns[1].className = '';
-                    document.getElementById('wt-fcp-info').style.display = 'none';
-                } else {
-                    const resumo = ufsUsadas.length > 0
-                        ? ufsUsadas.map(uf => `${uf}: ${getFcpRateForUf(uf)}%`).join(' · ')
-                        : 'Selecione UF destino nas linhas';
-                    document.getElementById('wt-fcp-info-text').innerText = 'FCP (sobre BC) por UF: ' + resumo;
-                }
+                const resumo = ufsUsadas.length > 0
+                    ? ufsUsadas.map(uf => `${uf}: ${getFcpRateForUf(uf)}%`).join(' · ')
+                    : 'Selecione UF destino nas linhas';
+                document.getElementById('wt-fcp-info-text').innerText = 'FCP (sobre BC) por UF: ' + resumo;
             }
 
             // Atualiza badge DIFAL
@@ -8225,7 +8232,6 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
 <title>Proposta Comercial Nº ${nrCotacao}</title>
 <style>
   @page {
-    size: A4 portrait;
     margin: 8mm;
   }
 
@@ -8317,7 +8323,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
   }
 
   .bg-gray-light {
-    background-color: #f2f2f2;
+    background-color: #ffffff;
   }
 
   /* Items Table */
@@ -8327,7 +8333,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
   }
 
   .items-table th {
-    background-color: #f2f2f2;
+    background-color: #ffffff;
     border: 1px solid #000000;
     font-size: 7.5pt;
     font-weight: bold;
@@ -8345,6 +8351,9 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
   .text-center { text-align: center; }
   .text-right { text-align: right; }
   .text-left { text-align: left; }
+
+  /* Valores monetários (Preço Unit., Sub Total e Total) sempre em uma única linha */
+  .items-table td.text-right, .total-box-cell { white-space: nowrap; }
 
   /* Total Box */
   .total-container {
@@ -8373,7 +8382,7 @@ Cliente: <b>${_cliNome}</b></div><a class="analise-dir-link" onclick="openWorkta
   }
 
   .conditions-header {
-    background-color: #f2f2f2;
+    background-color: #ffffff;
     border: 1px solid #000000;
     text-align: center;
     font-weight: bold;
@@ -9668,6 +9677,45 @@ De ${remetenteNome}
             calcVisao360();
         }
 
+        // FOTOGRAFIA DO PERÍODO (momentum selecionado): considera as oportunidades que tiveram movimentação dentro
+        // do período (opp.history) e as posiciona no estágio em que estavam ao FINAL do período. Cada uma aparece uma única vez.
+        // Ganho/Perdido recebem como data de fechamento a data registrada no histórico (quando não houver fechadoEm).
+        function _v360FotografiaPeriodo(opps) {
+            const { end } = _v360PeriodRange();
+            const fotos = [];
+            opps.forEach(o => {
+                const hist = (Array.isArray(o.history) ? o.history : []).filter(h => h && h.stage && h.date);
+                if (hist.length === 0) {
+                    // Registro antigo sem histórico: usa o estágio atual com a data de referência do Visão 360º
+                    const dRef = (o.stage === 'Ganho' || o.stage === 'Perdido') ? (o.fechadoEm || o.createdAt) : o.createdAt;
+                    if (_v360InPeriod(dRef)) fotos.push(o);
+                    return;
+                }
+                if (!hist.some(h => _v360InPeriod(h.date))) return;   // sem movimentação no período
+                const ate = hist.filter(h => new Date(h.date) <= end).sort((a, b) => new Date(a.date) - new Date(b.date));
+                if (ate.length === 0) return;
+                const ultima = ate[ate.length - 1];
+                const copia = Object.assign({}, o, { stage: ultima.stage });
+                if (ultima.stage === 'Ganho' || ultima.stage === 'Perdido') {
+                    copia.fechadoEm = (ultima.stage === o.stage && o.fechadoEm) ? o.fechadoEm : ultima.date;
+                }
+                fotos.push(copia);
+            });
+            return fotos;
+        }
+
+        // Oportunidades que ENTRARAM no estágio dentro do período selecionado (movimentação), conforme opp.history.
+        // Sem registro no histórico para o estágio: usa o estágio atual com a data de referência já usada no Visão 360º.
+        function _v360OppsMovidasParaEstagio(opps, stage) {
+            return opps.filter(o => {
+                const hist = Array.isArray(o.history) ? o.history : [];
+                const entradas = hist.filter(h => h && h.stage === stage);
+                if (entradas.length > 0) return entradas.some(h => _v360InPeriod(h.date));
+                const dRef = (o.stage === 'Ganho' || o.stage === 'Perdido') ? (o.fechadoEm || o.createdAt) : o.createdAt;
+                return o.stage === stage && _v360InPeriod(dRef);
+            });
+        }
+
         function calcVisao360() {
             const curUser = _getCurrentUser();
             if (!curUser) return;
@@ -9686,8 +9734,22 @@ De ${remetenteNome}
 
             // Aplica filtro de usuário/hierarquia
             const idsAtivos = isAlto ? _v360GetIdsAtivos(usuarios) : null;
-            const opps = idsAtivos === null ? todasOpps : todasOpps.filter(o => idsAtivos.has(o.criadoPorId));
+            const oppsBase = idsAtivos === null ? todasOpps : todasOpps.filter(o => idsAtivos.has(o.criadoPorId));
+            // "Geral (Todos)" e "Por Usuário": todas as seções abaixo refletem a fotografia do período selecionado
+            const fotoAtiva = isAlto && (_v360FiltroModo === 'todos' || _v360FiltroModo === 'usuario');
+            const opps = fotoAtiva ? _v360FotografiaPeriodo(oppsBase) : oppsBase;
             _v360OppsAtuais = opps;
+
+            const fotoInfoEl = document.getElementById('v360-foto-info');
+            if (fotoInfoEl) {
+                if (fotoAtiva) {
+                    const _rFoto = _v360PeriodRange();
+                    fotoInfoEl.style.display = 'flex';
+                    fotoInfoEl.innerHTML = `<i class="fas fa-camera" style="color:#6366F1;"></i> <b>Fotografia do período:</b> ${_rFoto.start.toLocaleDateString('pt-BR')} a ${_rFoto.end.toLocaleDateString('pt-BR')} · ${opps.length} orçamento${opps.length === 1 ? '' : 's'} com movimentação, posicionados no estágio em que estavam ao final do período`;
+                } else {
+                    fotoInfoEl.style.display = 'none';
+                }
+            }
 
             // Usuário Admin/Diretoria selecionado no filtro 'Por usuário' (se houver) — usado para
             // incluí-lo nas categorias de ranking abaixo, que normalmente listam só o time comercial
@@ -9726,12 +9788,12 @@ De ${remetenteNome}
                         <div class="kpi-sub">Oportunidades em aberto</div>
                     </div>
                     <div class="v360-kpi ck-green">
-                        <div class="kpi-label"><i class="fas fa-trophy"></i> Total Ganho (Acumulado)</div>
+                        <div class="kpi-label"><i class="fas fa-trophy"></i> Total Ganho (${fotoAtiva ? 'Período' : 'Acumulado'})</div>
                         <div class="kpi-value">${_v360FmtBRL(totalGanho)}</div>
                         <div class="kpi-sub">${totalGanhosQtd} oportunidades ganhas</div>
                     </div>
                     <div class="v360-kpi ck-red">
-                        <div class="kpi-label"><i class="fas fa-times-circle"></i> Total Perdido (Acumulado)</div>
+                        <div class="kpi-label"><i class="fas fa-times-circle"></i> Total Perdido (${fotoAtiva ? 'Período' : 'Acumulado'})</div>
                         <div class="kpi-value">${_v360FmtBRL(totalPerdido)}</div>
                         <div class="kpi-sub">${totalPerdidosQtd} oportunidades perdidas</div>
                     </div>
@@ -9754,14 +9816,18 @@ De ${remetenteNome}
             if (funnelEl) {
                 const usrSelecionado = _v360FiltroModo === 'usuario' && document.getElementById('v360-filtro-usuario')?.value;
                 funnelEl.innerHTML = STAGES.map(st => {
-                    const qtd = opps.filter(o => o.stage === st).length;
-                    const valor = opps.filter(o => o.stage === st).reduce((a,o)=>a+(o.valorTotal||0),0);
+                    const oppsSt = opps.filter(o => o.stage === st);
+                    const qtd = oppsSt.length;
+                    const valor = oppsSt.reduce((a,o)=>a+(o.valorTotal||0),0);
+                    // Fluxo (movimentação): quantas oportunidades entraram neste estágio dentro do período
+                    const entraram = fotoAtiva ? _v360OppsMovidasParaEstagio(oppsBase, st).length : null;
                     const cor = stageColors[st] || '#6B7280';
                     const clickAttr = usrSelecionado ? ` onclick="_v360AbrirFunilDetalhe('${st.replace(/'/g, "\\'")}')" style="cursor:pointer;"` : '';
                     return `<div class="v360-funnel-col"${clickAttr}>
                         <div class="fn-stage">${st}</div>
                         <div class="fn-count" style="color:${cor};">${qtd}</div>
                         <div style="font-size:0.68rem; color:var(--text-muted); margin-top:3px;">${_v360FmtBRL(valor)}</div>
+                        ${fotoAtiva ? `<div style="font-size:0.64rem; color:var(--text-muted); margin-top:3px;" title="Orçamentos que entraram neste estágio dentro do período">↳ ${entraram} entraram no período</div>` : ''}
                         <div class="fn-bar" style="background:${cor};"></div>
                     </div>`;
                 }).join('');
@@ -10859,7 +10925,9 @@ De ${remetenteNome}
 
             tbody.innerHTML = rows.map(r => `
                 <tr>
-                    <td style="padding:8px 12px; font-family:monospace; font-weight:700; color:var(--primary); font-size:0.85rem;">${r.nrCotacao}</td>
+                    <td style="padding:8px 12px; font-family:monospace; font-weight:700; font-size:0.85rem;">
+                        <span onclick="openWorktable('${r.oppId}')" style="color:var(--primary); cursor:pointer; text-decoration:underline;" title="Abrir cotação">${r.nrCotacao}</span>
+                    </td>
                     <td style="padding:8px 12px; font-size:0.82rem;">${r.pov}</td>
                     <td style="padding:8px 12px; font-size:0.82rem; font-weight:500;">${r.nomeCliente}</td>
                     <td style="padding:8px 12px; font-size:0.82rem;">${r.marca}</td>
@@ -10868,8 +10936,8 @@ De ${remetenteNome}
                     <td style="padding:8px 12px;" title="Duplo clique para alterar">
                         <span class="pend-status-badge ${r.badgeClass}" style="cursor:pointer;" ondblclick="abrirDropdownStatusPC(this, '${r.oppId}', ${r.itemIdx})">${r.status}</span>
                     </td>
-                    <td style="padding:8px 12px; font-size:0.82rem; white-space:nowrap;">${r.dataFatStr}</td>
-                    <td style="padding:8px 12px; font-size:0.82rem; white-space:nowrap;">${r.dataFinalStr}</td>
+                    <td style="padding:8px 12px; font-size:0.82rem; white-space:nowrap; cursor:pointer; user-select:none;" title="Clique 3x para alterar" onclick="if (event.detail === 3) abrirPopoverDatasPC(this, '${r.oppId}', ${r.itemIdx})">${r.dataFatStr}</td>
+                    <td style="padding:8px 12px; font-size:0.82rem; white-space:nowrap; cursor:pointer; user-select:none;" title="Clique 3x para alterar" onclick="if (event.detail === 3) abrirPopoverDatasPC(this, '${r.oppId}', ${r.itemIdx})">${r.dataFinalStr}</td>
                 </tr>`).join('');
         }
 
@@ -10916,6 +10984,83 @@ De ${remetenteNome}
                     renderPendenteCompraGlobal();
                 };
             });
+        }
+
+        // Clique 3x na Data de Faturamento / Data Final Cliente: abre o mesmo popover "Pendente de Compra"
+        // da Engenharia de Orçamento (abrirPopoverPC), gravando direto no item da oportunidade.
+        function abrirPopoverDatasPC(el, oppId, itemIdx) {
+            const opp = DB.findById('oportunidades', oppId);
+            if (!opp || !opp.items || !opp.items[itemIdx]) return;
+            const item = opp.items[itemIdx];
+
+            const antigoBox = document.getElementById('_popover-pc');
+            if (antigoBox) antigoBox.remove();
+            const antigoOverlay = document.getElementById('_popover-pc-overlay');
+            if (antigoOverlay) antigoOverlay.remove();
+
+            const rect = el.getBoundingClientRect();
+            const overlay = document.createElement('div');
+            overlay.id = '_popover-pc-overlay';
+            overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; z-index:6000;';
+            document.body.appendChild(overlay);
+
+            const dataFat = item.pcDataFat || '';
+            const dataFinalCliente = item.pcDataFinalCliente || '';
+            const temDados = !!(dataFat || dataFinalCliente);
+            const leftPos = Math.max(8, Math.min(rect.left, window.innerWidth - 390));
+
+            const box = document.createElement('div');
+            box.id = '_popover-pc';
+            box.style.cssText = `position:fixed; top:${rect.bottom + 6}px; left:${leftPos}px; z-index:6001; background:#fff; border-radius:10px; box-shadow:0 12px 32px rgba(0,0,0,0.25); border:1px solid var(--border-color); padding:16px; min-width:360px;`;
+            box.innerHTML = `
+                <div style="font-size:0.8rem; font-weight:700; color:#1F2937; margin-bottom:10px; display:flex; align-items:center; gap:6px;"><i class="fas fa-shopping-cart" style="color:#F59E0B;"></i> Pendente de Compra</div>
+                <div style="display:flex; gap:10px; margin-bottom:12px;">
+                    <div style="flex:1;">
+                        <label style="display:block; font-size:0.7rem; color:var(--text-muted); margin-bottom:3px;">Data de Faturamento</label>
+                        <input type="date" id="pc-data-fat-input" value="${dataFat}" ${temDados ? 'disabled' : ''} class="wt-input-cell" style="width:100%; padding:5px 8px; font-size:0.8rem;">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="display:block; font-size:0.7rem; color:var(--text-muted); margin-bottom:3px;">Data Final Cliente</label>
+                        <input type="date" id="pc-data-final-cliente-input" value="${dataFinalCliente}" ${temDados ? 'disabled' : ''} class="wt-input-cell" style="width:100%; padding:5px 8px; font-size:0.8rem;">
+                    </div>
+                </div>
+                <div style="display:flex; gap:6px;">
+                    <button id="pc-btn-salvar" style="flex:1; padding:7px 0; border-radius:6px; border:none; background:var(--primary); color:#fff; font-weight:700; font-size:0.75rem; cursor:pointer; ${temDados ? 'display:none;' : ''}">Salvar</button>
+                    <button id="pc-btn-editar" style="flex:1; padding:7px 0; border-radius:6px; border:1px solid var(--border-color); background:#F3F4F6; color:#374151; font-weight:600; font-size:0.75rem; cursor:pointer; ${temDados ? '' : 'display:none;'}">Editar</button>
+                    <button id="pc-btn-excluir" style="flex:1; padding:7px 0; border-radius:6px; border:none; background:var(--danger); color:#fff; font-weight:700; font-size:0.75rem; cursor:pointer; ${temDados ? '' : 'display:none;'}">Excluir</button>
+                </div>`;
+            document.body.appendChild(box);
+
+            function fecharPopoverDatasPC() {
+                box.remove();
+                overlay.remove();
+            }
+            overlay.onclick = fecharPopoverDatasPC;
+
+            box.querySelector('#pc-btn-salvar').onclick = () => {
+                const fat = document.getElementById('pc-data-fat-input').value;
+                const finalCli = document.getElementById('pc-data-final-cliente-input').value;
+                item.pcDataFat = fat;
+                item.pcDataFinalCliente = finalCli;
+                if (fat || finalCli) item.pcStatus = item.pcStatus || 'Ag retorno';
+                DB.update('oportunidades', oppId, { items: opp.items });
+                fecharPopoverDatasPC();
+                renderPendenteCompraGlobal();
+            };
+            box.querySelector('#pc-btn-editar').onclick = () => {
+                document.getElementById('pc-data-fat-input').disabled = false;
+                document.getElementById('pc-data-final-cliente-input').disabled = false;
+                box.querySelector('#pc-btn-salvar').style.display = '';
+                box.querySelector('#pc-btn-editar').style.display = 'none';
+            };
+            box.querySelector('#pc-btn-excluir').onclick = () => {
+                delete item.pcDataFat;
+                delete item.pcDataFinalCliente;
+                delete item.pcStatus;
+                DB.update('oportunidades', oppId, { items: opp.items });
+                fecharPopoverDatasPC();
+                renderPendenteCompraGlobal();
+            };
         }
 
         function _pcompLimparFiltros() {
@@ -13082,6 +13227,33 @@ Desde já agradeço.`;
         }
         window.addEventListener('DOMContentLoaded', _pfvpRestaurarLocal);
 
+        // Persistência no Supabase (fonte de verdade): uma linha por filial na tabela pfvp_templates.
+        // O upsert por "filial" faz a nova planilha SUBSCREVER a anterior. Retorna o erro (ou null).
+        async function _pfvpSalvarTemplateSupabase(filial, tpl) {
+            const { error } = await _supabase.from('pfvp_templates').upsert(
+                [{ filial: filial, nome_arquivo: tpl.nomeArquivo, base64: tpl.base64, atualizado_em: new Date().toISOString() }],
+                { onConflict: 'filial' }
+            );
+            if (error) { console.error('Supabase pfvp_templates error:', error); return error; }
+            return null;
+        }
+
+        // Busca as planilhas modelo salvas no Supabase e coloca em memória (assíncrono, não trava a tela).
+        // Tem prioridade sobre a cópia local: assim todo PC/navegador usa a planilha vigente.
+        async function _pfvpRestaurarSupabase() {
+            try {
+                const { data, error } = await _supabase.from('pfvp_templates').select('filial,nome_arquivo,base64');
+                if (error || !data) return;
+                data.forEach(r => {
+                    const tpl = { buffer: _pfvpBase64ParaBuffer(r.base64), base64: r.base64, nomeArquivo: r.nome_arquivo, salvoBanco: true };
+                    if (r.filial === 'ES') { _pfvpTemplateES = tpl; } else if (r.filial === 'MG') { _pfvpTemplateMG = tpl; }
+                    const nameEl = document.getElementById(r.filial === 'ES' ? 'pfvp-file-es-name' : 'pfvp-file-mg-name');
+                    if (nameEl) nameEl.textContent = r.nome_arquivo;
+                });
+            } catch (e) { /* sem conexão: mantém o que veio do cache local */ }
+        }
+        window.addEventListener('DOMContentLoaded', _pfvpRestaurarSupabase);
+
         function abrirModalPfvp() {
             const label = document.getElementById('pfvp-filial-label');
             if (label) label.textContent = wtFilial;
@@ -13099,12 +13271,22 @@ Desde já agradeço.`;
             if (!file) return;
             const nameEl = document.getElementById(filial === 'ES' ? 'pfvp-file-es-name' : 'pfvp-file-mg-name');
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 const base64 = _pfvpBufferParaBase64(e.target.result);
-                const tpl = { buffer: e.target.result, base64: base64, nomeArquivo: file.name };
+                const tpl = { buffer: e.target.result, base64: base64, nomeArquivo: file.name, salvoBanco: false };
                 if (filial === 'ES') { _pfvpTemplateES = tpl; } else { _pfvpTemplateMG = tpl; }
                 _pfvpSalvarTemplateLocal(filial, tpl);
                 if (nameEl) nameEl.textContent = file.name;
+                const errSup = await _pfvpSalvarTemplateSupabase(filial, tpl);
+                tpl.salvoBanco = !errSup;
+                const statusEl = document.getElementById('pfvp-status');
+                if (statusEl) {
+                    statusEl.style.display = 'block';
+                    statusEl.style.color = errSup ? 'var(--danger)' : 'var(--success)';
+                    statusEl.textContent = errSup
+                        ? `Planilha da Filial ${filial} carregada, mas NÃO foi salva no banco de dados: ${errSup.message || JSON.stringify(errSup)}`
+                        : `Planilha da Filial ${filial} salva no banco de dados (substitui a anterior).`;
+                }
             };
             reader.onerror = function() {
                 if (nameEl) nameEl.textContent = 'Erro ao ler arquivo.';
@@ -13144,7 +13326,8 @@ Desde já agradeço.`;
                     ipic:     parseFloat(tr.querySelector('.w-ipic')  ? tr.querySelector('.w-ipic').value  : 0) || 0,
                     icmsv:    parseFloat(tr.querySelector('.w-icmsv') ? tr.querySelector('.w-icmsv').value : 0) || 0,
                     prazoForn: tr.querySelector('.w-prazo-forn') ? (tr.querySelector('.w-prazo-forn').value || '') : '',
-                    prazoEnt:  tr.querySelector('.w-prazo-ent')  ? (tr.querySelector('.w-prazo-ent').value  || '') : ''
+                    prazoEnt:  tr.querySelector('.w-prazo-ent')  ? (tr.querySelector('.w-prazo-ent').value  || '') : '',
+                    markup:    parseFloat(tr.querySelector('.w-markup') ? tr.querySelector('.w-markup').value : 0) || 0
                 });
             });
             return itens;
@@ -13161,6 +13344,11 @@ Desde já agradeço.`;
             if (!tpl) {
                 statusEl.style.color = 'var(--danger)';
                 statusEl.textContent = `Carregue a planilha modelo da Filial ${wtFilial} antes de alocar.`;
+                return;
+            }
+            if (tpl.salvoBanco === false) {
+                statusEl.style.color = 'var(--danger)';
+                statusEl.textContent = `A planilha modelo da Filial ${wtFilial} ainda não foi salva no banco de dados. Aguarde a confirmação ou carregue o arquivo novamente.`;
                 return;
             }
             statusEl.style.color = 'var(--success)';
@@ -13187,7 +13375,11 @@ Desde já agradeço.`;
         async function baixarPFVP() {
             const statusEl = document.getElementById('wt-pfvp-status');
             const btn = document.getElementById('wt-pfvp-baixar-btn');
-            const tpl = wtFilial === 'ES' ? _pfvpTemplateES : _pfvpTemplateMG;
+            let tpl = wtFilial === 'ES' ? _pfvpTemplateES : _pfvpTemplateMG;
+            if (!tpl) {
+                await _pfvpRestaurarSupabase();
+                tpl = wtFilial === 'ES' ? _pfvpTemplateES : _pfvpTemplateMG;
+            }
 
             if (!tpl) {
                 if (statusEl) {
@@ -13237,6 +13429,7 @@ Desde já agradeço.`;
                     wsAnalise.getCell('AC' + linha).value = item.icmsv;
                     wsAnalise.getCell('L' + linha).value  = _pfvpFormatarPrazo(item.prazoForn);
                     wsAnalise.getCell('M' + linha).value  = _pfvpFormatarPrazo(item.prazoEnt);
+                    wsAnalise.getCell('AK' + linha).value = item.markup;
                 });
 
                 // ── UF Destino (Cliente) e FCP ──
